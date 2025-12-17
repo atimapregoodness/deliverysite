@@ -1,0 +1,282 @@
+<div
+  class="modal fade"
+  id="incidentModal"
+  tabindex="-1"
+  aria-labelledby="incidentModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="incidentModalLabel">Report Incident</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form
+        id="incidentForm"
+        action="/admin/deliveries/<%= delivery._id %>/add-incident"
+        method="POST"
+      >
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Report any incidents that affect this delivery. This will create a
+            record in the delivery history.
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Incident Type *</label>
+              <select
+                class="form-select"
+                name="type"
+                required
+                id="incidentType"
+                onchange="updateIncidentFields()"
+              >
+                <option value="accident">Accident</option>
+                <option value="breakdown">Vehicle Breakdown</option>
+                <option value="traffic">Traffic Delay</option>
+                <option value="weather">Weather Conditions</option>
+                <option value="customer_issue">Customer Issue</option>
+                <option value="package_damage">Package Damage</option>
+                <option value="theft">Theft</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Severity *</label>
+              <select
+                class="form-select"
+                name="severity"
+                required
+                id="severitySelect"
+                onchange="updateEmergencyFields()"
+              >
+                <option value="low">Low - Minor issue</option>
+                <option value="medium" selected>
+                  Medium - Affects delivery time
+                </option>
+                <option value="high">High - Serious issue</option>
+                <option value="critical">Critical - Emergency</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description *</label>
+              <textarea
+                class="form-control"
+                name="description"
+                rows="3"
+                required
+                placeholder="Describe what happened, including any relevant details"
+              ></textarea>
+            </div>
+
+            <div id="incidentAdditionalFields">
+              <!-- Dynamic fields based on incident type -->
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Location (Optional)</label>
+              <input
+                type="text"
+                class="form-control"
+                name="address"
+                placeholder="Address or location where incident occurred"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Estimated Delay (minutes)</label>
+              <input
+                type="number"
+                class="form-control"
+                name="estimatedDelay"
+                value="30"
+                min="0"
+              />
+            </div>
+
+            <div id="emergencyFields" style="display: none">
+              <div class="col-12">
+                <div class="alert alert-danger">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="emergencyServices"
+                      id="emergencyServices"
+                    />
+                    <label class="form-check-label" for="emergencyServices">
+                      <i class="fas fa-ambulance me-2"></i>Emergency services
+                      were called
+                    </label>
+                  </div>
+                  <div class="form-text mt-2">
+                    Check this box if police, ambulance, or fire services were
+                    called to the scene.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="driverInvolved"
+                  id="driverInvolved"
+                  checked
+                />
+                <label class="form-check-label" for="driverInvolved">
+                  Driver involved in incident
+                </label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="packageAffected"
+                  id="packageAffected"
+                />
+                <label class="form-check-label" for="packageAffected">
+                  Package affected/damaged
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>Report Incident
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateIncidentFields() {
+    const type = document.getElementById("incidentType").value;
+    const fieldsContainer = document.getElementById("incidentAdditionalFields");
+
+    let html = "";
+
+    switch (type) {
+      case "accident":
+        html = `
+          <div class="col-md-6">
+            <label class="form-label">Other Parties Involved</label>
+            <select class="form-select" name="otherParties">
+              <option value="none">None</option>
+              <option value="other_vehicle">Other Vehicle</option>
+              <option value="pedestrian">Pedestrian</option>
+              <option value="property">Property</option>
+              <option value="multiple">Multiple</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Police Report Number</label>
+            <input type="text" class="form-control" name="policeReport" placeholder="If applicable">
+          </div>
+        `;
+        break;
+
+      case "breakdown":
+        html = `
+          <div class="col-md-6">
+            <label class="form-label">Vehicle Issue</label>
+            <select class="form-select" name="vehicleIssue">
+              <option value="engine">Engine Failure</option>
+              <option value="flat_tire">Flat Tire</option>
+              <option value="mechanical">Mechanical</option>
+              <option value="electrical">Electrical</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Tow Truck Required</label>
+            <select class="form-select" name="towRequired">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+        `;
+        break;
+
+      case "package_damage":
+        html = `
+          <div class="col-md-6">
+            <label class="form-label">Damage Type</label>
+            <select class="form-select" name="damageType">
+              <option value="wet">Water Damage</option>
+              <option value="crushed">Crushed</option>
+              <option value="torn">Torn</option>
+              <option value="broken">Broken</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Estimated Value Loss (%)</label>
+            <input type="number" class="form-control" name="valueLoss" min="0" max="100" placeholder="0-100">
+          </div>
+        `;
+        break;
+
+      case "theft":
+        html = `
+          <div class="col-12">
+            <div class="alert alert-danger">
+              <i class="fas fa-shield-alt me-2"></i>
+              <strong>Important:</strong> Report theft incidents to local authorities immediately.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Police Report Number *</label>
+            <input type="text" class="form-control" name="policeReport" required placeholder="Enter police report number">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Time of Theft</label>
+            <input type="datetime-local" class="form-control" name="theftTime" 
+                   value="<%= new Date().toISOString().slice(0, 16) %>">
+          </div>
+        `;
+        break;
+    }
+
+    fieldsContainer.innerHTML = html;
+  }
+
+  function updateEmergencyFields() {
+    const severity = document.getElementById("severitySelect").value;
+    const emergencyFields = document.getElementById("emergencyFields");
+
+    if (severity === "critical") {
+      emergencyFields.style.display = "block";
+    } else {
+      emergencyFields.style.display = "none";
+      document.getElementById("emergencyServices").checked = false;
+    }
+  }
+
+  // Initialize fields on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    updateIncidentFields();
+    updateEmergencyFields();
+  });
+</script>

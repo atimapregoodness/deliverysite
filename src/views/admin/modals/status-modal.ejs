@@ -1,0 +1,137 @@
+<div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="statusModalLabel">Update Delivery Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="statusForm" action="/admin/deliveries/<%= delivery._id %>/update-status" method="POST">
+        <div class="modal-body">
+          <div class="mb-4">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Current status: <span class="status-badge status-<%= delivery.status %>"><%= delivery.status.replace('_', ' ') %></span>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Select New Status *</label>
+            <select class="form-select" name="status" required id="statusSelect" onchange="updateStatusFields()">
+              <option value="">Select a status</option>
+              <option value="pending" <%= delivery.status === 'pending' ? 'selected' : '' %>>Pending</option>
+              <option value="in_transit" <%= delivery.status === 'in_transit' ? 'selected' : '' %>>In Transit</option>
+              <option value="delayed" <%= delivery.status === 'delayed' ? 'selected' : '' %>>Delayed</option>
+              <option value="delivered" <%= delivery.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+              <option value="cancelled" <%= delivery.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+            </select>
+          </div>
+          
+          <div id="additionalFields">
+            <!-- Dynamic fields based on status selection -->
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Notes (Optional)</label>
+            <textarea class="form-control" name="notes" rows="3" placeholder="Add any notes about this status change"></textarea>
+            <div class="form-text">These notes will be visible in the delivery history.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-sync-alt me-2"></i>Update Status
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateStatusFields() {
+    const status = document.getElementById('statusSelect').value;
+    const fieldsContainer = document.getElementById('additionalFields');
+    
+    let html = '';
+    
+    switch(status) {
+      case 'delivered':
+        html = `
+          <div class="mb-3">
+            <label class="form-label">Actual Delivery Date & Time *</label>
+            <input type="datetime-local" class="form-control" name="actualDelivery" 
+                   value="<%= new Date().toISOString().slice(0, 16) %>" required>
+          </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="signatureReceived" id="signatureReceived">
+              <label class="form-check-label" for="signatureReceived">
+                Signature received from receiver
+              </label>
+            </div>
+          </div>
+        `;
+        break;
+        
+      case 'delayed':
+        html = `
+          <div class="mb-3">
+            <label class="form-label">Delay Reason *</label>
+            <select class="form-select" name="delayReason">
+              <option value="traffic">Traffic</option>
+              <option value="weather">Weather Conditions</option>
+              <option value="vehicle_issue">Vehicle Issue</option>
+              <option value="driver_issue">Driver Issue</option>
+              <option value="customer_not_available">Customer Not Available</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Estimated Delay (hours)</label>
+            <input type="number" class="form-control" name="estimatedDelay" value="2" min="0.5" step="0.5">
+          </div>
+        `;
+        break;
+        
+      case 'cancelled':
+        html = `
+          <div class="mb-3">
+            <label class="form-label">Cancellation Reason *</label>
+            <select class="form-select" name="cancellationReason">
+              <option value="customer_request">Customer Request</option>
+              <option value="package_damaged">Package Damaged</option>
+              <option value="address_incorrect">Incorrect Address</option>
+              <option value="unable_to_deliver">Unable to Deliver</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="refundRequired" id="refundRequired">
+              <label class="form-check-label" for="refundRequired">
+                Refund required
+              </label>
+            </div>
+          </div>
+        `;
+        break;
+        
+      case 'in_transit':
+        html = `
+          <div class="mb-3">
+            <label class="form-label">Estimated Time of Arrival (ETA)</label>
+            <input type="datetime-local" class="form-control" name="eta" 
+                   value="<%= new Date(delivery.estimatedDelivery).toISOString().slice(0, 16) %>">
+          </div>
+        `;
+        break;
+    }
+    
+    fieldsContainer.innerHTML = html;
+  }
+  
+  // Initialize fields on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    updateStatusFields();
+  });
+</script>

@@ -1,0 +1,656 @@
+<div
+  class="modal fade"
+  id="locationModal"
+  tabindex="-1"
+  aria-labelledby="locationModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="locationModalLabel">
+          Update Current Location
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form id="locationForm" data-delivery-id="<%= delivery._id %>">
+        <div class="modal-body">
+          <div class="mb-4">
+            <div class="alert alert-info">
+              <i class="fas fa-map-marker-alt me-2"></i>
+              Current location:
+              <span class="coordinates fw-bold">
+                <% let currentLat =
+                delivery.trackingData?.currentLocation?.coordinates?.[1] || 0;
+                let currentLon =
+                delivery.trackingData?.currentLocation?.coordinates?.[0] || 0;
+                let latFixed = currentLat.toFixed ? currentLat.toFixed(6) :
+                parseFloat(currentLat).toFixed(6); let lonFixed =
+                currentLon.toFixed ? currentLon.toFixed(6) :
+                parseFloat(currentLon).toFixed(6); %> <%= lonFixed %>, <%=
+                latFixed %>
+              </span>
+              <% if (delivery.trackingData?.lastUpdated) { %>
+              <br />
+              <small class="text-muted">
+                Last updated: <%= formatDate(delivery.trackingData.lastUpdated)
+                %>
+              </small>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Latitude *</label>
+              <input
+                type="number"
+                step="0.000001"
+                class="form-control"
+                name="latitude"
+                id="latitudeInput"
+                value="<%= currentLat %>"
+                min="-90"
+                max="90"
+                required
+              />
+              <div class="form-text">Range: -90 to 90</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Longitude *</label>
+              <input
+                type="number"
+                step="0.000001"
+                class="form-control"
+                name="longitude"
+                id="longitudeInput"
+                value="<%= currentLon %>"
+                min="-180"
+                max="180"
+                required
+              />
+              <div class="form-text">Range: -180 to 180</div>
+            </div>
+
+            <div class="col-12">
+              <div class="d-flex gap-2 mb-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="useCurrentLocation()"
+                  id="currentLocationBtn"
+                >
+                  <i class="fas fa-crosshairs me-2"></i>Use My Current Location
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  onclick="useSenderLocation()"
+                >
+                  <i class="fas fa-home me-2"></i>Use Sender Location
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-success btn-sm"
+                  onclick="useReceiverLocation()"
+                >
+                  <i class="fas fa-flag me-2"></i>Use Receiver Location
+                </button>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">
+                Route Progress:
+                <span id="progressValue"
+                  ><%= delivery.trackingData?.routeProgress || 0 %>%</span
+                >
+              </label>
+              <div class="d-flex align-items-center">
+                <input
+                  type="range"
+                  class="form-range flex-grow-1 me-3"
+                  name="progress"
+                  id="progressSlider"
+                  min="0"
+                  max="100"
+                  value="<%= delivery.trackingData?.routeProgress || 0 %>"
+                  oninput="updateProgressValue(this.value)"
+                />
+                <span
+                  class="badge bg-secondary"
+                  onclick="setProgressToValue()"
+                  style="cursor: pointer"
+                >
+                  <i class="fas fa-edit"></i>
+                </span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Speed (km/h)</label>
+              <div class="input-group">
+                <input
+                  type="number"
+                  step="0.1"
+                  class="form-control"
+                  name="speed"
+                  id="speedInput"
+                  value="<%= delivery.trackingData?.speed || 0 %>"
+                  min="0"
+                  max="200"
+                />
+                <span class="input-group-text">km/h</span>
+              </div>
+              <small class="form-text text-muted"
+                >0-60: Slow, 60-100: Normal, 100+: Fast</small
+              >
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Bearing (degrees)</label>
+              <div class="input-group">
+                <input
+                  type="number"
+                  class="form-control"
+                  name="bearing"
+                  id="bearingInput"
+                  value="<%= delivery.trackingData?.bearing || 0 %>"
+                  min="0"
+                  max="360"
+                />
+                <span class="input-group-text">°</span>
+              </div>
+              <div class="form-text">
+                <small>
+                  0° = North, 90° = East, 180° = South, 270° = West
+                  <button
+                    type="button"
+                    class="btn btn-link btn-sm p-0"
+                    onclick="calculateBearing()"
+                  >
+                    <i class="fas fa-calculator me-1"></i>Calculate
+                  </button>
+                </small>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Location Accuracy (Optional)</label>
+              <select class="form-select" name="accuracy">
+                <option value="high">High Accuracy (±10 meters)</option>
+                <option value="medium" selected>
+                  Medium Accuracy (±100 meters)
+                </option>
+                <option value="low">Low Accuracy (±1000 meters)</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Location Source</label>
+              <select class="form-select" name="source">
+                <option value="gps">GPS Device</option>
+                <option value="driver_app" selected>Driver App</option>
+                <option value="manual">Manual Entry</option>
+                <option value="api">API Update</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="updateMap"
+                  id="updateMap"
+                  value="true"
+                  checked
+                />
+                <label class="form-check-label" for="updateMap">
+                  <i class="fas fa-map me-2"></i>Update on live map
+                </label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="notifyCustomer"
+                  id="notifyCustomer"
+                  value="true"
+                />
+                <label class="form-check-label" for="notifyCustomer">
+                  <i class="fas fa-bell me-2"></i>Notify customer of location
+                  update
+                </label>
+              </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="col-12">
+              <div
+                id="locationFormError"
+                class="alert alert-danger"
+                style="display: none"
+              ></div>
+              <div
+                id="locationFormSuccess"
+                class="alert alert-success"
+                style="display: none"
+              ></div>
+            </div>
+
+            <!-- Map Preview (Optional) -->
+            <div class="col-12" id="mapPreview" style="display: none">
+              <div class="card">
+                <div class="card-header">
+                  <h6 class="mb-0">Location Preview</h6>
+                </div>
+                <div class="card-body">
+                  <div
+                    id="miniMap"
+                    style="
+                      height: 200px;
+                      background-color: #f8f9fa;
+                      border-radius: 4px;
+                    "
+                  ></div>
+                  <small class="text-muted mt-2 d-block"
+                    >Preview of the entered coordinates</small
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" id="submitLocationBtn">
+            <i class="fas fa-map-marker-alt me-2"></i>Update Location
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Global variable to store map instance
+  let miniMap = null;
+
+  function updateProgressValue(value) {
+    document.getElementById("progressValue").textContent = value + "%";
+  }
+
+  function setProgressToValue() {
+    const newValue = prompt("Enter progress value (0-100):", document.getElementById("progressSlider").value);
+    if (newValue !== null) {
+      const progressValue = Math.min(100, Math.max(0, parseInt(newValue) || 0));
+      document.getElementById("progressSlider").value = progressValue;
+      updateProgressValue(progressValue);
+    }
+  }
+
+  function calculateBearing() {
+    const currentLat = parseFloat(document.getElementById("latitudeInput").value) || 0;
+    const currentLon = parseFloat(document.getElementById("longitudeInput").value) || 0;
+
+    const destLat = <%= delivery.receiver?.address?.coordinates?.coordinates?.[1] || 0 %>;
+    const destLon = <%= delivery.receiver?.address?.coordinates?.coordinates?.[0] || 0 %>;
+
+    if (currentLat === 0 && currentLon === 0) {
+      alert("Please set current location first");
+      return;
+    }
+
+    if (destLat === 0 && destLon === 0) {
+      alert("Receiver location not set");
+      return;
+    }
+
+    // Calculate bearing using haversine formula
+    const y = Math.sin(destLon - currentLon) * Math.cos(destLat);
+    const x = Math.cos(currentLat) * Math.sin(destLat) -
+              Math.sin(currentLat) * Math.cos(destLat) * Math.cos(destLon - currentLon);
+    const bearing = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+
+    document.getElementById("bearingInput").value = Math.round(bearing);
+    alert(`Calculated bearing to destination: ${Math.round(bearing)}°`);
+  }
+
+  function useCurrentLocation() {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    const latitudeInput = document.getElementById("latitudeInput");
+    const longitudeInput = document.getElementById("longitudeInput");
+    const button = document.getElementById("currentLocationBtn");
+
+    // Show loading state
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Getting location...';
+    button.disabled = true;
+
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        const lat = position.coords.latitude.toFixed(6);
+        const lon = position.coords.longitude.toFixed(6);
+
+        latitudeInput.value = lat;
+        longitudeInput.value = lon;
+
+        // Update progress based on location
+        const progressSlider = document.getElementById("progressSlider");
+        const currentProgress = parseInt(progressSlider.value) || 0;
+        if (currentProgress < 95) {
+          progressSlider.value = Math.min(95, currentProgress + 5);
+          updateProgressValue(progressSlider.value);
+        }
+
+        // Update speed based on accuracy
+        const speedInput = document.getElementById("speedInput");
+        if (position.coords.speed && position.coords.speed > 0) {
+          speedInput.value = (position.coords.speed * 3.6).toFixed(1); // Convert m/s to km/h
+        }
+
+        // Update bearing if available
+        const bearingInput = document.getElementById("bearingInput");
+        if (position.coords.heading !== null && position.coords.heading !== undefined) {
+          bearingInput.value = Math.round(position.coords.heading);
+        }
+
+        // Reset button
+        button.innerHTML = originalText;
+        button.disabled = false;
+
+        // Show map preview
+        showMapPreview(lon, lat);
+      },
+      function (error) {
+        let errorMessage = "Unable to retrieve your location: ";
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += "Permission denied. Please allow location access.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += "Location information unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage += "Location request timed out.";
+            break;
+          default:
+            errorMessage += "Unknown error.";
+        }
+
+        alert(errorMessage);
+
+        // Reset button
+        button.innerHTML = originalText;
+        button.disabled = false;
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  }
+
+  function useSenderLocation() {
+    const senderLat = <%= delivery.sender?.address?.coordinates?.coordinates?.[1] || 0 %>;
+    const senderLon = <%= delivery.sender?.address?.coordinates?.coordinates?.[0] || 0 %>;
+
+    if (senderLat === 0 && senderLon === 0) {
+      alert("Sender location not set or is at coordinates (0,0). Please geocode the sender address first.");
+      return;
+    }
+
+    document.getElementById("latitudeInput").value = senderLat;
+    document.getElementById("longitudeInput").value = senderLon;
+    document.getElementById("progressSlider").value = 0;
+    updateProgressValue(0);
+    showMapPreview(senderLon, senderLat);
+  }
+
+  function useReceiverLocation() {
+    const receiverLat = <%= delivery.receiver?.address?.coordinates?.coordinates?.[1] || 0 %>;
+    const receiverLon = <%= delivery.receiver?.address?.coordinates?.coordinates?.[0] || 0 %>;
+
+    if (receiverLat === 0 && receiverLon === 0) {
+      alert("Receiver location not set or is at coordinates (0,0). Please geocode the receiver address first.");
+      return;
+    }
+
+    document.getElementById("latitudeInput").value = receiverLat;
+    document.getElementById("longitudeInput").value = receiverLon;
+    document.getElementById("progressSlider").value = 100;
+    updateProgressValue(100);
+    showMapPreview(receiverLon, receiverLat);
+  }
+
+  function showMapPreview(lon, lat) {
+    const mapPreview = document.getElementById("mapPreview");
+    mapPreview.style.display = 'block';
+
+    // Clear previous map if exists
+    const mapContainer = document.getElementById("miniMap");
+    mapContainer.innerHTML = '';
+
+    // Create a simple map preview using Leaflet.js (you'll need to include Leaflet in your project)
+    if (typeof L !== 'undefined') {
+      miniMap = L.map('miniMap').setView([lat, lon], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(miniMap);
+
+      L.marker([lat, lon]).addTo(miniMap)
+        .bindPopup('New Location')
+        .openPopup();
+    } else {
+      // Fallback if Leaflet is not available
+      mapContainer.innerHTML = `
+        <div class="text-center py-5">
+          <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+          <p class="text-muted">Coordinates: ${lon}, ${lat}</p>
+        </div>
+      `;
+    }
+  }
+
+  // Handle form submission with AJAX
+  document.addEventListener('DOMContentLoaded', function() {
+    const locationForm = document.getElementById('locationForm');
+    const submitBtn = document.getElementById('submitLocationBtn');
+    const errorDiv = document.getElementById('locationFormError');
+    const successDiv = document.getElementById('locationFormSuccess');
+
+    locationForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Reset messages
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      // Validate coordinates
+      const latitude = parseFloat(document.getElementById('latitudeInput').value);
+      const longitude = parseFloat(document.getElementById('longitudeInput').value);
+
+      if (isNaN(latitude) || isNaN(longitude)) {
+        errorDiv.textContent = 'Please enter valid latitude and longitude values';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      if (latitude < -90 || latitude > 90) {
+        errorDiv.textContent = 'Latitude must be between -90 and 90';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      if (longitude < -180 || longitude > 180) {
+        errorDiv.textContent = 'Longitude must be between -180 and 180';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // Get form data
+      const formData = new FormData(locationForm);
+      const data = {};
+      formData.forEach((value, key) => {
+        // Handle checkboxes
+        if (key === 'updateMap' || key === 'notifyCustomer') {
+          data[key] = value === 'true';
+        } else {
+          data[key] = value;
+        }
+      });
+
+      // Get delivery ID from data attribute
+      const deliveryId = locationForm.dataset.deliveryId;
+
+      // Show loading state
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+      submitBtn.disabled = true;
+
+      try {
+        const response = await fetch(`/admin/deliveries/${deliveryId}/update-location`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Show success message
+          successDiv.textContent = result.message || 'Location updated successfully!';
+          successDiv.style.display = 'block';
+
+          // Update current location display in the modal
+          const coords = result.location?.coordinates || [];
+          if (coords.length === 2) {
+            document.querySelector('.coordinates').textContent =
+              `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
+          }
+
+          // Close modal after 2 seconds
+          setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('locationModal'));
+            modal.hide();
+
+            // Show toast notification
+            showToast('success', 'Location Updated', result.message);
+
+            // Reload the page after a short delay to show updated data
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }, 2000);
+        } else {
+          // Show error message
+          errorDiv.textContent = result.error || 'Failed to update location';
+          errorDiv.style.display = 'block';
+
+          // Reset button
+          submitBtn.innerHTML = originalBtnText;
+          submitBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        errorDiv.textContent = 'Network error. Please try again.';
+        errorDiv.style.display = 'block';
+
+        // Reset button
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Add input validation for latitude/longitude
+    const latInput = document.getElementById('latitudeInput');
+    const lonInput = document.getElementById('longitudeInput');
+
+    latInput.addEventListener('change', function() {
+      const value = parseFloat(this.value);
+      if (isNaN(value) || value < -90 || value > 90) {
+        this.classList.add('is-invalid');
+      } else {
+        this.classList.remove('is-invalid');
+      }
+    });
+
+    lonInput.addEventListener('change', function() {
+      const value = parseFloat(this.value);
+      if (isNaN(value) || value < -180 || value > 180) {
+        this.classList.add('is-invalid');
+      } else {
+        this.classList.remove('is-invalid');
+      }
+    });
+  });
+
+  // Add real-time coordinate validation
+  document.addEventListener('input', function(e) {
+    if (e.target.id === 'latitudeInput' || e.target.id === 'longitudeInput') {
+      const lat = parseFloat(document.getElementById('latitudeInput').value);
+      const lon = parseFloat(document.getElementById('longitudeInput').value);
+
+      if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+        // Show map preview after a short delay
+        clearTimeout(window.previewTimeout);
+        window.previewTimeout = setTimeout(() => {
+          showMapPreview(lon, lat);
+        }, 1000);
+      }
+    }
+  });
+</script>
+
+<!-- Include Leaflet for map preview (optional) -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""
+/>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""
+></script>
+
+<style>
+  #miniMap {
+    z-index: 1;
+  }
+
+  .coordinates {
+    font-family: "Courier New", monospace;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    background: var(--bs-primary);
+  }
+
+  .form-range::-moz-range-thumb {
+    background: var(--bs-primary);
+  }
+</style>

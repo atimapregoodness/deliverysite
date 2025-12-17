@@ -1,0 +1,424 @@
+<div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="driverModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="driverModalLabel">Assign Driver & Vehicle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="driverForm" data-delivery-id="<%= delivery._id %>">
+        <div class="modal-body">
+          <div class="mb-4">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Assign a driver and vehicle to this delivery. The driver will be notified of the assignment.
+            </div>
+          </div>
+          
+          <div class="row g-3">
+            <!-- Driver Selection -->
+            <div class="col-12">
+              <label class="form-label">Select Driver</label>
+              <select class="form-select" name="driverId" id="driverSelect" onchange="updateDriverInfo()">
+                <option value="">Unassigned - Remove current driver</option>
+                <% if (drivers && drivers.length > 0) { %>
+                  <% drivers.forEach(function(driver) { %>
+                    <% 
+                      let selected = false;
+                      let driverId = '';
+                      let driverPhone = driver.phone || '';
+                      let driverEmail = driver.email || '';
+                      let driverVehicleId = '';
+                      
+                      // Handle driver object
+                      if (driver._id) {
+                        driverId = driver._id.toString();
+                      }
+                      
+                      // Handle delivery.driver (could be ObjectId string or populated object)
+                      if (delivery.driver) {
+                        if (typeof delivery.driver === 'object' && delivery.driver._id) {
+                          selected = driverId === delivery.driver._id.toString();
+                        } else if (typeof delivery.driver === 'string') {
+                          selected = driverId === delivery.driver;
+                        }
+                      }
+                      
+                      // Handle driver's vehicle
+                      if (driver.vehicle) {
+                        if (typeof driver.vehicle === 'object' && driver.vehicle._id) {
+                          driverVehicleId = driver.vehicle._id.toString();
+                        } else if (typeof driver.vehicle === 'string') {
+                          driverVehicleId = driver.vehicle;
+                        }
+                      }
+                    %>
+                    <option value="<%= driverId %>" 
+                            <%= selected ? 'selected' : '' %> 
+                            data-phone="<%= driverPhone %>" 
+                            data-email="<%= driverEmail %>"
+                            data-vehicle="<%= driverVehicleId %>">
+                      <%= driver.name || 'Unknown Driver' %> 
+                      <% if (driverPhone) { %> - <%= driverPhone %><% } %>
+                      <% if (driver.vehicle && driver.vehicle.plateNumber) { %> (<%= driver.vehicle.plateNumber %>)<% } %>
+                    </option>
+                  <% }) %>
+                <% } %>
+              </select>
+            </div>
+            
+            <!-- Driver Info Display -->
+            <div class="col-12" id="driverInfo" style="display: none;">
+              <div class="card border-primary">
+                <div class="card-body">
+                  <h6 class="card-title">Selected Driver Information</h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <small class="text-muted">Phone</small>
+                      <div id="driverPhone" class="fw-semibold">Not available</div>
+                    </div>
+                    <div class="col-md-6">
+                      <small class="text-muted">Email</small>
+                      <div id="driverEmail" class="fw-semibold">Not available</div>
+                    </div>
+                    <div class="col-12 mt-2">
+                      <small class="text-muted">Assigned Vehicle</small>
+                      <div id="driverVehicle" class="fw-semibold">No vehicle assigned</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Vehicle Selection -->
+            <div class="col-12">
+              <label class="form-label">Select Vehicle</label>
+              <select class="form-select" name="vehicleId" id="vehicleSelect" onchange="updateVehicleInfo()">
+                <option value="">Unassigned - Remove current vehicle</option>
+                <% if (vehicles && vehicles.length > 0) { %>
+                  <% vehicles.forEach(function(vehicle) { %>
+                    <% 
+                      let selected = false;
+                      let vehicleId = '';
+                      let vehicleModel = vehicle.model || '';
+                      let vehicleYear = vehicle.year || '';
+                      let vehicleCapacity = vehicle.capacity || '';
+                      let vehicleDriverId = '';
+                      
+                      // Handle vehicle object
+                      if (vehicle._id) {
+                        vehicleId = vehicle._id.toString();
+                      }
+                      
+                      // Handle delivery.vehicle (could be ObjectId string or populated object)
+                      if (delivery.vehicle) {
+                        if (typeof delivery.vehicle === 'object' && delivery.vehicle._id) {
+                          selected = vehicleId === delivery.vehicle._id.toString();
+                        } else if (typeof delivery.vehicle === 'string') {
+                          selected = vehicleId === delivery.vehicle;
+                        }
+                      }
+                      
+                      // Handle vehicle's driver
+                      if (vehicle.driver) {
+                        if (typeof vehicle.driver === 'object' && vehicle.driver._id) {
+                          vehicleDriverId = vehicle.driver._id.toString();
+                        } else if (typeof vehicle.driver === 'string') {
+                          vehicleDriverId = vehicle.driver;
+                        }
+                      }
+                    %>
+                    <option value="<%= vehicleId %>" 
+                            <%= selected ? 'selected' : '' %>
+                            data-model="<%= vehicleModel %>"
+                            data-year="<%= vehicleYear %>"
+                            data-capacity="<%= vehicleCapacity %>"
+                            data-driver="<%= vehicleDriverId %>">
+                      <%= vehicle.plateNumber || 'Unknown Vehicle' %> 
+                      <% if (vehicleModel) { %> - <%= vehicleModel %><% } %>
+                      <% if (vehicle.driver && vehicle.driver.name) { %> (<%= vehicle.driver.name %>)<% } %>
+                    </option>
+                  <% }) %>
+                <% } %>
+              </select>
+            </div>
+            
+            <!-- Vehicle Info Display -->
+            <div class="col-12" id="vehicleInfo" style="display: none;">
+              <div class="card border-success">
+                <div class="card-body">
+                  <h6 class="card-title">Selected Vehicle Information</h6>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <small class="text-muted">Model</small>
+                      <div id="vehicleModel" class="fw-semibold">Not available</div>
+                    </div>
+                    <div class="col-md-4">
+                      <small class="text-muted">Year</small>
+                      <div id="vehicleYear" class="fw-semibold">Not available</div>
+                    </div>
+                    <div class="col-md-4">
+                      <small class="text-muted">Capacity</small>
+                      <div id="vehicleCapacity" class="fw-semibold">Not available</div>
+                    </div>
+                    <div class="col-12 mt-2">
+                      <small class="text-muted">Current Driver</small>
+                      <div id="vehicleDriver" class="fw-semibold">Available</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Assignment Options -->
+            <div class="col-12 mt-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="notifyDriver" id="notifyDriver" value="true" checked>
+                <label class="form-check-label" for="notifyDriver">
+                  <i class="fas fa-bell me-2"></i>Notify driver of assignment
+                </label>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="updateSchedule" id="updateSchedule" value="true" checked>
+                <label class="form-check-label" for="updateSchedule">
+                  Update driver's schedule
+                </label>
+              </div>
+            </div>
+            
+            <!-- Notes -->
+            <div class="col-12">
+              <label class="form-label">Assignment Notes (Optional)</label>
+              <textarea class="form-control" name="notes" rows="2" 
+                        placeholder="Add any notes about this assignment"></textarea>
+            </div>
+            
+            <!-- Error Message Area -->
+            <div class="col-12">
+              <div id="driverFormError" class="alert alert-danger" style="display: none;"></div>
+              <div id="driverFormSuccess" class="alert alert-success" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitDriverBtn">
+            <i class="fas fa-user-check me-2"></i>Assign Driver & Vehicle
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateDriverInfo() {
+    const select = document.getElementById('driverSelect');
+    const selectedOption = select.options[select.selectedIndex];
+    const driverInfo = document.getElementById('driverInfo');
+    
+    if (selectedOption && selectedOption.value) {
+      const phone = selectedOption.dataset.phone || 'Not available';
+      const email = selectedOption.dataset.email || 'Not available';
+      const hasVehicle = selectedOption.dataset.vehicle && selectedOption.dataset.vehicle !== '';
+      
+      document.getElementById('driverPhone').textContent = phone;
+      document.getElementById('driverEmail').textContent = email;
+      document.getElementById('driverVehicle').textContent = hasVehicle ? 'Has pre-assigned vehicle' : 'No vehicle assigned';
+      driverInfo.style.display = 'block';
+      
+      // Auto-select the driver's vehicle if they have one
+      if (hasVehicle) {
+        const vehicleSelect = document.getElementById('vehicleSelect');
+        for (let i = 0; i < vehicleSelect.options.length; i++) {
+          if (vehicleSelect.options[i].value === selectedOption.dataset.vehicle) {
+            vehicleSelect.value = selectedOption.dataset.vehicle;
+            updateVehicleInfo();
+            break;
+          }
+        }
+      }
+    } else {
+      driverInfo.style.display = 'none';
+    }
+  }
+  
+  function updateVehicleInfo() {
+    const select = document.getElementById('vehicleSelect');
+    const selectedOption = select.options[select.selectedIndex];
+    const vehicleInfo = document.getElementById('vehicleInfo');
+    
+    if (selectedOption && selectedOption.value) {
+      const model = selectedOption.dataset.model || 'Not available';
+      const year = selectedOption.dataset.year || 'Not available';
+      const capacity = selectedOption.dataset.capacity || 'Not available';
+      const hasDriver = selectedOption.dataset.driver && selectedOption.dataset.driver !== '';
+      
+      document.getElementById('vehicleModel').textContent = model;
+      document.getElementById('vehicleYear').textContent = year;
+      document.getElementById('vehicleCapacity').textContent = capacity;
+      document.getElementById('vehicleDriver').textContent = hasDriver ? 'Currently has a driver' : 'Available';
+      vehicleInfo.style.display = 'block';
+      
+      // Auto-select the vehicle's driver if they have one
+      if (hasDriver) {
+        const driverSelect = document.getElementById('driverSelect');
+        for (let i = 0; i < driverSelect.options.length; i++) {
+          if (driverSelect.options[i].value === selectedOption.dataset.driver) {
+            driverSelect.value = selectedOption.dataset.driver;
+            updateDriverInfo();
+            break;
+          }
+        }
+      }
+    } else {
+      vehicleInfo.style.display = 'none';
+    }
+  }
+  
+  // Handle form submission with AJAX
+  document.addEventListener('DOMContentLoaded', function() {
+    const driverForm = document.getElementById('driverForm');
+    const submitBtn = document.getElementById('submitDriverBtn');
+    const errorDiv = document.getElementById('driverFormError');
+    const successDiv = document.getElementById('driverFormSuccess');
+    
+    // Initialize on page load
+    updateDriverInfo();
+    updateVehicleInfo();
+    
+    driverForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Reset messages
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+      
+      // Get form data
+      const formData = new FormData(driverForm);
+      const data = {};
+      formData.forEach((value, key) => {
+        // Handle checkboxes
+        if (key === 'notifyDriver' || key === 'updateSchedule') {
+          data[key] = value === 'true';
+        } else {
+          data[key] = value;
+        }
+      });
+      
+      // Get delivery ID from data attribute
+      const deliveryId = driverForm.dataset.deliveryId;
+      
+      // Show loading state
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Assigning...';
+      submitBtn.disabled = true;
+      
+      try {
+        const response = await fetch(`/admin/deliveries/${deliveryId}/assign-driver`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Show success message
+          successDiv.textContent = result.message || 'Driver assigned successfully!';
+          successDiv.style.display = 'block';
+          
+          // Update the page with new assignment
+          updateDeliveryDetails(result.delivery);
+          
+          // Close modal after 2 seconds
+          setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('driverModal'));
+            modal.hide();
+            
+            // Show toast notification
+            showToast('success', 'Assignment Successful', result.message);
+            
+            // Reload the page after a short delay to show updated data
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }, 2000);
+        } else {
+          // Show error message
+          errorDiv.textContent = result.error || 'Failed to assign driver';
+          errorDiv.style.display = 'block';
+          
+          // Reset button
+          submitBtn.innerHTML = originalBtnText;
+          submitBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        errorDiv.textContent = 'Network error. Please try again.';
+        errorDiv.style.display = 'block';
+        
+        // Reset button
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+      }
+    });
+  });
+  
+  function updateDeliveryDetails(delivery) {
+    // Update driver name on page if element exists
+    const driverNameElement = document.querySelector('.driver-name');
+    if (driverNameElement && delivery.driver) {
+      driverNameElement.textContent = delivery.driver.name || 'Unassigned';
+    }
+    
+    // Update vehicle info on page if element exists
+    const vehicleInfoElement = document.querySelector('.vehicle-info');
+    if (vehicleInfoElement && delivery.vehicle) {
+      vehicleInfoElement.textContent = `${delivery.vehicle.plateNumber || ''} ${delivery.vehicle.model || ''}`.trim();
+    }
+  }
+  
+  function showToast(type, title, message) {
+    // Check if toast container exists, create if not
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toastContainer';
+      toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+      document.body.appendChild(toastContainer);
+    }
+    
+    // Create toast
+    const toastId = 'toast-' + Date.now();
+    const toastHtml = `
+      <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-${type} text-white">
+          <strong class="me-auto">${title}</strong>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          ${message}
+        </div>
+      </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    // Show toast
+    const toastEl = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastEl, {
+      delay: 5000
+    });
+    toast.show();
+    
+    // Remove toast after it's hidden
+    toastEl.addEventListener('hidden.bs.toast', function () {
+      toastEl.remove();
+    });
+  }
+</script>

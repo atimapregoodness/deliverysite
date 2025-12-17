@@ -1,0 +1,175 @@
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Edit Delivery</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editForm" action="/admin/deliveries/<%= delivery._id %>/update" method="POST">
+        <div class="modal-body">
+          <!-- Sender Information -->
+          <div class="mb-4">
+            <h6 class="mb-3 text-primary">
+              <i class="fas fa-paper-plane me-2"></i>Sender Information
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Name *</label>
+                <input type="text" class="form-control" name="sender[name]" value="<%= delivery.sender.name %>" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone *</label>
+                <input type="tel" class="form-control" name="sender[phone]" value="<%= delivery.sender.phone %>" required>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Email *</label>
+                <input type="email" class="form-control" name="sender[email]" value="<%= delivery.sender.email %>" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Street Address *</label>
+                <input type="text" class="form-control" name="sender[address][street]" value="<%= delivery.sender.address.street %>" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">City *</label>
+                <input type="text" class="form-control" name="sender[address][city]" value="<%= delivery.sender.address.city %>" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">State</label>
+                <input type="text" class="form-control" name="sender[address][state]" value="<%= delivery.sender.address.state || '' %>">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Postal Code</label>
+                <input type="text" class="form-control" name="sender[address][postalCode]" value="<%= delivery.sender.address.postalCode || '' %>">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Country</label>
+                <input type="text" class="form-control" name="sender[address][country]" value="<%= delivery.sender.address.country || 'United States' %>">
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Receiver Information -->
+          <div class="mb-4">
+            <h6 class="mb-3 text-success">
+              <i class="fas fa-user-check me-2"></i>Receiver Information
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Name *</label>
+                <input type="text" class="form-control" name="receiver[name]" value="<%= delivery.receiver.name %>" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone *</label>
+                <input type="tel" class="form-control" name="receiver[phone]" value="<%= delivery.receiver.phone %>" required>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Email *</label>
+                <input type="email" class="form-control" name="receiver[email]" value="<%= delivery.receiver.email %>" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Street Address *</label>
+                <input type="text" class="form-control" name="receiver[address][street]" value="<%= delivery.receiver.address.street %>" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">City *</label>
+                <input type="text" class="form-control" name="receiver[address][city]" value="<%= delivery.receiver.address.city %>" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">State</label>
+                <input type="text" class="form-control" name="receiver[address][state]" value="<%= delivery.receiver.address.state || '' %>">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Postal Code</label>
+                <input type="text" class="form-control" name="receiver[address][postalCode]" value="<%= delivery.receiver.address.postalCode || '' %>">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Country</label>
+                <input type="text" class="form-control" name="receiver[address][country]" value="<%= delivery.receiver.address.country || 'United States' %>">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Delivery Instructions</label>
+                <textarea class="form-control" name="receiver[deliveryInstructions]" rows="2" 
+                          placeholder="Any special instructions for delivery"><%= delivery.receiver.deliveryInstructions || '' %></textarea>
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="receiver[signatureRequired]" id="signatureRequired"
+                         <%= delivery.receiver.signatureRequired ? 'checked' : '' %>>
+                  <label class="form-check-label" for="signatureRequired">
+                    Signature Required upon delivery
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Package Information -->
+          <div class="mb-4">
+            <h6 class="mb-3 text-warning">
+              <i class="fas fa-box me-2"></i>Package Information
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Description *</label>
+                <input type="text" class="form-control" name="package[description]" value="<%= delivery.package.description %>" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Category</label>
+                <select class="form-select" name="package[category]">
+                  <option value="electronics" <%= delivery.package.category === 'electronics' ? 'selected' : '' %>>Electronics</option>
+                  <option value="clothing" <%= delivery.package.category === 'clothing' ? 'selected' : '' %>>Clothing</option>
+                  <option value="furniture" <%= delivery.package.category === 'furniture' ? 'selected' : '' %>>Furniture</option>
+                  <option value="documents" <%= delivery.package.category === 'documents' ? 'selected' : '' %>>Documents</option>
+                  <option value="food" <%= delivery.package.category === 'food' ? 'selected' : '' %>>Food</option>
+                  <option value="medical" <%= delivery.package.category === 'medical' ? 'selected' : '' %>>Medical</option>
+                  <option value="other" <%= delivery.package.category === 'other' ? 'selected' : '' %>>Other</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Weight (kg) *</label>
+                <input type="number" step="0.1" class="form-control" name="package[weight]" value="<%= delivery.package.weight %>" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Value ($)</label>
+                <input type="number" step="0.01" class="form-control" name="package[value]" value="<%= delivery.package.value || 0 %>">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Length (cm)</label>
+                <input type="number" step="0.1" class="form-control" name="package[dimensions][length]" 
+                       value="<%= delivery.package.dimensions && delivery.package.dimensions.length || '' %>">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Width (cm)</label>
+                <input type="number" step="0.1" class="form-control" name="package[dimensions][width]" 
+                       value="<%= delivery.package.dimensions && delivery.package.dimensions.width || '' %>">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Height (cm)</label>
+                <input type="number" step="0.1" class="form-control" name="package[dimensions][height]" 
+                       value="<%= delivery.package.dimensions && delivery.package.dimensions.height || '' %>">
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Estimated Delivery Date *</label>
+              <input type="datetime-local" class="form-control" name="estimatedDelivery"
+                     value="<%= new Date(delivery.estimatedDelivery).toISOString().slice(0, 16) %>" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

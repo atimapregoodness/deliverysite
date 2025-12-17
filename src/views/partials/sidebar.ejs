@@ -1,0 +1,483 @@
+<!-- Professional Admin Sidebar -->
+<div class="flex h-screen bg-gray-50">
+  <!-- Sidebar -->
+  <div class="hidden lg:flex lg:flex-shrink-0">
+    <div class="flex flex-col w-64">
+      <!-- Sidebar component -->
+      <div
+        class="flex flex-col flex-grow bg-gradient-to-b from-gray-800 to-gray-900 pt-5 pb-4 overflow-y-auto"
+      >
+        <!-- Logo & Brand -->
+        <div class="flex items-center flex-shrink-0 px-4">
+          <div class="flex items-center">
+            <div
+              class="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center"
+            >
+              <i class="fas fa-shipping-fast text-white text-sm"></i>
+            </div>
+            <div class="ml-3">
+              <h1 class="text-white text-lg font-bold">LogiTrack</h1>
+              <p class="text-gray-400 text-xs">Admin Portal</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="mt-8 flex-1 flex flex-col px-4 space-y-2">
+          <!-- Dashboard -->
+          <a
+            href="/admin"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'dashboard' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+          >
+            <i
+              class="fas fa-tachometer-alt mr-3 text-sm w-5 text-center <%= currentPage === 'dashboard' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+            ></i>
+            Dashboard
+          </a>
+
+          <!-- Deliveries -->
+          <a
+            href="/admin/deliveries"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'deliveries' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+          >
+            <i
+              class="fas fa-box mr-3 text-sm w-5 text-center <%= currentPage === 'deliveries' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+            ></i>
+            Deliveries
+            <span
+              class="ml-auto bg-blue-500 text-white text-xs font-medium px-2 py-0.5 rounded-full"
+            >
+              <%= deliveryCount || 0 %>
+            </span>
+          </a>
+
+          <!-- Drivers -->
+          <a
+            href="/admin/drivers"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'drivers' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+          >
+            <i
+              class="fas fa-users mr-3 text-sm w-5 text-center <%= currentPage === 'drivers' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+            ></i>
+            Drivers
+          </a>
+
+          <!-- Vehicles -->
+          <a
+            href="/admin/vehicles"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'vehicles' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+          >
+            <i
+              class="fas fa-truck mr-3 text-sm w-5 text-center <%= currentPage === 'vehicles' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+            ></i>
+            Vehicles
+          </a>
+
+          <!-- Customers -->
+          <div class="mt-8">
+            <h3
+              class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider"
+            >
+              Management
+            </h3>
+          </div>
+
+          <a
+            href="/admin/customers"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'customers' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+          >
+            <i
+              class="fas fa-user-friends mr-3 text-sm w-5 text-center <%= currentPage === 'customers' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+            ></i>
+            Customers
+          </a>
+
+          <!-- Analytics -->
+          <a
+            href="/admin/analytics"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'analytics' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+          >
+            <i
+              class="fas fa-chart-bar mr-3 text-sm w-5 text-center <%= currentPage === 'analytics' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+            ></i>
+            Analytics
+          </a>
+
+          <!-- Reports -->
+          <a
+            href="/admin/reports"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'reports' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+          >
+            <i
+              class="fas fa-file-alt mr-3 text-sm w-5 text-center <%= currentPage === 'reports' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+            ></i>
+            Reports
+          </a>
+
+          <!-- Settings Section -->
+          <div class="mt-8">
+            <h3
+              class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider"
+            >
+              System
+            </h3>
+          </div>
+
+          <a
+            href="/admin/settings"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'settings' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+          >
+            <i
+              class="fas fa-cog mr-3 text-sm w-5 text-center <%= currentPage === 'settings' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+            ></i>
+            Settings
+          </a>
+
+          <!-- Help & Support -->
+          <a
+            href="/admin/support"
+            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'support' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+          >
+            <i
+              class="fas fa-question-circle mr-3 text-sm w-5 text-center <%= currentPage === 'support' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+            ></i>
+            Help & Support
+          </a>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="flex-shrink-0 flex border-t border-gray-700 p-4">
+          <div class="flex items-center w-full">
+            <div class="ml-3 flex-1">
+              <p class="text-sm font-medium text-white">
+                <%= admin ? admin.name : 'Admin User' %>
+              </p>
+              <p
+                class="text-xs font-medium text-gray-400 group-hover:text-gray-300"
+              >
+                Administrator
+              </p>
+            </div>
+            <div class="ml-3">
+              <a
+                href="/auth/logout"
+                class="text-gray-400 hover:text-white transition-colors duration-200"
+                title="Logout"
+              >
+                <i class="fas fa-sign-out-alt"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile sidebar backdrop -->
+  <div
+    class="fixed inset-0 flex z-40 lg:hidden"
+    role="dialog"
+    style="display: none"
+    id="mobileSidebarBackdrop"
+  >
+    <div
+      class="fixed inset-0 bg-gray-600 bg-opacity-75"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Mobile sidebar -->
+    <div
+      class="relative flex-1 flex flex-col max-w-xs w-full bg-gray-800 focus:outline-none"
+      id="mobileSidebar"
+    >
+      <div class="absolute top-0 right-0 -mr-12 pt-2">
+        <button
+          type="button"
+          class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+          onclick="closeMobileSidebar()"
+        >
+          <span class="sr-only">Close sidebar</span>
+          <i class="fas fa-times text-white text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Logo & Brand -->
+      <div class="flex items-center flex-shrink-0 px-4">
+        <div class="flex items-center">
+          <div
+            class="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center"
+          >
+            <i class="fas fa-shipping-fast text-white text-sm"></i>
+          </div>
+          <div class="ml-3">
+            <h1 class="text-white text-lg font-bold">LogiTrack</h1>
+            <p class="text-gray-400 text-xs">Admin Portal</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="mt-8 flex-1 flex flex-col px-4 space-y-2">
+        <!-- Dashboard -->
+        <a
+          href="/admin"
+          class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'dashboard' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+        >
+          <i
+            class="fas fa-tachometer-alt mr-3 text-sm w-5 text-center <%= currentPage === 'dashboard' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+          ></i>
+          Dashboard
+        </a>
+
+        <!-- Deliveries -->
+        <a
+          href="/admin/deliveries"
+          class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'deliveries' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+        >
+          <i
+            class="fas fa-box mr-3 text-sm w-5 text-center <%= currentPage === 'deliveries' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+          ></i>
+          Deliveries
+          <span
+            class="ml-auto bg-blue-500 text-white text-xs font-medium px-2 py-0.5 rounded-full"
+          >
+            <%= deliveryCount || 0 %>
+          </span>
+        </a>
+
+        <!-- Drivers -->
+        <a
+          href="/admin/drivers"
+          class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'drivers' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+        >
+          <i
+            class="fas fa-users mr-3 text-sm w-5 text-center <%= currentPage === 'drivers' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+          ></i>
+          Drivers
+        </a>
+
+        <!-- Vehicles -->
+        <a
+          href="/admin/vehicles"
+          class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'vehicles' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+        >
+          <i
+            class="fas fa-truck mr-3 text-sm w-5 text-center <%= currentPage === 'vehicles' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+          ></i>
+          Vehicles
+        </a>
+
+        <!-- Customers -->
+        <div class="mt-8">
+          <h3
+            class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider"
+          >
+            Management
+          </h3>
+        </div>
+
+        <a
+          href="/admin/customers"
+          class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'customers' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+        >
+          <i
+            class="fas fa-user-friends mr-3 text-sm w-5 text-center <%= currentPage === 'customers' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+          ></i>
+          Customers
+        </a>
+
+        <!-- Analytics -->
+        <a
+          href="/admin/analytics"
+          class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'analytics' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+        >
+          <i
+            class="fas fa-chart-bar mr-3 text-sm w-5 text-center <%= currentPage === 'analytics' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+          ></i>
+          Analytics
+        </a>
+
+        <!-- Reports -->
+        <a
+          href="/admin/reports"
+          class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'reports' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+        >
+          <i
+            class="fas fa-file-alt mr-3 text-sm w-5 text-center <%= currentPage === 'reports' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+          ></i>
+          Reports
+        </a>
+
+        <!-- Settings Section -->
+        <div class="mt-8">
+          <h3
+            class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider"
+          >
+            System
+          </h3>
+        </div>
+
+        <a
+          href="/admin/settings"
+          class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'settings' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+        >
+          <i
+            class="fas fa-cog mr-3 text-sm w-5 text-center <%= currentPage === 'settings' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+          ></i>
+          Settings
+        </a>
+
+        <!-- Help & Support -->
+        <a
+          href="/admin/support"
+          class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= currentPage === 'support' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %>"
+        >
+          <i
+            class="fas fa-question-circle mr-3 text-sm w-5 text-center <%= currentPage === 'support' ? 'text-white' : 'text-gray-400 group-hover:text-white' %>"
+          ></i>
+          Help & Support
+        </a>
+      </nav>
+
+      <!-- User Profile -->
+      <div class="flex-shrink-0 flex border-t border-gray-700 p-4">
+        <div class="flex items-center w-full">
+          <div class="ml-3 flex-1">
+            <p class="text-sm font-medium text-white">
+              <%= admin ? admin.name : 'Admin User' %>
+            </p>
+            <p
+              class="text-xs font-medium text-gray-400 group-hover:text-gray-300"
+            >
+              Administrator
+            </p>
+          </div>
+          <div class="ml-3">
+            <a
+              href="/auth/logout"
+              class="text-gray-400 hover:text-white transition-colors duration-200"
+              title="Logout"
+            >
+              <i class="fas fa-sign-out-alt"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex flex-col min-w-0 flex-1 overflow-hidden">
+    <!-- Mobile top header -->
+    <div class="lg:hidden">
+      <div
+        class="flex items-center justify-between bg-white border-b border-gray-200 px-4 py-2"
+      >
+        <div class="flex items-center">
+          <button
+            type="button"
+            class="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 lg:hidden"
+            onclick="openMobileSidebar()"
+          >
+            <span class="sr-only">Open sidebar</span>
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="ml-4 flex items-center">
+            <div
+              class="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center"
+            >
+              <i class="fas fa-shipping-fast text-white text-sm"></i>
+            </div>
+            <h1 class="ml-2 text-lg font-semibold text-gray-900">LogiTrack</h1>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <a href="/admin/logout" class="text-gray-400 hover:text-gray-500">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content area -->
+    <div class="flex-1 flex" id="main">
+      <main class="flex-1 overflow-y-auto focus:outline-none">
+        <!-- Your page content will be inserted here -->
+        <%- body %>
+      </main>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mobile sidebar functions
+  function openMobileSidebar() {
+    document.getElementById("mobileSidebarBackdrop").style.display = "flex";
+    document.getElementById("mobileSidebar").style.display = "flex";
+  }
+
+  function closeMobileSidebar() {
+    document.getElementById("mobileSidebarBackdrop").style.display = "none";
+    document.getElementById("mobileSidebar").style.display = "none";
+  }
+
+  // Close mobile sidebar when clicking on backdrop
+  document
+    .getElementById("mobileSidebarBackdrop")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        closeMobileSidebar();
+      }
+    });
+
+  // Close mobile sidebar when clicking on nav links
+  document.querySelectorAll("#mobileSidebar a").forEach((link) => {
+    link.addEventListener("click", closeMobileSidebar);
+  });
+
+  // Fix for Bootstrap modals: Append to body on load
+  document.addEventListener("DOMContentLoaded", function () {
+    const modals = document.querySelectorAll(".modal");
+    modals.forEach((modal) => {
+      document.body.appendChild(modal);
+    });
+  });
+</script>
+
+<style>
+  #main {
+    overflow: auto !important;
+  }
+  /* Smooth transitions */
+  .transition-all {
+    transition: all 0.3s ease;
+  }
+
+  /* Custom scrollbar for sidebar */
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: #374151;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #6b7280;
+    border-radius: 3px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+
+  /* Active state glow effect */
+  .bg-blue-600 {
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+  }
+
+  /* Hover effects */
+  .hover\:bg-gray-700:hover {
+    transform: translateX(2px);
+  }
+</style>

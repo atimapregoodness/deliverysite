@@ -1,0 +1,452 @@
+<%- layout('layouts/admin') %>
+
+<style>
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .status-pending { background: #f3f4f6; color: #374151; }
+  .status-confirmed { background: #dbeafe; color: #1e40af; }
+  .status-picked_up { background: #fef3c7; color: #d97706; }
+  .status-in_transit { background: #dbeafe; color: #1e40af; }
+  .status-out_for_delivery { background: #e0e7ff; color: #4f46e5; }
+  .status-at_sort_facility { background: #f3e8ff; color: #7c3aed; }
+  .status-delayed { background: #fef3c7; color: #d97706; }
+  .status-exception { background: #fee2e2; color: #ef4444; }
+  .status-delivered { background: #dcfce7; color: #16a34a; }
+  .status-cancelled { background: #fecaca; color: #ef4444; }
+  .status-failed { background: #fecaca; color: #ef4444; }
+  .status-returned { background: #fef3c7; color: #d97706; }
+
+  .priority-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .priority-low { background: #f3f4f6; color: #6b7280; }
+  .priority-normal { background: #dbeafe; color: #2563eb; }
+  .priority-high { background: #fef3c7; color: #d97706; }
+  .priority-express { background: #fee2e2; color: #ef4444; }
+
+  .service-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: #f3f4f6;
+    color: #374151;
+  }
+</style>
+
+<div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-900">Manage Deliveries</h1>
+                <a href="/admin/deliveries/create" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out">
+                    <i class="fas fa-plus mr-2"></i>Create Delivery
+                </a>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <i class="fas fa-box text-blue-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Deliveries</p>
+                            <p class="text-2xl font-bold text-gray-900"><%= total %></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-lg">
+                            <i class="fas fa-clock text-yellow-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Pending</p>
+                            <p class="text-2xl font-bold text-gray-900">
+                                <%= data.filter(d => d.status === 'pending').length %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <i class="fas fa-shipping-fast text-green-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">In Transit</p>
+                            <p class="text-2xl font-bold text-gray-900">
+                                <%= data.filter(d => d.status === 'in_transit').length %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-lg">
+                            <i class="fas fa-exclamation-triangle text-red-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Delayed</p>
+                            <p class="text-2xl font-bold text-gray-900">
+                                <%= data.filter(d => d.status === 'delayed').length %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-gray-100 rounded-lg">
+                            <i class="fas fa-check-circle text-gray-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Delivered</p>
+                            <p class="text-2xl font-bold text-gray-900">
+                                <%= data.filter(d => d.status === 'delivered').length %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="mt-6 bg-white shadow rounded-lg p-4">
+                <form method="GET" class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <div class="flex-1">
+                        <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+                        <input type="text" name="search" id="search" value="<%= query.search || '' %>" 
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Search by tracking ID, sender, or receiver...">
+                    </div>
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                        <select id="status" name="status" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">All Statuses</option>
+                            <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                            <option value="in_transit" <%= query.status === 'in_transit' ? 'selected' : '' %>>In Transit</option>
+                            <option value="delayed" <%= query.status === 'delayed' ? 'selected' : '' %>>Delayed</option>
+                            <option value="delivered" <%= query.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                            <option value="cancelled" <%= query.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700">Package Category</label>
+                        <select id="category" name="category" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">All Categories</option>
+                            <option value="electronics" <%= query.category === 'electronics' ? 'selected' : '' %>>Electronics</option>
+                            <option value="clothing" <%= query.category === 'clothing' ? 'selected' : '' %>>Clothing</option>
+                            <option value="furniture" <%= query.category === 'furniture' ? 'selected' : '' %>>Furniture</option>
+                            <option value="documents" <%= query.category === 'documents' ? 'selected' : '' %>>Documents</option>
+                            <option value="food" <%= query.category === 'food' ? 'selected' : '' %>>Food</option>
+                            <option value="medical" <%= query.category === 'medical' ? 'selected' : '' %>>Medical</option>
+                            <option value="other" <%= query.category === 'other' ? 'selected' : '' %>>Other</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out">
+                            <i class="fas fa-filter mr-2"></i>Filter
+                        </button>
+                        <% if (query.search || query.status || query.category) { %>
+                            <a href="/admin/deliveries" class="ml-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-150 ease-in-out">
+                                Clear
+                            </a>
+                        <% } %>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Deliveries Table -->
+            <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
+                <% if (data && data.length > 0) { %>
+                    <ul class="divide-y divide-gray-200">
+                        <% data.forEach(delivery => { %>
+                            <li class="hover:bg-gray-50 transition duration-150">
+                                <a href="/admin/deliveries/<%= delivery._id %>" class="block">
+                                    <div class="px-4 py-4 sm:px-6">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1 min-w-0">
+                                                <!-- Header with Tracking ID and Status -->
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex items-center space-x-3">
+                                                        <div class="flex-shrink-0">
+                                                            <div class="relative">
+                                                                <% if (delivery.trackingData && delivery.trackingData.active) { %>
+                                                                    <span class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                                                                <% } %>
+                                                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                                    <i class="fas fa-box text-blue-600"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-lg font-medium text-gray-900">
+                                                                <i class="fas fa-barcode text-gray-400 mr-2"></i>
+                                                                <%= delivery.trackingId %>
+                                                            </p>
+                                                            <div class="flex items-center mt-1">
+                                                                <span class="status-badge status-<%= delivery.status %>">
+                                                                    <%= delivery.status.replace('_', ' ').toUpperCase() %>
+                                                                </span>
+                                                                <% if (new Date(delivery.estimatedDelivery) < new Date() && delivery.status !== 'delivered' && delivery.status !== 'cancelled') { %>
+                                                                    <span class="ml-2 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                                                                        <i class="fas fa-exclamation-circle mr-1"></i>Overdue
+                                                                    </span>
+                                                                <% } %>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center space-x-3">
+                                                        <% if (delivery.driver && delivery.driver.name) { %>
+                                                            <div class="hidden sm:flex items-center text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                                                <i class="fas fa-user mr-1.5 text-gray-400"></i>
+                                                                <%= delivery.driver.name %>
+                                                            </div>
+                                                        <% } %>
+                                                        <i class="fas fa-chevron-right text-gray-400"></i>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Package and Location Info -->
+                                                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <!-- Package Details -->
+                                                    <div>
+                                                        <h4 class="text-sm font-medium text-gray-700 mb-2">Package Details</h4>
+                                                        <div class="space-y-2">
+                                                            <div class="flex items-center text-sm text-gray-600">
+                                                                <i class="fas fa-tag text-gray-400 mr-2 w-5"></i>
+                                                                <span class="capitalize"><%= delivery.package.category %></span>
+                                                                <span class="mx-2">•</span>
+                                                                <i class="fas fa-weight-hanging text-gray-400 mr-2"></i>
+                                                                <span><%= delivery.package.weight %> kg</span>
+                                                            </div>
+                                                            <div class="flex items-center text-sm text-gray-600">
+                                                                <i class="fas fa-file-alt text-gray-400 mr-2 w-5"></i>
+                                                                <span class="truncate"><%= delivery.package.description %></span>
+                                                            </div>
+                                                            <% if (delivery.package.value && delivery.package.value > 0) { %>
+                                                                <div class="flex items-center text-sm text-gray-600">
+                                                                    <i class="fas fa-dollar-sign text-gray-400 mr-2 w-5"></i>
+                                                                    <span>Value: $<%= delivery.package.value.toFixed(2) %></span>
+                                                                </div>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Route Details -->
+                                                    <div>
+                                                        <h4 class="text-sm font-medium text-gray-700 mb-2">Route</h4>
+                                                        <div class="space-y-2">
+                                                            <div class="flex items-start text-sm text-gray-600">
+                                                                <i class="fas fa-map-marker-alt text-red-400 mt-0.5 mr-2 w-5"></i>
+                                                                <div>
+                                                                    <p class="font-medium"><%= delivery.sender.name %></p>
+                                                                    <p class="text-gray-500 text-xs"><%= delivery.sender.address.city %>, <%= delivery.sender.address.state %></p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start text-sm text-gray-600">
+                                                                <i class="fas fa-flag-checkered text-green-400 mt-0.5 mr-2 w-5"></i>
+                                                                <div>
+                                                                    <p class="font-medium"><%= delivery.receiver.name %></p>
+                                                                    <p class="text-gray-500 text-xs"><%= delivery.receiver.address.city %>, <%= delivery.receiver.address.state %></p>
+                                                                    <% if (delivery.receiver.deliveryInstructions) { %>
+                                                                        <p class="text-gray-500 text-xs mt-1">
+                                                                            <i class="fas fa-info-circle mr-1"></i>
+                                                                            <%= delivery.receiver.deliveryInstructions %>
+                                                                        </p>
+                                                                    <% } %>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Tracking and Timeline -->
+                                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                                    <div class="flex flex-wrap items-center justify-between text-sm text-gray-500">
+                                                        <div class="flex items-center space-x-4">
+                                                            <div class="flex items-center">
+                                                                <i class="far fa-clock mr-1.5"></i>
+                                                                <span>ETA: <%= formatDate(delivery.estimatedDelivery) %></span>
+                                                            </div>
+                                                            <% if (delivery.actualDelivery) { %>
+                                                                <div class="flex items-center">
+                                                                    <i class="fas fa-check-circle mr-1.5 text-green-500"></i>
+                                                                    <span>Delivered: <%= formatDate(delivery.actualDelivery) %></span>
+                                                                </div>
+                                                            <% } %>
+                                                        </div>
+                                                        <div class="flex items-center mt-2 sm:mt-0">
+                                                            <% if (delivery.trackingData && delivery.trackingData.routeProgress > 0) { %>
+                                                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                                                    <div class="bg-blue-600 h-2 rounded-full" style="width: <%= delivery.trackingData.routeProgress %>%"></div>
+                                                                </div>
+                                                                <span class="ml-2 text-sm font-medium"><%= delivery.trackingData.routeProgress %>%</span>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Incidents (if any) -->
+                                                <% if (delivery.incidents && delivery.incidents.length > 0) { %>
+                                                    <div class="mt-3">
+                                                        <% delivery.incidents.forEach(incident => { %>
+                                                            <% if (!incident.resolved) { %>
+                                                                <div class="flex items-center text-sm bg-red-50 px-3 py-2 rounded-md">
+                                                                    <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                                                                    <span class="font-medium text-red-700"><%= incident.type.toUpperCase() %>:</span>
+                                                                    <span class="ml-2 text-red-600"><%= incident.description %></span>
+                                                                </div>
+                                                            <% } %>
+                                                        <% }); %>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        <% }); %>
+                    </ul>
+
+                    <!-- Pagination -->
+                    <% if (total > (query.limit || 20)) { %>
+                        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                            <div class="flex-1 flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing
+                                        <span class="font-medium"><%= ((query.page || 1) - 1) * (query.limit || 20) + 1 %></span>
+                                        to
+                                        <span class="font-medium"><%= Math.min((query.page || 1) * (query.limit || 20), total) %></span>
+                                        of
+                                        <span class="font-medium"><%= total %></span>
+                                        results
+                                    </p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <% if (query.page > 1) { %>
+                                        <a href="?page=<%= (query.page || 1) - 1 %>&limit=<%= query.limit || 20 %><%= query.search ? '&search=' + encodeURIComponent(query.search) : '' %><%= query.status ? '&status=' + query.status : '' %><%= query.category ? '&category=' + query.category : '' %>" 
+                                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                            <i class="fas fa-chevron-left mr-2 text-sm"></i>Previous
+                                        </a>
+                                    <% } %>
+                                    
+                                    <% if ((query.page || 1) * (query.limit || 20) < total) { %>
+                                        <a href="?page=<%= (query.page || 1) + 1 %>&limit=<%= query.limit || 20 %><%= query.search ? '&search=' + encodeURIComponent(query.search) : '' %><%= query.status ? '&status=' + query.status : '' %><%= query.category ? '&category=' + query.category : '' %>" 
+                                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                            Next<i class="fas fa-chevron-right ml-2 text-sm"></i>
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+
+                <% } else { %>
+                    <div class="text-center py-12">
+                        <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900">No deliveries found</h3>
+                        <p class="mt-2 text-sm text-gray-500">
+                            <% if (query.search || query.status || query.category) { %>
+                                Try adjusting your search or filter to find what you're looking for.
+                            <% } else { %>
+                                Get started by creating a new delivery.
+                            <% } %>
+                        </p>
+                        <div class="mt-6">
+                            <a href="/admin/deliveries/create" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fas fa-plus mr-2"></i>Create Delivery
+                            </a>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add CSS for status badges -->
+<style>
+    .status-badge {
+        @apply px-3 py-1 text-xs font-medium rounded-full;
+    }
+    .status-pending {
+        @apply bg-yellow-100 text-yellow-800;
+    }
+    .status-in_transit {
+        @apply bg-green-100 text-green-800;
+    }
+    .status-delayed {
+        @apply bg-red-100 text-red-800;
+    }
+    .status-delivered {
+        @apply bg-gray-100 text-gray-800;
+    }
+    .status-cancelled {
+        @apply bg-gray-200 text-gray-800;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add loading state to filter button
+        const filterForm = document.querySelector('form');
+        if (filterForm) {
+            filterForm.addEventListener('submit', function() {
+                const button = this.querySelector('button[type="submit"]');
+                if (button) {
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Filtering...';
+                    button.disabled = true;
+                }
+            });
+        }
+
+        // Keyboard shortcut for search (Ctrl+K)
+        const searchInput = document.getElementById('search');
+        if (searchInput) {
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            });
+        }
+
+        // Auto-refresh for active deliveries
+        function checkForActiveDeliveries() {
+            const activeDeliveries = document.querySelectorAll('[class*="status-in_transit"], [class*="status-delayed"]');
+            if (activeDeliveries.length > 0) {
+                // Refresh page every 60 seconds if there are active deliveries
+                setTimeout(() => {
+                    window.location.reload();
+                }, 60000);
+            }
+        }
+
+        checkForActiveDeliveries();
+    });
+</script>

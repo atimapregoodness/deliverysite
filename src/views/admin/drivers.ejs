@@ -1,0 +1,245 @@
+<%- layout('layouts/main') %>
+
+<style>
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .status-active { background: #dcfce7; color: #16a34a; }
+  .status-inactive { background: #f3f4f6; color: #374151; }
+  .status-on_delivery { background: #dbeafe; color: #1e40af; }
+  .status-on_break { background: #fef3c7; color: #d97706; }
+  .status-off_duty { background: #f3f4f6; color: #6b7280; }
+
+  .online-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+  }
+
+  .online-true { background: #10b981; }
+  .online-false { background: #ef4444; }
+</style>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Manage Drivers</h1>
+          <p class="mt-2 text-gray-600">View and manage all delivery drivers</p>
+        </div>
+        <a href="/admin/drivers/create" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out">
+          <i class="fas fa-plus mr-2"></i>Add Driver
+        </a>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="p-2 bg-blue-100 rounded-lg">
+              <i class="fas fa-users text-blue-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Total Drivers</p>
+              <p class="text-2xl font-bold text-gray-900"><%= drivers.length %></p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <i class="fas fa-check-circle text-green-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Active Drivers</p>
+              <p class="text-2xl font-bold text-gray-900">
+                <%= drivers.filter(d => d.status === 'active').length %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="p-2 bg-yellow-100 rounded-lg">
+              <i class="fas fa-truck text-yellow-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">On Delivery</p>
+              <p class="text-2xl font-bold text-gray-900">
+                <%= drivers.filter(d => d.status === 'on_delivery').length %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="p-2 bg-red-100 rounded-lg">
+              <i class="fas fa-wifi text-red-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Online Now</p>
+              <p class="text-2xl font-bold text-gray-900">
+                <%= drivers.filter(d => d.isOnline).length %>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-white shadow rounded-lg p-4 mb-6">
+        <form method="GET" class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+            <input type="text" name="search" id="search" value="<%= query.search || '' %>" 
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Search by name, email, or license...">
+          </div>
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+            <select id="status" name="status" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              <option value="">All Statuses</option>
+              <option value="active" <%= query.status === 'active' ? 'selected' : '' %>>Active</option>
+              <option value="inactive" <%= query.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+              <option value="on_delivery" <%= query.status === 'on_delivery' ? 'selected' : '' %>>On Delivery</option>
+              <option value="on_break" <%= query.status === 'on_break' ? 'selected' : '' %>>On Break</option>
+              <option value="off_duty" <%= query.status === 'off_duty' ? 'selected' : '' %>>Off Duty</option>
+            </select>
+          </div>
+          <div>
+            <label for="online" class="block text-sm font-medium text-gray-700">Online Status</label>
+            <select id="online" name="online" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              <option value="">All</option>
+              <option value="true" <%= query.online === 'true' ? 'selected' : '' %>>Online</option>
+              <option value="false" <%= query.online === 'false' ? 'selected' : '' %>>Offline</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out">
+              <i class="fas fa-filter mr-2"></i>Filter
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Drivers Table -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <% if (drivers && drivers.length > 0) { %>
+          <ul class="divide-y divide-gray-200">
+            <% drivers.forEach(driver => { %>
+              <li>
+                <a href="/admin/drivers/<%= driver._id %>" class="block hover:bg-gray-50">
+                  <div class="px-4 py-4 flex items-center sm:px-6">
+                    <div class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
+                      <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                              <div class="h-12 w-12 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">
+                                  <%= driver.name.charAt(0).toUpperCase() %>
+                                </span>
+                              </div>
+                            </div>
+                            <div class="ml-4">
+                              <div class="flex items-center">
+                                <p class="text-sm font-medium text-gray-900"><%= driver.name %></p>
+                                <span class="ml-2 online-indicator online-<%= driver.isOnline %>"></span>
+                                <span class="ml-2 text-xs text-gray-500">
+                                  <%= driver.isOnline ? 'Online' : 'Offline' %>
+                                </span>
+                              </div>
+                              <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-4">
+                                <div class="flex items-center text-sm text-gray-500">
+                                  <i class="fas fa-envelope mr-1.5"></i>
+                                  <p><%= driver.email %></p>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-500">
+                                  <i class="fas fa-phone mr-1.5"></i>
+                                  <p><%= driver.phone %></p>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-500">
+                                  <i class="fas fa-id-card mr-1.5"></i>
+                                  <p><%= driver.licenseNumber %></p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="flex flex-col items-end space-y-2">
+                            <div class="flex space-x-2">
+                              <span class="status-badge status-<%= driver.status %>">
+                                <%= driver.status.replace('_', ' ').toUpperCase() %>
+                              </span>
+                              <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                <span><%= driver.rating %></span>
+                              </div>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                              <i class="fas fa-box mr-1.5"></i>
+                              <p><%= driver.completedDeliveries %> deliveries</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="mt-2 flex items-center text-sm text-gray-500 justify-between">
+                          <div class="flex items-center">
+                            <% if (driver.vehicle) { %>
+                              <i class="fas fa-truck mr-1.5"></i>
+                              <p>Vehicle: <%= driver.vehicle.plateNumber || 'Not assigned' %></p>
+                            <% } else { %>
+                              <i class="fas fa-exclamation-triangle text-yellow-500 mr-1.5"></i>
+                              <p>No vehicle assigned</p>
+                            <% } %>
+                          </div>
+                          <div class="flex items-center text-sm text-gray-500">
+                            <i class="far fa-clock mr-1.5"></i>
+                            <p>Last active: <%= formatDate(driver.lastActive) %></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ml-5 flex-shrink-0">
+                      <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                  </div>
+                </a>
+              </li>
+            <% }); %>
+          </ul>
+        <% } else { %>
+          <div class="text-center py-12">
+            <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900">No drivers found</h3>
+            <p class="mt-2 text-sm text-gray-500">
+              <% if (query.search || query.status) { %>
+                Try adjusting your search or filter to find what you're looking for.
+              <% } else { %>
+                Get started by adding your first driver.
+              <% } %>
+            </p>
+            <div class="mt-6">
+              <a href="/admin/drivers/create" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i class="fas fa-plus mr-2"></i>Add Driver
+              </a>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,896 @@
+<%- layout('layouts/main') %>
+<style>
+  :root {
+    --primary-gradient: linear-gradient(135deg, #4a8bff 0%, #1d4ed8 100%);
+    --primary-color: #4a8bff;
+    --primary-light: #e8f1ff;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --light-bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-dark: #1f2937;
+    --text-light: #6b7280;
+    --border-color: #e5e7eb;
+  }
+
+  body {
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+  }
+
+  .tracking-header {
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: 0 0 24px 24px;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(79, 139, 255, 0.2);
+  }
+
+  .light-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    margin-bottom: 1.5rem;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .light-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .status-badge-light {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--text-dark);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+  }
+
+  .status-in-transit {
+    background-color: var(--primary-color);
+    animation: pulse 2s infinite;
+  }
+
+  .status-delivered {
+    background-color: var(--success-color);
+  }
+
+  .map-container-light {
+    height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+  }
+
+  .progress-container-light {
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+
+  .progress-bar-light {
+    height: 100%;
+    background: var(--primary-gradient);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .timeline-light {
+    position: relative;
+    padding-left: 24px;
+  }
+
+  .timeline-light::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      var(--primary-color),
+      var(--primary-light)
+    );
+  }
+
+  .timeline-item-light {
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  }
+
+  .timeline-item-light.completed {
+    border-left-color: var(--success-color);
+  }
+
+  .timeline-item-light.current {
+    border-left-color: var(--warning-color);
+  }
+
+  .driver-card-light {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #f1f7ff 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border-left: 4px solid var(--primary-color);
+  }
+
+  .eta-card-light {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(79, 139, 255, 0.25);
+  }
+
+  .weather-card-light {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 12px;
+    padding: 1.25rem;
+    border-left: 4px solid #0ea5e9;
+  }
+
+  .checkpoint-marker {
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 3px solid var(--warning-color);
+    cursor: pointer;
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .btn-light-primary {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-light-primary:hover {
+    background: #3a7cff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(79, 139, 255, 0.3);
+  }
+
+  .btn-light-outline {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-light-outline:hover {
+    background: var(--primary-light);
+  }
+</style>
+
+<!-- Tracking Header -->
+<div class="tracking-header">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="h2 fw-bold mb-2">Package Tracking</h1>
+        <div class="d-flex align-items-center gap-3">
+          <div class="status-badge-light">
+            <span
+              class="status-indicator status-<%= package.status.replace('_','-') %>"
+            ></span>
+            <%= package.status.replace('_',' ').toUpperCase() %>
+          </div>
+          <div class="text-light">
+            <i class="fas fa-box me-1"></i> ID:
+            <span id="trackingIdDisplay"><%= package.trackingId %></span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <div class="eta-card-light">
+          <div class="small">Estimated Delivery</div>
+          <div class="h3 fw-bold mb-0" id="estimatedDeliveryTime">
+            <%= package.estimatedDelivery ?
+            package.estimatedDelivery.toLocaleString() : 'N/A' %>
+          </div>
+          <% if(package.delayInfo && package.delayInfo.estimatedDelay){ %>
+          <div class="small">
+            ± <%= package.delayInfo.estimatedDelay %> minutes
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+  <div class="row">
+    <!-- Left Column: Map & Progress -->
+    <div class="col-lg-8">
+      <!-- Map Container -->
+      <div class="light-card">
+        <div class="card-body p-0">
+          <div
+            class="d-flex justify-content-between align-items-center p-3 border-bottom"
+          >
+            <div>
+              <h3 class="h5 fw-bold mb-1">Live Delivery Route</h3>
+              <p class="text-muted small mb-0">
+                Detailed tracking with checkpoints and route visualization
+              </p>
+            </div>
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-sm btn-light-outline"
+                onclick="toggleCheckpoints()"
+              >
+                <i class="fas fa-layer-group me-1"></i>Checkpoints
+              </button>
+              <button
+                class="btn btn-sm btn-light-outline"
+                onclick="centerMap()"
+              >
+                <i class="fas fa-crosshairs me-1"></i>Center Map
+              </button>
+            </div>
+          </div>
+          <div id="map" class="map-container-light"></div>
+          <div class="p-3 border-top bg-light">
+            <div class="row text-center small">
+              <div class="col">
+                <div
+                  class="d-inline-block rounded-circle bg-success me-1"
+                  style="width: 12px; height: 12px"
+                ></div>
+                <span>Start</span>
+              </div>
+              <div class="col">
+                <div
+                  class="d-inline-block rounded-circle bg-primary me-1"
+                  style="width: 12px; height: 12px"
+                ></div>
+                <span>Vehicle</span>
+              </div>
+              <div class="col">
+                <div
+                  class="d-inline-block rounded-circle bg-warning me-1"
+                  style="width: 12px; height: 12px"
+                ></div>
+                <span>Checkpoints</span>
+              </div>
+              <div class="col">
+                <div
+                  class="d-inline-block rounded-circle bg-danger me-1"
+                  style="width: 12px; height: 12px"
+                ></div>
+                <span>Destination</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress & Timeline -->
+      <div class="row">
+        <div class="col-md-6">
+          <div class="light-card">
+            <div class="card-body">
+              <h4 class="h6 fw-bold mb-3">Delivery Progress</h4>
+              <div class="progress-container-light">
+                <div
+                  class="progress-bar-light"
+                  id="progressBar"
+                  style="width: <%= package.trackingData.routeProgress %>%"
+                ></div>
+              </div>
+              <div class="row text-center mt-3 small">
+                <% const stages = ['Order Received', 'Processing', 'In Transit',
+                'Out for Delivery', 'Delivered']; %> <% stages.forEach((stage,
+                i) => { %>
+                <div class="col">
+                  <div class="text-muted"><%= stage %></div>
+                  <% if(i < package.trackingData.routeProgress / 25){ %>
+                  <div class="fw-bold text-success">✓</div>
+                  <% } else if(i ===
+                  Math.floor(package.trackingData.routeProgress / 25)){ %>
+                  <div class="fw-bold text-primary">●</div>
+                  <% } else { %>
+                  <div class="fw-bold text-muted">○</div>
+                  <% } %>
+                </div>
+                <% }) %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="light-card">
+            <div class="card-body">
+              <h4 class="h6 fw-bold mb-3">Route Information</h4>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="small text-muted">Distance</div>
+                  <div class="fw-bold">
+                    <%= package.route?.totalDistance ?
+                    (package.route.totalDistance/1000).toFixed(1) + ' km' :
+                    'N/A' %>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="small text-muted">Time En Route</div>
+                  <div class="fw-bold">
+                    <%= package.route?.totalDuration ?
+                    Math.floor(package.route.totalDuration/3600) + 'h ' +
+                    Math.floor((package.route.totalDuration%3600)/60) + 'm' :
+                    'N/A' %>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="small text-muted">Next Checkpoint</div>
+                  <div class="fw-bold">
+                    <%= package.trackingData.waypoints?.find(wp =>
+                    !wp.arrived)?.name || 'N/A' %>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="small text-muted">Checkpoints Passed</div>
+                  <div class="fw-bold">
+                    <%= package.trackingData.waypoints ?
+                    package.trackingData.waypoints.filter(wp =>
+                    wp.arrived).length + '/' +
+                    package.trackingData.waypoints.length : '0/0' %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="light-card">
+        <div class="card-body">
+          <h4 class="h6 fw-bold mb-3">Delivery Timeline</h4>
+          <div class="timeline-light">
+            <% package.trackingData.waypoints?.forEach((wp, idx) => { %>
+            <div
+              class="timeline-item-light <%= wp.arrived ? 'completed' : 'current' %>"
+            >
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h6 class="fw-bold mb-1"><%= wp.name %></h6>
+                  <p class="small text-muted mb-0"><%= wp.type %></p>
+                </div>
+                <div class="text-end">
+                  <div class="small fw-bold">
+                    <%= wp.timestamp ? new Date(wp.timestamp).toLocaleString() :
+                    (wp.arrived ? 'Completed' : 'Upcoming') %>
+                  </div>
+                  <div
+                    class="small <%= wp.arrived ? 'text-success' : 'text-warning' %>"
+                  >
+                    <%= wp.arrived ? 'Completed' : 'In Progress' %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Details -->
+    <div class="col-lg-4">
+      <!-- Package Details -->
+      <div class="light-card">
+        <div class="card-body">
+          <h4 class="h6 fw-bold mb-3">
+            <i
+              class="fas fa-box-open me-2"
+              style="color: var(--primary-color)"
+            ></i
+            >Package Details
+          </h4>
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="small text-muted">Tracking ID</div>
+              <div class="fw-bold"><%= package.trackingId %></div>
+            </div>
+            <div class="col-6">
+              <div class="small text-muted">Weight</div>
+              <div class="fw-bold"><%= package.package.weight %> kg</div>
+            </div>
+            <div class="col-6">
+              <div class="small text-muted">Dimensions</div>
+              <div class="fw-bold">
+                <%= package.package.dimensions.length %>×<%=
+                package.package.dimensions.width %>×<%=
+                package.package.dimensions.height %> cm
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="small text-muted">Sender</div>
+              <div class="fw-bold small"><%= package.pickupAddress %></div>
+            </div>
+            <div class="col-6">
+              <div class="small text-muted">Destination</div>
+              <div class="fw-bold small"><%= package.deliveryAddress %></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Driver Information -->
+      <div class="light-card">
+        <div class="card-body">
+          <h4 class="h6 fw-bold mb-3">
+            <i
+              class="fas fa-user-tie me-2"
+              style="color: var(--primary-color)"
+            ></i
+            >Driver Information
+          </h4>
+          <% if(package.driver){ %>
+          <div class="driver-card-light">
+            <div class="d-flex align-items-center mb-3">
+              <div class="me-3">
+                <div class="bg-primary bg-opacity-10 rounded-circle p-2">
+                  <i class="fas fa-user fa-lg text-primary"></i>
+                </div>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-1"><%= package.driver.name %></h5>
+                <div class="small text-muted">
+                  Contact:
+                  <a
+                    href="tel:<%= package.driver.phone %>"
+                    class="text-decoration-none"
+                    ><i class="fas fa-phone me-1"></i>Call</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="small text-muted">Vehicle</div>
+                <div class="fw-bold">
+                  <%= package.vehicle?.plateNumber %> • <%=
+                  package.vehicle?.model %>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="small text-muted">Current Status</div>
+                <div class="fw-bold text-primary">
+                  <i class="fas fa-truck-moving me-1"></i>On Route • <%=
+                  package.trackingData.routeProgress %>% Complete
+                </div>
+              </div>
+            </div>
+          </div>
+          <% } else { %>
+          <p class="text-muted">Driver not assigned</p>
+          <% } %>
+        </div>
+      </div>
+      <!-- Incidents -->
+      <div class="light-card">
+        <div class="card-body">
+          <h4 class="h6 fw-bold mb-3">
+            <i
+              class="fas fa-exclamation-triangle me-2"
+              style="color: var(--primary-color)"
+            ></i
+            >Incidents
+          </h4>
+          <% if(package.incidents && package.incidents.length > 0){ %>
+          <div class="timeline-light">
+            <% package.incidents.forEach((incident, idx) => { %>
+            <div
+              class="timeline-item-light <%= incident.resolved ? 'completed' : 'current' %>"
+            >
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h6 class="fw-bold mb-1">
+                    <%= incident.type.toUpperCase() %>
+                  </h6>
+                  <p class="small text-muted mb-0">
+                    <%= incident.description %>
+                  </p>
+                </div>
+                <div class="text-end">
+                  <div class="small fw-bold">
+                    <%= incident.reportedAt.toLocaleString() %>
+                  </div>
+                  <div
+                    class="small <%= incident.resolved ? 'text-success' : 'text-warning' %>"
+                  >
+                    <%= incident.resolved ? 'Resolved' : 'Ongoing' %>
+                  </div>
+                </div>
+              </div>
+              <% if(incident.estimatedDelay){ %>
+              <div class="small text-muted">
+                Estimated Delay: <%= incident.estimatedDelay %> minutes
+              </div>
+              <% } %> <% if(incident.severity){ %>
+              <div class="small text-muted">
+                Severity: <%= incident.severity %>
+              </div>
+              <% } %>
+            </div>
+            <% }) %>
+          </div>
+          <% } else { %>
+          <p class="text-muted">No incidents reported</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
+<script>
+  // Initialize Mapbox
+  const mapboxToken = "<%= mapboxToken %>";
+  mapboxgl.accessToken = mapboxToken;
+
+  // Use Mapbox Light style for light UI[citation:1][citation:4]
+  const map = new mapboxgl.Map({
+    container: "map",
+    style: "mapbox://styles/mapbox/light-v11", // Light style for better data visualization[citation:1]
+    center: [-74.006, 40.7128], // Default to NYC
+    zoom: 12,
+    pitch: 0, // 2D view for cleaner look
+    bearing: 0,
+  });
+
+  // Add navigation controls
+  map.addControl(new mapboxgl.NavigationControl(), "top-right");
+
+  // Define checkpoint data
+  const checkpoints = [
+    {
+      id: 1,
+      name: "Warehouse Facility",
+      coordinates: [-74.05, 40.7],
+      type: "warehouse",
+      timestamp: "May 12, 9:30 AM",
+      status: "completed",
+      icon: "fa-warehouse",
+      color: "#10b981",
+    },
+    {
+      id: 2,
+      name: "Sorting Center",
+      coordinates: [-74.03, 40.72],
+      type: "sorting",
+      timestamp: "May 12, 11:15 AM",
+      status: "completed",
+      icon: "fa-conveyor-belt",
+      color: "#10b981",
+    },
+    {
+      id: 3,
+      name: "Distribution Hub",
+      coordinates: [-74.01, 40.71],
+      type: "distribution",
+      timestamp: "May 12, 3:45 PM",
+      status: "completed",
+      icon: "fa-truck-loading",
+      color: "#10b981",
+    },
+    {
+      id: 4,
+      name: "Traffic Checkpoint",
+      coordinates: [-74.02, 40.715],
+      type: "traffic",
+      timestamp: "Current",
+      status: "current",
+      icon: "fa-traffic-light",
+      color: "#f59e0b",
+    },
+    {
+      id: 5,
+      name: "Final Sorting Center",
+      coordinates: [-73.99, 40.72],
+      type: "sorting",
+      timestamp: "Upcoming",
+      status: "upcoming",
+      icon: "fa-boxes",
+      color: "#3b82f6",
+    },
+  ];
+
+  // Store marker references
+  let markers = [];
+  let checkpointsVisible = true;
+
+  // Wait for map to load
+  map.on("load", () => {
+    // Add route line
+    map.addSource("route", {
+      type: "geojson",
+      data: {
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: [
+            [-74.05, 40.7], // Start
+            [-74.03, 40.72], // Checkpoint 1
+            [-74.01, 40.71], // Checkpoint 2
+            [-74.02, 40.715], // Checkpoint 3 (traffic)
+            [-73.99, 40.72], // Checkpoint 4
+            [-73.97, 40.71], // End
+          ],
+        },
+      },
+    });
+
+    map.addLayer({
+      id: "route",
+      type: "line",
+      source: "route",
+      layout: {
+        "line-join": "round",
+        "line-cap": "round",
+      },
+      paint: {
+        "line-color": "#3b82f6",
+        "line-width": 4,
+        "line-opacity": 0.7,
+        "line-dasharray": [2, 1],
+      },
+    });
+
+    // Add start marker (green)
+    const startMarker = document.createElement("div");
+    startMarker.className = "checkpoint-marker";
+    startMarker.style.borderColor = "#10b981";
+    startMarker.innerHTML =
+      '<i class="fas fa-flag-checkered" style="color: #10b981;"></i>';
+
+    new mapboxgl.Marker(startMarker)
+      .setLngLat([-74.05, 40.7])
+      .setPopup(
+        new mapboxgl.Popup().setHTML(`
+        <h6>Start: Warehouse Facility</h6>
+        <p>Package pickup location</p>
+        <small><strong>Time:</strong> 9:30 AM</small>
+      `)
+      )
+      .addTo(map);
+
+    // Add checkpoints
+    checkpoints.forEach((checkpoint) => {
+      const el = document.createElement("div");
+      el.className = "checkpoint-marker";
+      el.style.borderColor = checkpoint.color;
+      el.style.background = `${checkpoint.color}15`;
+      el.innerHTML = `<i class="fas ${checkpoint.icon}" style="color: ${checkpoint.color};"></i>`;
+
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat(checkpoint.coordinates)
+        .setPopup(
+          new mapboxgl.Popup().setHTML(`
+          <h6>${checkpoint.name}</h6>
+          <p>Checkpoint ${checkpoint.id} • ${checkpoint.type.toUpperCase()}</p>
+          <small><strong>Status:</strong> ${checkpoint.status}</small><br>
+          <small><strong>Time:</strong> ${checkpoint.timestamp}</small>
+        `)
+        )
+        .addTo(map);
+
+      markers.push(marker);
+    });
+
+    // Add vehicle marker (blue)
+    const vehicleEl = document.createElement("div");
+    vehicleEl.className = "vehicle-marker";
+    vehicleEl.innerHTML = '<i class="fas fa-truck text-white"></i>';
+    vehicleEl.style.background = "var(--primary-color)";
+    vehicleEl.style.borderColor = "var(--primary-color)";
+    vehicleEl.style.animation = "vehicleMove 3s ease-in-out infinite";
+
+    new mapboxgl.Marker(vehicleEl)
+      .setLngLat([-74.02, 40.715])
+      .setPopup(
+        new mapboxgl.Popup().setHTML(`
+        <h6>Delivery Vehicle</h6>
+        <p>Driver: Michael Rodriguez</p>
+        <p>Vehicle: ED-2034</p>
+        <small><strong>Status:</strong> In Transit</small><br>
+        <small><strong>Progress:</strong> 65% complete</small>
+      `)
+      )
+      .addTo(map);
+
+    // Add end marker (red)
+    const endMarker = document.createElement("div");
+    endMarker.className = "checkpoint-marker";
+    endMarker.style.borderColor = "#ef4444";
+    endMarker.innerHTML = '<i class="fas fa-home" style="color: #ef4444;"></i>';
+
+    new mapboxgl.Marker(endMarker)
+      .setLngLat([-73.97, 40.71])
+      .setPopup(
+        new mapboxgl.Popup().setHTML(`
+        <h6>Delivery Destination</h6>
+        <p>Customer address</p>
+        <small><strong>ETA:</strong> 2:30 PM (±30 min)</small>
+      `)
+      )
+      .addTo(map);
+
+    // Fit map to show all markers
+    const bounds = new mapboxgl.LngLatBounds();
+    bounds.extend([-74.05, 40.7]); // Start
+    bounds.extend([-73.97, 40.71]); // End
+    checkpoints.forEach((cp) => bounds.extend(cp.coordinates));
+    map.fitBounds(bounds, { padding: 100, duration: 2000 });
+
+    // Now fetch weather for destination
+    fetchWeatherForDestination();
+  });
+
+  // Function to toggle checkpoints visibility
+  function toggleCheckpoints() {
+    checkpointsVisible = !checkpointsVisible;
+    markers.forEach((marker) => {
+      if (checkpointsVisible) {
+        marker.addTo(map);
+      } else {
+        marker.remove();
+      }
+    });
+  }
+
+  // Function to center map on route
+  function centerMap() {
+    const bounds = new mapboxgl.LngLatBounds();
+    bounds.extend([-74.05, 40.7]);
+    bounds.extend([-73.97, 40.71]);
+    map.fitBounds(bounds, { padding: 100, duration: 1000 });
+  }
+
+  // Fetch weather for destination address
+  async function fetchWeatherForDestination() {
+    try {
+      // For demo, using NYC coordinates. In production, use actual delivery address coordinates
+      const destinationCoords = [-73.97, 40.71]; // NYC coordinates
+
+      // Display destination city
+      document.getElementById("deliveryCity").textContent = "New York, NY";
+
+      // In a real application, you would:
+      // 1. Get the delivery address from your backend
+      // 2. Use Mapbox Geocoding API to convert address to coordinates[citation:10]
+      // 3. Use a weather API with those coordinates
+
+      // For this demo, simulate API call
+      setTimeout(() => {
+        // Simulated weather data - replace with actual API call
+        const weatherData = {
+          condition: "Partly Cloudy",
+          temperature: 22,
+          feelsLike: 24,
+          windSpeed: 12,
+          windDirection: "NE",
+          humidity: "65%",
+          visibility: "Good",
+          icon: "cloud-sun",
+        };
+
+        updateWeatherDisplay(weatherData);
+      }, 1000);
+    } catch (error) {
+      console.error("Error fetching weather:", error);
+      document.getElementById("weatherCondition").textContent =
+        "Weather unavailable";
+      document.getElementById("weatherDetails").textContent =
+        "Could not fetch weather data";
+    }
+  }
+
+  // Update weather display
+  function updateWeatherDisplay(data) {
+    document.getElementById("weatherCondition").textContent = data.condition;
+    document.getElementById(
+      "weatherTemp"
+    ).textContent = `${data.temperature}°C`;
+    document.getElementById(
+      "weatherDetails"
+    ).textContent = `Feels like ${data.feelsLike}°C • Humidity ${data.humidity}`;
+    document.getElementById("weatherStatus").textContent = data.condition;
+    document.getElementById(
+      "weatherWind"
+    ).textContent = `${data.windSpeed} km/h ${data.windDirection}`;
+    document.getElementById("weatherVisibility").textContent = data.visibility;
+
+    // Update icon
+    const iconElement = document.getElementById("weatherIcon");
+    iconElement.innerHTML = `<i class="fas fa-${data.icon} fa-2x" style="color: #f59e0b;"></i>`;
+  }
+
+  // Refresh weather function
+  function refreshWeather() {
+    document.getElementById("weatherCondition").textContent = "Updating...";
+    document.getElementById("weatherDetails").textContent =
+      "Fetching latest weather data";
+
+    // Simulate API delay
+    setTimeout(() => {
+      // In production, make actual API call here
+      const updatedData = {
+        condition: "Mostly Sunny",
+        temperature: 24,
+        feelsLike: 26,
+        windSpeed: 10,
+        windDirection: "E",
+        humidity: "60%",
+        visibility: "Excellent",
+        icon: "sun",
+      };
+
+      updateWeatherDisplay(updatedData);
+    }, 1500);
+  }
+
+  // Parse URL parameters for tracking ID
+  function getUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const trackingId = params.get("trackingId");
+    if (trackingId) {
+      document.getElementById("trackingIdDisplay").textContent = trackingId;
+    }
+  }
+
+  // Initialize
+  document.addEventListener("DOMContentLoaded", getUrlParams);
+</script>

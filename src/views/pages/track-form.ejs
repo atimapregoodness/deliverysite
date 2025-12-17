@@ -1,0 +1,454 @@
+<%- layout('layouts/main') %>
+<style>
+  :root {
+    --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    --primary-color: #2563eb;
+    --accent-color: #f59e0b;
+    --dark-color: #111827;
+    --light-color: #f8fafc;
+    --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 12px 40px rgba(37, 99, 235, 0.15);
+  }
+
+  body {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 100vh;
+  }
+
+  .hero-section {
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: 20px;
+    padding: 3rem 1.5rem;
+    margin-top: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px
+    );
+    background-size: 40px 40px;
+    opacity: 0.3;
+    animation: backgroundShift 20s linear infinite;
+  }
+
+  .tracking-card {
+    background: white;
+    border-radius: 18px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow);
+    border: none;
+    margin-top: -40px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .tracking-input {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.875rem 1.25rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #fafafa;
+  }
+
+  .tracking-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background: white;
+  }
+
+  .btn-track {
+    background: var(--primary-gradient);
+    border: none;
+    border-radius: 12px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-track::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+
+  .btn-track:hover::after {
+    left: 100%;
+  }
+
+  .btn-track:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+  }
+
+  .feature-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.25rem;
+    height: 100%;
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .feature-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary-color);
+    box-shadow: var(--hover-shadow);
+  }
+
+  .feature-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.1) 0%,
+      rgba(30, 64, 175, 0.05) 100%
+    );
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.875rem;
+  }
+
+  .floating-animation {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(2deg);
+    }
+  }
+
+  @keyframes backgroundShift {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(40px, 40px);
+    }
+  }
+
+  .map-preview {
+    height: 240px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    position: relative;
+  }
+
+  .stats-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.25rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+
+  .stats-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary-gradient);
+  }
+
+  .stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+  }
+
+  .glow {
+    box-shadow: 0 0 40px rgba(37, 99, 235, 0.15);
+  }
+
+  .input-group {
+    gap: 0.75rem;
+  }
+
+  .stats-number {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 2rem 1rem;
+      border-radius: 16px;
+    }
+
+    .tracking-card {
+      padding: 1.5rem;
+      margin-top: -30px;
+    }
+
+    .input-group {
+      flex-direction: column;
+    }
+
+    .btn-track {
+      width: 100%;
+    }
+  }
+</style>
+
+<!-- Main Content -->
+<div class="container px-3 px-md-4">
+  <!-- Hero Section -->
+  <div class="hero-section text-center">
+    <div class="position-relative" style="z-index: 2">
+      <h1 class="display-5 fw-bold mb-2">Track Your Delivery in Real-Time</h1>
+      <p class="lead mb-3 opacity-90 fs-6">
+        Live updates, interactive maps & predictive analytics
+      </p>
+
+      <!-- Floating Elements -->
+      <div
+        class="position-absolute top-0 start-0 floating-animation"
+        style="z-index: 1"
+      >
+        <div
+          class="bg-white opacity-10 rounded-circle"
+          style="width: 80px; height: 80px"
+        ></div>
+      </div>
+      <div
+        class="position-absolute bottom-0 end-0 floating-animation"
+        style="animation-delay: 1s; z-index: 1"
+      >
+        <div
+          class="bg-white opacity-10 rounded-circle"
+          style="width: 60px; height: 60px"
+        ></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tracking Card -->
+  <div class="tracking-card glow">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8">
+        <h2 class="h4 fw-bold mb-2">Enter Tracking Details</h2>
+        <p class="text-muted mb-3 fs-7">
+          Track with ID, order number, or reference
+        </p>
+
+        <form id="trackingForm" onsubmit="handleTrackSubmit(event)">
+          <div class="input-group">
+            <input
+              type="text"
+              id="trackingId"
+              class="form-control tracking-input"
+              placeholder="Enter tracking ID (e.g., DEL82917463)"
+              required
+            />
+            <button class="btn btn-track" type="submit">
+              <i class="fas fa-search me-2"></i>Track Package
+            </button>
+          </div>
+
+          <div class="form-text mt-2 fs-7">
+            <i class="fas fa-info-circle me-1"></i>
+            Find tracking ID in order confirmation email
+          </div>
+        </form>
+      </div>
+      <div class="col-lg-4">
+        <div
+          class="map-preview d-flex align-items-center justify-content-center"
+        >
+          <div class="text-center p-3">
+            <div
+              class="bg-white rounded-circle p-2 mb-2 d-inline-block shadow-sm"
+            >
+              <i class="fas fa-map-marked-alt fa-lg text-primary"></i>
+            </div>
+            <h5 class="fw-bold mb-1 fs-6">Live Map Tracking</h5>
+            <p class="text-muted fs-7 mb-0">
+              Real-time Mapbox integration[citation:5]
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="row g-3 mt-3">
+    <div class="col-md-4">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+        </div>
+        <h5 class="fw-bold mb-2 fs-6">Real-Time Location</h5>
+        <p class="text-muted mb-0 fs-7">
+          Live tracking with precise geocoding[citation:4][citation:6]
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-brain fa-lg text-primary"></i>
+        </div>
+        <h5 class="fw-bold mb-2 fs-6">Predictive ETA</h5>
+        <p class="text-muted mb-0 fs-7">
+          AI-powered delivery predictions[citation:6]
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-bell fa-lg text-primary"></i>
+        </div>
+        <h5 class="fw-bold mb-2 fs-6">Smart Alerts</h5>
+        <p class="text-muted mb-0 fs-7">
+          Proactive delay & arrival notifications[citation:4]
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="row g-3 mt-3">
+    <div class="col-md-3 col-6">
+      <div class="stats-card">
+        <h3 class="display-6 fw-bold stats-number">24/7</h3>
+        <p class="text-muted mb-0 fs-7">Real-Time Tracking</p>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stats-card">
+        <h3 class="display-6 fw-bold stats-number">99.8%</h3>
+        <p class="text-muted mb-0 fs-7">Delivery Accuracy</p>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stats-card">
+        <h3 class="display-6 fw-bold stats-number">150+</h3>
+        <p class="text-muted mb-0 fs-7">Cities Covered</p>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stats-card">
+        <h3 class="display-6 fw-bold stats-number">30min</h3>
+        <p class="text-muted mb-0 fs-7">Update Frequency</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function handleTrackSubmit(event) {
+    event.preventDefault();
+
+    const input = document.getElementById("trackingId");
+    let trackingId = input.value.trim().toUpperCase();
+
+    // Required check
+    if (!trackingId) {
+      showNotification("Please enter a tracking ID.", "error");
+      input.focus();
+      return;
+    }
+
+    // Format validation (must match backend)
+    const trackingRegex = /^DEL[A-Z0-9]{8}$/;
+    if (!trackingRegex.test(trackingId)) {
+      showNotification(
+        "Invalid tracking ID format. Example: DEL82917463",
+        "warning"
+      );
+      input.focus();
+      return;
+    }
+
+    // Add loading state
+    const btn = document.querySelector(".btn-track");
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Tracking...';
+    btn.disabled = true;
+
+    // Simulate API call delay
+    setTimeout(() => {
+      // Redirect using query string
+      window.location.href = `/delivery/track/results?trackingId=${encodeURIComponent(
+        trackingId
+      )}`;
+    }, 500);
+  }
+
+  // Notification function
+  function showNotification(message, type) {
+    const notification = document.createElement("div");
+    notification.className = `position-fixed top-0 end-0 m-3 p-3 rounded shadow-lg bg-${
+      type === "error" ? "danger" : "warning"
+    } text-white`;
+    notification.style.zIndex = "9999";
+    notification.innerHTML = `
+      <div class="d-flex align-items-center">
+        <i class="fas fa-${
+          type === "error" ? "exclamation-triangle" : "info-circle"
+        } me-2"></i>
+        <span>${message}</span>
+      </div>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => notification.remove(), 3000);
+  }
+
+  // Smart sample ID rotation
+  const sampleIds = ["DEL82917463", "DEL55123489", "DEL99345612"];
+  let currentIndex = 0;
+
+  function rotateSampleId() {
+    const input = document.getElementById("trackingId");
+    if (document.activeElement !== input) {
+      input.value = sampleIds[currentIndex];
+      currentIndex = (currentIndex + 1) % sampleIds.length;
+    }
+  }
+
+  // Initialize with first sample
+  document.addEventListener("DOMContentLoaded", () => {
+    rotateSampleId();
+    setInterval(rotateSampleId, 3000);
+  });
+</script>

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Express Delivery - Advanced Header</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+                800: "#1e40af",
+                900: "#1e3a8a",
+              },
+              accent: {
+                500: "#f59e0b",
+                600: "#d97706",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --primary-dark: #1d4ed8;
+        --accent-color: #f59e0b;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --transition-speed: 0.3s;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background-color: #f9fafb;
+        color: var(--text-dark);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        transition: all var(--transition-speed) ease;
+      }
+
+      .header.scrolled {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .nav-link {
+        position: relative;
+        transition: color var(--transition-speed) ease;
+        font-weight: 500;
+      }
+
+      .nav-link::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background-color: var(--primary-color);
+        transition: all var(--transition-speed) ease;
+        transform: translateX(-50%);
+      }
+
+      .nav-link:hover::after {
+        width: 80%;
+      }
+
+      .dropdown-menu {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(229, 231, 235, 0.8);
+      }
+
+      .dropdown-menu.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .mobile-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .mobile-menu.active {
+        max-height: 500px;
+      }
+
+      .logo-container {
+        transition: transform 0.3s ease;
+      }
+
+      .logo-container:hover {
+        transform: scale(1.05);
+      }
+
+      .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color) 0%,
+          var(--primary-dark) 100%
+        );
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+      }
+
+      .search-container {
+        transition: all 0.3s ease;
+        max-width: 40px;
+      }
+
+      .search-container.active {
+        max-width: 250px;
+      }
+
+      .search-input {
+        width: 0;
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .search-container.active .search-input {
+        width: 100%;
+        opacity: 1;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease forwards;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Advanced features */
+      .status-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #10b981;
+        margin-right: 8px;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+        70% {
+          transform: scale(1);
+          box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+        }
+        100% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+      }
+
+      .notification-panel {
+        width: 360px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .notification-item {
+        transition: background-color 0.2s ease;
+      }
+
+      .notification-item:hover {
+        background-color: #f8fafc;
+      }
+
+      .progress-bar {
+        height: 4px;
+        background-color: #e5e7eb;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background-color: var(--primary-color);
+        border-radius: 2px;
+        transition: width 0.5s ease;
+      }
+
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .quick-action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        border-radius: 8px;
+        background-color: #f8fafc;
+        transition: all 0.2s ease;
+      }
+
+      .quick-action-btn:hover {
+        background-color: #eff6ff;
+        transform: translateY(-2px);
+      }
+
+      /* Dark mode support */
+      .dark-mode-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        background-color: #e5e7eb;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .dark-mode-switch.active {
+        background-color: var(--primary-color);
+      }
+
+      .dark-mode-toggle {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+      }
+
+      .dark-mode-switch.active .dark-mode-toggle {
+        transform: translateX(20px);
+      }
+
+      /* Ensure proper stacking context */
+      .z-50 {
+        z-index: 50;
+      }
+
+      /* Smooth transitions for all interactive elements */
+      .transition-all {
+        transition: all 0.3s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Advanced Header -->
+    <header class="header">
+      <!-- Top Bar -->
+      <div class="bg-primary-800 text-white py-2 px-4">
+        <div
+          class="max-w-7xl mx-auto flex justify-between items-center text-sm"
+        >
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+              <span class="status-indicator"></span>
+              <span>All systems operational</span>
+            </div>
+            <span class="hidden md:inline">•</span>
+            <a
+              href="#"
+              class="hidden md:inline hover:text-primary-100 transition-colors"
+              >Support Center</a
+            >
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+              <i class="fas fa-phone-alt text-xs"></i>
+              <span>1-800-EXPRESS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Navigation -->
+      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 md:h-20">
+          <!-- Logo and Brand -->
+          <div class="flex items-center">
+            <a href="/" class="flex-shrink-0 flex items-center">
+              <div class="relative">
+                <div
+                  class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center"
+                >
+                  <i class="fas fa-shipping-fast text-white text-lg"></i>
+                </div>
+              </div>
+              <span class="ml-3 text-xl md:text-2xl font-bold text-gray-900"
+                >Express<span class="text-primary-600">Delivery</span></span
+              >
+            </a>
+          </div>
+
+          <!-- Desktop Navigation -->
+          <div class="hidden md:flex items-center space-x-1">
+            <a
+              href="/"
+              class="nav-link text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+            >
+              <i class="fas fa-home mr-2"></i>Home
+            </a>
+            <a
+              href="/track"
+              class="nav-link text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+            >
+              <i class="fas fa-search mr-2"></i>Track Package
+            </a>
+
+            <a
+              href="/services"
+              class="nav-link text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+            >
+              <i class="fas fa-concierge-bell mr-2"></i>Services
+            </a>
+
+            <a
+              href="/pricing"
+              class="nav-link text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+            >
+              <i class="fas fa-tag mr-2"></i>Pricing
+            </a>
+
+            <!-- Search Bar -->
+            <div
+              class="search-container relative flex items-center ml-2 bg-gray-100 rounded-lg"
+            >
+              <div class="search-input">
+                <input
+                  type="text"
+                  placeholder="Track by ID..."
+                  class="w-full py-2 px-4 rounded-lg border-0 bg-transparent focus:outline-none focus:ring-0"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // User dropdown functionality
+        const userDropdownToggle = document.querySelector(
+          ".user-dropdown-toggle"
+        );
+        const userDropdown = document.querySelector(".dropdown-menu");
+        const dropdownIcon =
+          userDropdownToggle.querySelector(".fa-chevron-down");
+
+        userDropdownToggle.addEventListener("click", function (e) {
+          e.stopPropagation();
+          userDropdown.classList.toggle("active");
+          dropdownIcon.style.transform = userDropdown.classList.contains(
+            "active"
+          )
+            ? "rotate(180deg)"
+            : "rotate(0)";
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function () {
+          userDropdown.classList.remove("active");
+          dropdownIcon.style.transform = "rotate(0)";
+
+          // Also close notification dropdown
+          notificationDropdown.classList.remove("active");
+        });
+
+        // Mobile menu functionality
+        const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+        const mobileMenu = document.querySelector(".mobile-menu");
+        const mobileMenuIcon = mobileMenuToggle.querySelector("i");
+
+        mobileMenuToggle.addEventListener("click", function () {
+          mobileMenu.classList.toggle("active");
+          if (mobileMenu.classList.contains("active")) {
+            mobileMenuIcon.classList.remove("fa-bars");
+            mobileMenuIcon.classList.add("fa-times");
+          } else {
+            mobileMenuIcon.classList.remove("fa-times");
+            mobileMenuIcon.classList.add("fa-bars");
+          }
+        });
+
+        // Search toggle functionality
+        const searchToggle = document.querySelector(".search-toggle");
+        const searchContainer = document.querySelector(".search-container");
+
+        searchToggle.addEventListener("click", function () {
+          searchContainer.classList.toggle("active");
+          // Focus on input when expanded
+          if (searchContainer.classList.contains("active")) {
+            setTimeout(() => {
+              searchContainer.querySelector("input").focus();
+            }, 300);
+          }
+        });
+
+        // Header scroll effect
+        const header = document.querySelector(".header");
+
+        window.addEventListener("scroll", function () {
+          if (window.scrollY > 50) {
+            header.classList.add("scrolled");
+          } else {
+            header.classList.remove("scrolled");
+          }
+        });
+
+        // Close mobile menu when clicking on a link
+        const mobileLinks = document.querySelectorAll(".mobile-menu a");
+        mobileLinks.forEach((link) => {
+          link.addEventListener("click", function () {
+            mobileMenu.classList.remove("active");
+            mobileMenuIcon.classList.remove("fa-times");
+            mobileMenuIcon.classList.add("fa-bars");
+          });
+        });
+
+        // Notification dropdown functionality
+        const notificationToggle = document.querySelector(
+          ".notification-toggle"
+        );
+        const notificationDropdown = document.querySelector(
+          ".notification-toggle + .dropdown-menu"
+        );
+
+        notificationToggle.addEventListener("click", function (e) {
+          e.stopPropagation();
+          notificationDropdown.classList.toggle("active");
+        });
+
+        // Dark mode toggle functionality
+        const darkModeSwitch = document.querySelector(".dark-mode-switch");
+
+        darkModeSwitch.addEventListener("click", function () {
+          darkModeSwitch.classList.toggle("active");
+          // Here you would typically toggle a dark mode class on the body
+          // document.body.classList.toggle('dark');
+        });
+      });
+    </script>
+  </body>
+</html>

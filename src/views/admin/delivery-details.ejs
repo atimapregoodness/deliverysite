@@ -1,0 +1,1083 @@
+<%- layout('layouts/admin') %>
+<style>
+  /* Modern Admin Dashboard Styles */
+  :root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --success-color: #059669;
+    --warning-color: #d97706;
+    --danger-color: #dc2626;
+    --info-color: #0891b2;
+    --dark-color: #1f2937;
+    --light-color: #f9fafb;
+    --border-color: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+  }
+
+  /* Status Badges */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    border: 1px solid transparent;
+  }
+
+  .status-pending {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fbbf24;
+  }
+  .status-in_transit {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #3b82f6;
+  }
+  .status-delayed {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #f59e0b;
+  }
+  .status-delivered {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #10b981;
+  }
+  .status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #ef4444;
+  }
+
+  /* Info Cards */
+  .info-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    height: 100%;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
+  }
+
+  .info-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .info-card .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .info-value {
+    font-size: 0.875rem;
+    color: #111827;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+
+  /* Coordinates Display */
+  .coordinates {
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", "Courier New",
+      monospace;
+    font-size: 0.75rem;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+    border: 1px solid var(--border-color);
+  }
+
+  /* Action Buttons */
+  .action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: white;
+    color: var(--dark-color);
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  .action-btn:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .action-btn i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+  }
+
+  /* Modal Fixes */
+  .modal {
+    z-index: 1060 !important;
+  }
+
+  .modal-backdrop {
+    z-index: 1050 !important;
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
+
+  .modal-dialog {
+    z-index: 1061 !important;
+  }
+
+  .modal-content {
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .modal-header {
+    background: var(--light-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    background: var(--light-color);
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+  }
+
+  /* Form Controls */
+  .form-label {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+  }
+
+  .form-control,
+  .form-select {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+
+  /* Accordion */
+  .accordion-item {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+  }
+
+  .accordion-button {
+    background: #f9fafb;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+  }
+
+  .accordion-button:not(.collapsed) {
+    background: #f3f4f6;
+    color: var(--dark-color);
+  }
+
+  /* Progress Bar */
+  .progress {
+    height: 0.5rem;
+    background-color: #e5e7eb;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    background-color: var(--primary-color);
+    border-radius: 1rem;
+  }
+
+  /* Header Styles */
+  .page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+
+  .page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Quick Actions Grid */
+  .quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .quick-actions-grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .modal-dialog {
+      margin: 0.5rem;
+    }
+
+    .page-header {
+      padding: 1rem;
+    }
+  }
+
+  /* Loading States */
+  .loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+
+  /* Alert Messages */
+  .alert-toast {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+</style>
+
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="page-header">
+    <div
+      class="d-flex justify-content-between align-items-start position-relative"
+    >
+      <div>
+        <a href="/admin/deliveries" class="btn btn-light btn-sm mb-3">
+          <i class="fas fa-arrow-left me-2"></i> Back to Deliveries
+        </a>
+        <h2 class="mb-2 fs-6">
+          Delivery Details - <b><%= delivery.trackingId %></b>
+        </h2>
+
+        <div class="d-flex align-items-center gap-3">
+          <span class="status-badge status-<%= delivery.status %>">
+            <i class="fas fa-circle me-2" style="font-size: 0.5rem"></i>
+            <%= delivery.status.replace('_', ' ') %>
+          </span>
+          <span class="text-white-75">
+            <i class="far fa-calendar me-1"></i>
+            <%= new Date(delivery.createdAt).toLocaleDateString('en-US', { year:
+            'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:
+            '2-digit' }) %>
+          </span>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button
+          class="btn btn-outline-light"
+          data-bs-toggle="modal"
+          data-bs-target="#editModal"
+        >
+          <i class="fas fa-edit me-2"></i>Edit
+        </button>
+        <div class="dropdown">
+          <button
+            class="btn btn-light dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+          >
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a
+                class="dropdown-item"
+                href="/admin/deliveries/<%= delivery._id %>/print"
+                target="_blank"
+              >
+                <i class="fas fa-print me-2"></i>Print Details
+              </a>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <a
+                class="dropdown-item text-danger"
+                href="javascript:void(0)"
+                onclick="deleteDelivery()"
+              >
+                <i class="fas fa-trash me-2"></i>Delete Delivery
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mb-4">
+    <h5 class="mb-3 text-dark">Quick Actions</h5>
+    <div class="quick-actions-grid">
+      <button
+        class="action-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#statusModal"
+      >
+        <i class="fas fa-sync-alt me-2 text-primary"></i>Update Status
+      </button>
+      <button
+        class="action-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#incidentModal"
+      >
+        <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Report
+        Incident
+      </button>
+      <button
+        class="action-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#locationModal"
+      >
+        <i class="fas fa-map-marker-alt me-2 text-info"></i>Update Location
+      </button>
+      <button
+        class="action-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#driverModal"
+      >
+        <i class="fas fa-user me-2 text-success"></i>Assign Driver
+      </button>
+      <button class="action-btn" onclick="geocodeAddresses()">
+        <i class="fas fa-map-pin me-2 text-purple"></i>Geocode Addresses
+      </button>
+      <button class="action-btn" onclick="markAsDelivered()">
+        <i class="fas fa-check-circle me-2 text-success"></i>Mark Delivered
+      </button>
+      <button class="action-btn" onclick="cancelDelivery()">
+        <i class="fas fa-times-circle me-2 text-danger"></i>Cancel Delivery
+      </button>
+    </div>
+  </div>
+
+  <!-- Delivery Details Grid -->
+  <div class="row g-4">
+    <!-- Sender Information -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+      <div class="info-card">
+        <h5 class="card-title">
+          <i class="fas fa-paper-plane me-2 text-primary"></i>Sender
+        </h5>
+        <div class="mb-3">
+          <div class="info-label">Name</div>
+          <div class="info-value"><%= delivery.sender.name %></div>
+        </div>
+        <div class="mb-3">
+          <div class="info-label">Contact</div>
+          <div class="info-value">
+            <div>
+              <i class="fas fa-phone me-2 text-muted"></i><%=
+              delivery.sender.phone %>
+            </div>
+            <div>
+              <i class="fas fa-envelope me-2 text-muted"></i><%=
+              delivery.sender.email %>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="info-label">Address</div>
+          <div class="info-value">
+            <div><%= delivery.sender.address.street %></div>
+            <div>
+              <%= delivery.sender.address.city %>, <%=
+              delivery.sender.address.state %> <%=
+              delivery.sender.address.postalCode %>
+            </div>
+            <% if (delivery.sender.address.country) { %>
+            <div><%= delivery.sender.address.country %></div>
+            <% } %>
+          </div>
+          <% if (delivery.sender.address.coordinates &&
+          delivery.sender.address.coordinates.coordinates[0] !== 0) { %>
+          <div class="mt-2">
+            <div class="coordinates">
+              <i class="fas fa-map-marker-alt me-1"></i>
+              <%= delivery.sender.address.coordinates.coordinates[0].toFixed(6)
+              %>, <%=
+              delivery.sender.address.coordinates.coordinates[1].toFixed(6) %>
+            </div>
+            <% if (delivery.sender.address.geocoded) { %>
+            <span class="badge bg-success ms-2">✓ Geocoded</span>
+            <% } %>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receiver Information -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+      <div class="info-card">
+        <h5 class="card-title">
+          <i class="fas fa-user-check me-2 text-success"></i>Receiver
+        </h5>
+        <div class="mb-3">
+          <div class="info-label">Name</div>
+          <div class="info-value"><%= delivery.receiver.name %></div>
+        </div>
+        <div class="mb-3">
+          <div class="info-label">Contact</div>
+          <div class="info-value">
+            <div>
+              <i class="fas fa-phone me-2 text-muted"></i><%=
+              delivery.receiver.phone %>
+            </div>
+            <div>
+              <i class="fas fa-envelope me-2 text-muted"></i><%=
+              delivery.receiver.email %>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="info-label">Address</div>
+          <div class="info-value">
+            <div><%= delivery.receiver.address.street %></div>
+            <div>
+              <%= delivery.receiver.address.city %>, <%=
+              delivery.receiver.address.state %> <%=
+              delivery.receiver.address.postalCode %>
+            </div>
+            <% if (delivery.receiver.address.country) { %>
+            <div><%= delivery.receiver.address.country %></div>
+            <% } %>
+          </div>
+          <% if (delivery.receiver.address.coordinates &&
+          delivery.receiver.address.coordinates.coordinates[0] !== 0) { %>
+          <div class="mt-2">
+            <div class="coordinates">
+              <i class="fas fa-map-marker-alt me-1"></i>
+              <%=
+              delivery.receiver.address.coordinates.coordinates[0].toFixed(6)
+              %>, <%=
+              delivery.receiver.address.coordinates.coordinates[1].toFixed(6) %>
+            </div>
+            <% if (delivery.receiver.address.geocoded) { %>
+            <span class="badge bg-success ms-2">✓ Geocoded</span>
+            <% } %>
+          </div>
+          <% } %>
+        </div>
+        <% if (delivery.receiver.deliveryInstructions) { %>
+        <div class="mb-3">
+          <div class="info-label">Instructions</div>
+          <div class="info-value">
+            <i class="fas fa-info-circle me-2 text-info"></i>
+            <%= delivery.receiver.deliveryInstructions %>
+          </div>
+        </div>
+        <% } %>
+        <div class="mb-3">
+          <div class="info-label">Signature Required</div>
+          <div class="info-value">
+            <span
+              class="badge bg-<%= delivery.receiver.signatureRequired ? 'warning' : 'secondary' %>"
+            >
+              <%= delivery.receiver.signatureRequired ? 'Yes' : 'No' %>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Package Information -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+      <div class="info-card">
+        <h5 class="card-title">
+          <i class="fas fa-box me-2 text-warning"></i>Package
+        </h5>
+        <div class="mb-3">
+          <div class="info-label">Description</div>
+          <div class="info-value"><%= delivery.package.description %></div>
+        </div>
+        <div class="mb-3">
+          <div class="info-label">Category</div>
+          <div class="info-value">
+            <span class="badge bg-info"><%= delivery.package.category %></span>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="info-label">Weight</div>
+          <div class="info-value"><%= delivery.package.weight %> kg</div>
+        </div>
+        <% if (delivery.package.dimensions) { %>
+        <div class="mb-3">
+          <div class="info-label">Dimensions</div>
+          <div class="info-value">
+            <%= delivery.package.dimensions.length %> × <%=
+            delivery.package.dimensions.width %> × <%=
+            delivery.package.dimensions.height %> cm
+          </div>
+        </div>
+        <% } %>
+        <div class="mb-3">
+          <div class="info-label">Value</div>
+          <div class="info-value">
+            $<%= delivery.package.value ?
+            parseFloat(delivery.package.value).toFixed(2) : '0.00' %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tracking Information -->
+    <div class="col-xl-3 col-lg-6 col-md-6">
+      <div class="info-card">
+        <h5 class="card-title">
+          <i class="fas fa-shipping-fast me-2 text-primary"></i>Tracking
+        </h5>
+        <div class="mb-3">
+          <div class="info-label">Current Location</div>
+          <div class="coordinates mb-2">
+            <i class="fas fa-location-arrow me-1"></i>
+            <%= delivery.trackingData.currentLocation.coordinates[0].toFixed(6)
+            %>, <%=
+            delivery.trackingData.currentLocation.coordinates[1].toFixed(6) %>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="info-label">Route Progress</div>
+          <div
+            class="info-value d-flex justify-content-between align-items-center"
+          >
+            <span><%= delivery.trackingData.routeProgress %>%</span>
+            <span class="text-muted small"
+              >ETA: <%= new
+              Date(delivery.estimatedDelivery).toLocaleTimeString([], {hour:
+              '2-digit', minute:'2-digit'}) %></span
+            >
+          </div>
+          <div class="progress">
+            <div
+              class="progress-bar"
+              role="progressbar"
+              style="width: <%= delivery.trackingData.routeProgress %>%"
+            ></div>
+          </div>
+        </div>
+        <% if (delivery.trackingData.speed > 0) { %>
+        <div class="mb-3">
+          <div class="info-label">Speed</div>
+          <div class="info-value">
+            <i class="fas fa-tachometer-alt me-2 text-muted"></i>
+            <%= delivery.trackingData.speed %> km/h
+          </div>
+        </div>
+        <% } %>
+        <div class="mb-3">
+          <div class="info-label">Estimated Delivery</div>
+          <div class="info-value">
+            <i class="far fa-clock me-2 text-muted"></i>
+            <%= new Date(delivery.estimatedDelivery).toLocaleDateString() %> at
+            <%= new Date(delivery.estimatedDelivery).toLocaleTimeString([],
+            {hour: '2-digit', minute:'2-digit'}) %>
+          </div>
+        </div>
+        <% if (delivery.actualDelivery) { %>
+        <div class="mb-3">
+          <div class="info-label">Actual Delivery</div>
+          <div class="info-value">
+            <i class="fas fa-check-circle me-2 text-success"></i>
+            <%= new Date(delivery.actualDelivery).toLocaleDateString() %>
+          </div>
+        </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Driver & Vehicle -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="info-card">
+        <h5 class="card-title">
+          <i class="fas fa-truck me-2 text-danger"></i>Driver & Vehicle
+        </h5>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <div class="info-label">Driver</div>
+              <% if (delivery.driver && typeof delivery.driver === 'object' &&
+              delivery.driver.name) { %>
+              <div class="info-value">
+                <div class="d-flex align-items-center">
+                  <div
+                    class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
+                    style="width: 32px; height: 32px"
+                  >
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <div>
+                    <div><strong><%= delivery.driver.name %></strong></div>
+                    <div class="text-muted small">
+                      <%= delivery.driver.phone %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <% } else { %>
+              <div class="info-value text-muted">
+                <i class="fas fa-user-slash me-2"></i>Not assigned
+              </div>
+              <% } %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <div class="info-label">Vehicle</div>
+              <% if (delivery.vehicle && typeof delivery.vehicle === 'object' &&
+              delivery.vehicle.plateNumber) { %>
+              <div class="info-value">
+                <div class="d-flex align-items-center">
+                  <div
+                    class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2"
+                    style="width: 32px; height: 32px"
+                  >
+                    <i class="fas fa-car"></i>
+                  </div>
+                  <div>
+                    <div>
+                      <strong><%= delivery.vehicle.plateNumber %></strong>
+                    </div>
+                    <div class="text-muted small">
+                      <%= delivery.vehicle.model %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <% } else { %>
+              <div class="info-value text-muted">
+                <i class="fas fa-car me-2"></i>Not assigned
+              </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incidents -->
+    <% if (delivery.incidents && delivery.incidents.length > 0) { %>
+    <div class="col-xl-6 col-lg-6">
+      <div class="info-card">
+        <h5 class="card-title">
+          <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Incidents
+        </h5>
+        <div class="accordion" id="incidentsAccordion">
+          <% delivery.incidents.forEach(function(incident, index) { %>
+          <div class="accordion-item border-0 mb-2">
+            <h2 class="accordion-header" id="heading<%= index %>">
+              <button
+                class="accordion-button collapsed d-flex align-items-center"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapse<%= index %>"
+                aria-expanded="false"
+                aria-controls="collapse<%= index %>"
+              >
+                <div class="d-flex align-items-center w-100">
+                  <span
+                    class="badge bg-<%= incident.severity === 'critical' ? 'danger' : incident.severity === 'high' ? 'warning' : incident.severity === 'medium' ? 'info' : 'secondary' %> me-3"
+                  >
+                    <%= incident.severity %>
+                  </span>
+                  <div class="flex-grow-1">
+                    <div><strong><%= incident.type %></strong></div>
+                    <div class="text-muted small">
+                      <%= new Date(incident.reportedAt).toLocaleDateString() %>
+                    </div>
+                  </div>
+                  <span
+                    class="badge bg-<%= incident.resolved ? 'success' : 'warning' %>"
+                  >
+                    <%= incident.resolved ? 'Resolved' : 'Active' %>
+                  </span>
+                </div>
+              </button>
+            </h2>
+            <div
+              id="collapse<%= index %>"
+              class="accordion-collapse collapse"
+              aria-labelledby="heading<%= index %>"
+              data-bs-parent="#incidentsAccordion"
+            >
+              <div class="accordion-body pt-3">
+                <p class="mb-3">
+                  <strong>Description:</strong> <%= incident.description %>
+                </p>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <small class="text-muted">Reported</small>
+                    <div>
+                      <%= new Date(incident.reportedAt).toLocaleString() %>
+                    </div>
+                  </div>
+                  <% if (incident.estimatedDelay) { %>
+                  <div class="col-md-6">
+                    <small class="text-muted">Estimated Delay</small>
+                    <div><%= incident.estimatedDelay %> minutes</div>
+                  </div>
+                  <% } %> <% if (incident.emergencyServices) { %>
+                  <div class="col-12">
+                    <span class="badge bg-danger">
+                      <i class="fas fa-ambulance me-1"></i>Emergency services
+                      called
+                    </span>
+                  </div>
+                  <% } %>
+                </div>
+                <% if (!incident.resolved) { %>
+                <div class="mt-3">
+                  <button
+                    class="btn btn-sm btn-success"
+                    onclick="resolveIncident('<%= incident._id %>')"
+                  >
+                    <i class="fas fa-check me-1"></i>Mark as Resolved
+                  </button>
+                </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Modals -->
+<%- include('modals/edit-modal') %> <%- include('modals/status-modal') %> <%-
+include('modals/incident-modal') %> <%- include('modals/location-modal') %> <%-
+include('modals/driver-modal') %>
+
+<script>
+  // Fix for modal issues
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize all modals properly
+    const modals = document.querySelectorAll(".modal");
+    modals.forEach((modal) => {
+      modal.style.zIndex = "1060";
+    });
+
+    // Fix backdrop click issues
+    document.addEventListener("click", function (e) {
+      if (e.target.classList.contains("modal-backdrop")) {
+        const modal = document.querySelector(".modal.show");
+        if (modal) {
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          if (bsModal) {
+            bsModal.hide();
+          }
+        }
+      }
+    });
+
+    // Form submission handling
+    const forms = document.querySelectorAll('form[id$="Form"]');
+    forms.forEach((form) => {
+      form.addEventListener("submit", handleFormSubmit);
+    });
+  });
+
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+
+    // Show loading state
+    submitBtn.innerHTML =
+      '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+    submitBtn.disabled = true;
+
+    try {
+      const formData = new FormData(form);
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Hide modal
+        const modal = bootstrap.Modal.getInstance(form.closest(".modal"));
+        if (modal) modal.hide();
+
+        // Show success message
+        showAlert(
+          "success",
+          data.message || "Operation completed successfully!"
+        );
+
+        // Reload after delay
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        showAlert("danger", data.error || "Operation failed");
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
+    } catch (error) {
+      showAlert("danger", "Network error: " + error.message);
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    }
+  }
+
+  // Alert notification system
+  function showAlert(type, message) {
+    const alertDiv = document.createElement("div");
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-toast`;
+    alertDiv.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+      alertDiv.remove();
+    }, 5000);
+  }
+
+  // Action functions
+  async function geocodeAddresses() {
+    if (confirm("Geocode sender and receiver addresses?")) {
+      try {
+        const response = await fetch(
+          `/admin/deliveries/<%= delivery._id %>/geocode`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert("success", "Addresses geocoded successfully!");
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          showAlert("danger", data.error || "Failed to geocode");
+        }
+      } catch (error) {
+        showAlert("danger", "Error: " + error.message);
+      }
+    }
+  }
+
+  async function markAsDelivered() {
+    if (confirm("Mark this delivery as delivered?")) {
+      try {
+        const response = await fetch(
+          `/admin/deliveries/<%= delivery._id %>/mark-delivered`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert("success", "Delivery marked as delivered!");
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          showAlert("danger", data.error || "Failed to mark as delivered");
+        }
+      } catch (error) {
+        showAlert("danger", "Error: " + error.message);
+      }
+    }
+  }
+
+  async function cancelDelivery() {
+    if (confirm("Are you sure you want to cancel this delivery?")) {
+      try {
+        const response = await fetch(
+          `/admin/deliveries/<%= delivery._id %>/cancel`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert("success", "Delivery cancelled!");
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          showAlert("danger", data.error || "Failed to cancel delivery");
+        }
+      } catch (error) {
+        showAlert("danger", "Error: " + error.message);
+      }
+    }
+  }
+
+  async function resolveIncident(incidentId) {
+    if (confirm("Mark this incident as resolved?")) {
+      try {
+        const response = await fetch(
+          `/admin/deliveries/<%= delivery._id %>/incidents/${incidentId}/resolve`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert("success", "Incident resolved!");
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          showAlert("danger", data.error || "Failed to resolve incident");
+        }
+      } catch (error) {
+        showAlert("danger", "Error: " + error.message);
+      }
+    }
+  }
+
+  async function deleteDelivery() {
+    if (
+      confirm(
+        "Are you sure you want to delete this delivery? This action cannot be undone."
+      )
+    ) {
+      try {
+        const response = await fetch(`/admin/deliveries/<%= delivery._id %>`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert("success", "Delivery deleted!");
+          setTimeout(() => (window.location.href = "/admin/deliveries"), 1000);
+        } else {
+          showAlert("danger", data.error || "Failed to delete delivery");
+        }
+      } catch (error) {
+        showAlert("danger", "Error: " + error.message);
+      }
+    }
+  }
+
+  // Utility function to format dates
+  function formatDate(date) {
+    return new Date(date).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+</script>

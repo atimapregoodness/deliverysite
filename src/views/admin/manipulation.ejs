@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Delivery Control</title>
+
+    <!-- Mapbox -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow: hidden;
+      }
+
+      #map {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+      }
+
+      .control-panel {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 350px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        overflow: hidden;
+      }
+
+      .panel-header {
+        background: #007bff;
+        color: white;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .panel-content {
+        padding: 15px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      .control-section {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .control-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .control-section h6 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .status-pending {
+        background: #ffc107;
+        color: #000;
+      }
+      .status-in-transit {
+        background: #17a2b8;
+        color: white;
+      }
+      .status-delayed {
+        background: #fd7e14;
+        color: white;
+      }
+      .status-delivered {
+        background: #28a745;
+        color: white;
+      }
+
+      .progress-container {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 8px;
+        margin: 10px 0;
+      }
+
+      .progress-bar {
+        height: 10px;
+        background: #e9ecef;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: #007bff;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      .incident-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        border-left: 4px solid #dc3545;
+      }
+
+      .incident-card.resolved {
+        border-left-color: #6c757d;
+        opacity: 0.7;
+      }
+
+      .map-controls {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .map-control-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: white;
+        border: none;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .map-control-btn:hover {
+        background: #f8f9fa;
+      }
+
+      .simulation-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .update-list {
+        max-height: 150px;
+        overflow-y: auto;
+        margin-top: 10px;
+      }
+
+      .update-item {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+        font-size: 12px;
+      }
+
+      .update-item:last-child {
+        border-bottom: none;
+      }
+
+      .teleport-control {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .teleport-control input {
+        flex: 1;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Map Controls -->
+    <div class="map-controls">
+      <button
+        class="map-control-btn"
+        onclick="zoomToVehicle()"
+        title="Zoom to vehicle"
+      >
+        <i class="fas fa-crosshairs"></i>
+      </button>
+      <button class="map-control-btn" onclick="resetView()" title="Reset view">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+      <div class="panel-header">
+        <div>
+          <h5 class="mb-1">Delivery Control</h5>
+          <div class="d-flex align-items-center gap-2">
+            <small>ID: <span id="trackingId">Loading...</span></small>
+            <span class="status-badge" id="statusBadge">Pending</span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-light" onclick="togglePanel()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="panel-content">
+        <!-- Delivery Info -->
+        <div class="control-section">
+          <h6><i class="fas fa-info-circle"></i> Delivery Information</h6>
+          <div class="mb-2">
+            <small class="text-muted">From:</small>
+            <div id="senderAddress">Loading...</div>
+          </div>
+          <div class="mb-2">
+            <small class="text-muted">To:</small>
+            <div id="receiverAddress">Loading...</div>
+          </div>
+          <div class="mb-2">
+            <small class="text-muted">Estimated Delivery:</small>
+            <div id="estimatedDelivery">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Progress Tracking -->
+        <div class="control-section">
+          <h6><i class="fas fa-road"></i> Route Progress</h6>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+              <small>Progress: <span id="progressPercent">0</span>%</small>
+              <small>ETA: <span id="etaDisplay">--:--</span></small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulation Controls -->
+        <div class="control-section">
+          <h6><i class="fas fa-play-circle"></i> Simulation Controls</h6>
+          <div class="mb-3">
+            <label class="form-label small">Time Interval (minutes)</label>
+            <input
+              type="number"
+              class="form-control form-control-sm"
+              id="timeInterval"
+              value="30"
+              min="1"
+              max="180"
+            />
+          </div>
+          <div class="simulation-controls">
+            <button
+              class="btn btn-success btn-sm flex-fill"
+              onclick="startSimulation()"
+              id="startBtn"
+            >
+              <i class="fas fa-play"></i> Start
+            </button>
+            <button
+              class="btn btn-danger btn-sm flex-fill"
+              onclick="stopSimulation()"
+              id="stopBtn"
+              disabled
+            >
+              <i class="fas fa-stop"></i> Stop
+            </button>
+          </div>
+        </div>
+
+        <!-- Report Incident -->
+        <div class="control-section">
+          <h6><i class="fas fa-exclamation-triangle"></i> Report Incident</h6>
+          <div class="mb-2">
+            <label class="form-label small">Incident Type</label>
+            <select class="form-select form-select-sm" id="incidentType">
+              <option value="accident">Accident</option>
+              <option value="breakdown">Breakdown</option>
+              <option value="traffic">Traffic</option>
+              <option value="weather">Weather</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Description</label>
+            <textarea
+              class="form-control form-control-sm"
+              id="incidentDescription"
+              rows="2"
+              placeholder="Describe the incident..."
+            ></textarea>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Estimated Delay (minutes)</label>
+            <input
+              type="number"
+              class="form-control form-control-sm"
+              id="estimatedDelay"
+              value="30"
+              min="1"
+            />
+          </div>
+          <div class="mb-2 form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="emergencyServices"
+            />
+            <label class="form-check-label small"
+              >Notify Emergency Services</label
+            >
+          </div>
+          <button
+            class="btn btn-warning btn-sm w-100"
+            onclick="reportIncident()"
+          >
+            <i class="fas fa-bullhorn"></i> Report Incident
+          </button>
+        </div>
+
+        <!-- Manual Position Update -->
+        <div class="control-section">
+          <h6><i class="fas fa-map-marker-alt"></i> Manual Position</h6>
+          <div class="teleport-control">
+            <input
+              type="text"
+              id="latitude"
+              placeholder="Latitude"
+              class="form-control form-control-sm"
+            />
+            <input
+              type="text"
+              id="longitude"
+              placeholder="Longitude"
+              class="form-control form-control-sm"
+            />
+          </div>
+          <button
+            class="btn btn-outline-primary btn-sm w-100 mt-2"
+            onclick="updatePosition()"
+          >
+            <i class="fas fa-location-arrow"></i> Update Position
+          </button>
+        </div>
+
+        <!-- Recent Incidents -->
+        <div class="control-section">
+          <h6><i class="fas fa-history"></i> Recent Incidents</h6>
+          <div id="incidentsList" class="update-list">
+            <div class="text-muted small">No incidents reported</div>
+          </div>
+        </div>
+
+        <!-- Recent Updates -->
+        <div class="control-section">
+          <h6><i class="fas fa-bell"></i> Updates</h6>
+          <div id="updatesList" class="update-list">
+            <div class="update-item text-muted">System initialized</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+
+    <script>
+      // Configuration - Replace with your actual values
+      const MAPBOX_TOKEN =
+        "pk.eyJ1IjoiZGV2ZWxvcGVyIiwiYSI6ImNsb3h6eWl1bTAwMjUya28zMGZjeGJwbXIifQ.abcdefghijklmnopqrstuvwxyz123456";
+      const DELIVERY_ID = "<%= delivery._id %>";
+      const API_BASE_URL = "/api/admin";
+
+      // Global state
+      let map = null;
+      let vehicleMarker = null;
+      let senderMarker = null;
+      let receiverMarker = null;
+      let incidentMarkers = [];
+      let socket = null;
+      let simulationActive = false;
+      let currentProgress = 0;
+      let currentSpeed = 0;
+      let deliveryData = null;
+
+      // Initialize application
+      document.addEventListener("DOMContentLoaded", async function () {
+        try {
+          // Load delivery data
+          await loadDeliveryData();
+
+          // Initialize Mapbox
+          await initMap();
+
+          // Initialize WebSocket
+          initWebSocket();
+
+          // Update UI
+          updateUI();
+
+          addUpdate("Control panel loaded successfully");
+        } catch (error) {
+          console.error("Initialization error:", error);
+          addUpdate("Error: " + error.message);
+        }
+      });
+
+      // Load delivery data from server
+      async function loadDeliveryData() {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/delivery/${DELIVERY_ID}`
+          );
+          const result = await response.json();
+
+          if (result.success) {
+            deliveryData = result.data;
+            updateDeliveryInfo();
+          } else {
+            throw new Error(result.message);
+          }
+        } catch (error) {
+          console.error("Failed to load delivery data:", error);
+          // Use demo data if API fails
+          deliveryData = {
+            trackingId: "DEL" + Date.now().toString(36).toUpperCase(),
+            sender: {
+              name: "John Doe",
+              address: {
+                street: "123 Main St",
+                city: "New York",
+                coordinates: {
+                  coordinates: [-74.0059, 40.7128],
+                },
+              },
+            },
+            receiver: {
+              name: "Jane Smith",
+              address: {
+                street: "456 Broadway",
+                city: "Brooklyn",
+                coordinates: {
+                  coordinates: [-73.9352, 40.7306],
+                },
+              },
+            },
+            status: "pending",
+            estimatedDelivery: new Date(
+              Date.now() + 2 * 60 * 60 * 1000
+            ).toISOString(),
+            trackingData: {
+              currentLocation: {
+                coordinates: [-74.0059, 40.7128],
+              },
+              routeProgress: 0,
+            },
+            incidents: [],
+          };
+          updateDeliveryInfo();
+          addUpdate("Using demo data - API not available");
+        }
+      }
+
+      // Initialize Mapbox map
+      async function initMap() {
+        mapboxgl.accessToken = MAPBOX_TOKEN;
+
+        map = new mapboxgl.Map({
+          container: "map",
+          style: "mapbox://styles/mapbox/streets-v11",
+          center: deliveryData.trackingData.currentLocation.coordinates || [
+            -74.0059, 40.7128,
+          ],
+          zoom: 12,
+        });
+
+        map.addControl(new mapboxgl.NavigationControl());
+
+        // Wait for map to load
+        await new Promise((resolve) => map.on("load", resolve));
+
+        // Add markers
+        addMarkers();
+
+        // Draw route line
+        drawRoute();
+      }
+
+      // Add markers to map
+      function addMarkers() {
+        // Sender marker
+        const senderEl = document.createElement("div");
+        senderEl.className = "marker";
+        senderEl.innerHTML =
+          '<i class="fas fa-home fa-2x" style="color: #28a745;"></i>';
+
+        senderMarker = new mapboxgl.Marker(senderEl)
+          .setLngLat(deliveryData.sender.address.coordinates.coordinates)
+          .setPopup(
+            new mapboxgl.Popup().setHTML(`
+                    <h6>Sender</h6>
+                    <p><strong>${deliveryData.sender.name}</strong></p>
+                    <p>${deliveryData.sender.address.street}, ${deliveryData.sender.address.city}</p>
+                `)
+          )
+          .addTo(map);
+
+        // Receiver marker
+        const receiverEl = document.createElement("div");
+        receiverEl.className = "marker";
+        receiverEl.innerHTML =
+          '<i class="fas fa-flag-checkered fa-2x" style="color: #dc3545;"></i>';
+
+        receiverMarker = new mapboxgl.Marker(receiverEl)
+          .setLngLat(deliveryData.receiver.address.coordinates.coordinates)
+          .setPopup(
+            new mapboxgl.Popup().setHTML(`
+                    <h6>Receiver</h6>
+                    <p><strong>${deliveryData.receiver.name}</strong></p>
+                    <p>${deliveryData.receiver.address.street}, ${deliveryData.receiver.address.city}</p>
+                `)
+          )
+          .addTo(map);
+
+        // Vehicle marker
+        const vehicleEl = document.createElement("div");
+        vehicleEl.className = "marker";
+        vehicleEl.innerHTML =
+          '<i class="fas fa-truck fa-2x" style="color: #007bff;"></i>';
+
+        vehicleMarker = new mapboxgl.Marker(vehicleEl)
+          .setLngLat(deliveryData.trackingData.currentLocation.coordinates)
+          .setPopup(
+            new mapboxgl.Popup().setHTML(`
+                    <h6>Delivery Vehicle</h6>
+                    <p><strong>Status:</strong> ${deliveryData.status}</p>
+                    <p><strong>Progress:</strong> ${currentProgress}%</p>
+                    <p><strong>Speed:</strong> ${currentSpeed} km/h</p>
+                `)
+          )
+          .addTo(map);
+      }
+
+      // Draw route line between sender and receiver
+      function drawRoute() {
+        const senderCoords =
+          deliveryData.sender.address.coordinates.coordinates;
+        const receiverCoords =
+          deliveryData.receiver.address.coordinates.coordinates;
+
+        map.addSource("route", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: [senderCoords, receiverCoords],
+            },
+          },
+        });
+
+        map.addLayer({
+          id: "route-line",
+          type: "line",
+          source: "route",
+          paint: {
+            "line-color": "#007bff",
+            "line-width": 3,
+            "line-dasharray": [2, 2],
+          },
+        });
+      }
+
+      // Initialize WebSocket connection
+      function initWebSocket() {
+        try {
+          socket = io();
+
+          socket.on("connect", () => {
+            socket.emit("admin-join", DELIVERY_ID);
+            addUpdate("Connected to real-time updates");
+          });
+
+          socket.on("position_updated", (data) => {
+            if (data.deliveryId === DELIVERY_ID) {
+              updateVehiclePosition(data.position);
+              currentProgress = data.progress || 0;
+              updateProgressDisplay();
+              addUpdate(`Position updated - Progress: ${currentProgress}%`);
+            }
+          });
+
+          socket.on("simulation_started", (data) => {
+            simulationActive = true;
+            updateSimulationControls();
+            addUpdate("Simulation started");
+          });
+
+          socket.on("simulation_stopped", (data) => {
+            simulationActive = false;
+            updateSimulationControls();
+            addUpdate("Simulation stopped");
+          });
+
+          socket.on("incident_reported", (data) => {
+            addIncidentToList(data.incident);
+            addIncidentMarker(data.incident);
+            addUpdate(`Incident reported: ${data.incident.type}`);
+          });
+
+          socket.on("delivery_completed", (data) => {
+            simulationActive = false;
+            updateStatus("delivered");
+            updateSimulationControls();
+            addUpdate("Delivery completed!");
+          });
+        } catch (error) {
+          console.warn("WebSocket connection failed:", error);
+          addUpdate("Running in offline mode");
+        }
+      }
+
+      // Update delivery information display
+      function updateDeliveryInfo() {
+        document.getElementById("trackingId").textContent =
+          deliveryData.trackingId;
+        document.getElementById(
+          "senderAddress"
+        ).textContent = `${deliveryData.sender.address.street}, ${deliveryData.sender.address.city}`;
+        document.getElementById(
+          "receiverAddress"
+        ).textContent = `${deliveryData.receiver.address.street}, ${deliveryData.receiver.address.city}`;
+
+        const estDate = new Date(deliveryData.estimatedDelivery);
+        document.getElementById("estimatedDelivery").textContent =
+          estDate.toLocaleDateString() + " " + estDate.toLocaleTimeString();
+
+        updateStatus(deliveryData.status);
+        currentProgress = deliveryData.trackingData.routeProgress || 0;
+        updateProgressDisplay();
+
+        // Load incidents
+        if (deliveryData.incidents && deliveryData.incidents.length > 0) {
+          deliveryData.incidents.forEach((incident) => {
+            addIncidentToList(incident);
+            addIncidentMarker(incident);
+          });
+        }
+      }
+
+      // Update status display
+      function updateStatus(status) {
+        const badge = document.getElementById("statusBadge");
+        badge.textContent = status.replace("_", " ").toUpperCase();
+        badge.className = `status-badge status-${status.replace("_", "-")}`;
+      }
+
+      // Update progress display
+      function updateProgressDisplay() {
+        const progressFill = document.getElementById("progressFill");
+        const progressPercent = document.getElementById("progressPercent");
+
+        progressFill.style.width = `${currentProgress}%`;
+        progressPercent.textContent = currentProgress.toFixed(1);
+
+        // Calculate ETA
+        if (currentProgress > 0 && currentProgress < 100) {
+          const now = new Date();
+          const estDelivery = new Date(deliveryData.estimatedDelivery);
+          const timeLeft = estDelivery - now;
+
+          if (timeLeft > 0) {
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor(
+              (timeLeft % (1000 * 60 * 60)) / (1000 * 60)
+            );
+            document.getElementById(
+              "etaDisplay"
+            ).textContent = `${hours}h ${minutes}m`;
+          }
+        }
+      }
+
+      // Update vehicle position on map
+      function updateVehiclePosition(coordinates) {
+        if (vehicleMarker) {
+          vehicleMarker.setLngLat(coordinates);
+
+          // Update popup
+          vehicleMarker.setPopup(
+            new mapboxgl.Popup().setHTML(`
+                    <h6>Delivery Vehicle</h6>
+                    <p><strong>Status:</strong> ${deliveryData.status}</p>
+                    <p><strong>Progress:</strong> ${currentProgress}%</p>
+                    <p><strong>Location:</strong> ${coordinates[1].toFixed(
+                      6
+                    )}, ${coordinates[0].toFixed(6)}</p>
+                `)
+          );
+        }
+      }
+
+      // Update simulation control buttons
+      function updateSimulationControls() {
+        const startBtn = document.getElementById("startBtn");
+        const stopBtn = document.getElementById("stopBtn");
+
+        if (simulationActive) {
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+          startBtn.innerHTML = '<i class="fas fa-play"></i> Running';
+          startBtn.classList.remove("btn-success");
+          startBtn.classList.add("btn-secondary");
+        } else {
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+          startBtn.classList.remove("btn-secondary");
+          startBtn.classList.add("btn-success");
+        }
+      }
+
+      // Add incident to list
+      function addIncidentToList(incident) {
+        const incidentsList = document.getElementById("incidentsList");
+        const incidentItem = document.createElement("div");
+        incidentItem.className = `incident-card ${
+          incident.resolved ? "resolved" : ""
+        }`;
+
+        incidentItem.innerHTML = `
+                <div class="d-flex justify-content-between">
+                    <strong>${incident.type.toUpperCase()}</strong>
+                    <small>${new Date(
+                      incident.reportedAt
+                    ).toLocaleTimeString()}</small>
+                </div>
+                <div class="small">${incident.description}</div>
+                ${
+                  incident.estimatedDelay
+                    ? `<div class="text-danger small">Delay: ${incident.estimatedDelay} min</div>`
+                    : ""
+                }
+            `;
+
+        incidentsList.insertBefore(incidentItem, incidentsList.firstChild);
+
+        // Keep only 5 incidents visible
+        while (incidentsList.children.length > 5) {
+          incidentsList.removeChild(incidentsList.lastChild);
+        }
+      }
+
+      // Add incident marker to map
+      function addIncidentMarker(incident) {
+        if (!incident.location || !incident.location.coordinates) return;
+
+        const incidentEl = document.createElement("div");
+        incidentEl.className = "marker";
+        incidentEl.innerHTML =
+          '<i class="fas fa-exclamation-triangle fa-2x" style="color: #dc3545;"></i>';
+
+        const marker = new mapboxgl.Marker(incidentEl)
+          .setLngLat(incident.location.coordinates)
+          .setPopup(
+            new mapboxgl.Popup().setHTML(`
+                    <h6>${incident.type.toUpperCase()}</h6>
+                    <p>${incident.description}</p>
+                    <p><small>Reported: ${new Date(
+                      incident.reportedAt
+                    ).toLocaleString()}</small></p>
+                `)
+          )
+          .addTo(map);
+
+        incidentMarkers.push(marker);
+      }
+
+      // Add update to log
+      function addUpdate(message) {
+        const updatesList = document.getElementById("updatesList");
+        const updateItem = document.createElement("div");
+        updateItem.className = "update-item";
+        updateItem.innerHTML = `
+                <div class="text-muted small">${new Date().toLocaleTimeString(
+                  [],
+                  { hour: "2-digit", minute: "2-digit" }
+                )}</div>
+                <div>${message}</div>
+            `;
+
+        updatesList.insertBefore(updateItem, updatesList.firstChild);
+
+        // Keep only 10 updates
+        while (updatesList.children.length > 10) {
+          updatesList.removeChild(updatesList.lastChild);
+        }
+      }
+
+      // ============================================
+      // CONTROL FUNCTIONS
+      // ============================================
+
+      async function startSimulation() {
+        try {
+          const timeInterval = document.getElementById("timeInterval").value;
+
+          const response = await fetch(
+            `${API_BASE_URL}/delivery/${DELIVERY_ID}/simulation/start`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ timeInterval: parseInt(timeInterval) }),
+            }
+          );
+
+          const result = await response.json();
+
+          if (result.success) {
+            simulationActive = true;
+            updateSimulationControls();
+            updateStatus("in_transit");
+            addUpdate(`Simulation started - ETA: ${timeInterval} minutes`);
+          } else {
+            throw new Error(result.message);
+          }
+        } catch (error) {
+          console.error("Failed to start simulation:", error);
+          addUpdate("Error starting simulation: " + error.message);
+
+          // Fallback for demo
+          simulationActive = true;
+          updateSimulationControls();
+          updateStatus("in_transit");
+          addUpdate(
+            `Demo simulation started - ETA: ${
+              document.getElementById("timeInterval").value
+            } minutes`
+          );
+        }
+      }
+
+      async function stopSimulation() {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/delivery/${DELIVERY_ID}/simulation/stop`,
+            {
+              method: "POST",
+            }
+          );
+
+          const result = await response.json();
+
+          if (result.success) {
+            simulationActive = false;
+            updateSimulationControls();
+            updateStatus("pending");
+            addUpdate("Simulation stopped");
+          } else {
+            throw new Error(result.message);
+          }
+        } catch (error) {
+          console.error("Failed to stop simulation:", error);
+          addUpdate("Error stopping simulation: " + error.message);
+
+          // Fallback for demo
+          simulationActive = false;
+          updateSimulationControls();
+          updateStatus("pending");
+          addUpdate("Demo simulation stopped");
+        }
+      }
+
+      async function reportIncident() {
+        try {
+          const incidentData = {
+            type: document.getElementById("incidentType").value,
+            description: document.getElementById("incidentDescription").value,
+            estimatedDelay: document.getElementById("estimatedDelay").value,
+            emergencyServices:
+              document.getElementById("emergencyServices").checked,
+          };
+
+          if (!incidentData.description) {
+            alert("Please enter a description for the incident");
+            return;
+          }
+
+          const response = await fetch(
+            `${API_BASE_URL}/delivery/${DELIVERY_ID}/incident`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(incidentData),
+            }
+          );
+
+          const result = await response.json();
+
+          if (result.success) {
+            addIncidentToList(result.data.incident);
+            updateStatus("delayed");
+
+            // Clear form
+            document.getElementById("incidentDescription").value = "";
+
+            addUpdate(`Incident reported: ${incidentData.type}`);
+          } else {
+            throw new Error(result.message);
+          }
+        } catch (error) {
+          console.error("Failed to report incident:", error);
+          addUpdate("Error reporting incident: " + error.message);
+
+          // Fallback for demo
+          const incident = {
+            type: document.getElementById("incidentType").value,
+            description: document.getElementById("incidentDescription").value,
+            estimatedDelay: document.getElementById("estimatedDelay").value,
+            reportedAt: new Date(),
+            location: {
+              coordinates:
+                deliveryData.trackingData.currentLocation.coordinates,
+            },
+          };
+
+          addIncidentToList(incident);
+          addIncidentMarker(incident);
+          updateStatus("delayed");
+
+          // Clear form
+          document.getElementById("incidentDescription").value = "";
+
+          addUpdate(`Demo incident reported: ${incident.type}`);
+        }
+      }
+
+      async function updatePosition() {
+        try {
+          const latitude = document.getElementById("latitude").value;
+          const longitude = document.getElementById("longitude").value;
+
+          if (!latitude || !longitude) {
+            alert("Please enter both latitude and longitude");
+            return;
+          }
+
+          const response = await fetch(
+            `${API_BASE_URL}/delivery/${DELIVERY_ID}/position`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude),
+              }),
+            }
+          );
+
+          const result = await response.json();
+
+          if (result.success) {
+            updateVehiclePosition([
+              parseFloat(longitude),
+              parseFloat(latitude),
+            ]);
+            addUpdate(`Position updated manually to ${latitude}, ${longitude}`);
+
+            // Clear inputs
+            document.getElementById("latitude").value = "";
+            document.getElementById("longitude").value = "";
+          } else {
+            throw new Error(result.message);
+          }
+        } catch (error) {
+          console.error("Failed to update position:", error);
+          addUpdate("Error updating position: " + error.message);
+
+          // Fallback for demo
+          const latitude = document.getElementById("latitude").value;
+          const longitude = document.getElementById("longitude").value;
+
+          if (latitude && longitude) {
+            updateVehiclePosition([
+              parseFloat(longitude),
+              parseFloat(latitude),
+            ]);
+            addUpdate(`Demo position updated to ${latitude}, ${longitude}`);
+
+            // Clear inputs
+            document.getElementById("latitude").value = "";
+            document.getElementById("longitude").value = "";
+          }
+        }
+      }
+
+      function zoomToVehicle() {
+        if (vehicleMarker && map) {
+          const coordinates = vehicleMarker.getLngLat();
+          map.flyTo({
+            center: coordinates,
+            zoom: 15,
+            duration: 1000,
+          });
+          addUpdate("Zoomed to vehicle location");
+        }
+      }
+
+      function resetView() {
+        if (map) {
+          map.flyTo({
+            center: deliveryData.sender.address.coordinates.coordinates,
+            zoom: 12,
+            duration: 1000,
+          });
+          addUpdate("Map view reset");
+        }
+      }
+
+      function togglePanel() {
+        const panel = document.querySelector(".control-panel");
+        const isVisible = panel.style.display !== "none";
+        panel.style.display = isVisible ? "none" : "block";
+
+        const toggleBtn = document.querySelector(".panel-header button");
+        toggleBtn.innerHTML = isVisible
+          ? '<i class="fas fa-bars"></i>'
+          : '<i class="fas fa-times"></i>';
+
+        addUpdate(`Control panel ${isVisible ? "hidden" : "shown"}`);
+      }
+
+      function updateUI() {
+        updateProgressDisplay();
+        updateSimulationControls();
+      }
+
+      // Make functions available globally
+      window.startSimulation = startSimulation;
+      window.stopSimulation = stopSimulation;
+      window.reportIncident = reportIncident;
+      window.updatePosition = updatePosition;
+      window.zoomToVehicle = zoomToVehicle;
+      window.resetView = resetView;
+      window.togglePanel = togglePanel;
+    </script>
+  </body>
+</html>
