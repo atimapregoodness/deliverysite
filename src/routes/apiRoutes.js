@@ -57,7 +57,7 @@ router.get("/api/deliveries/recent", async (req, res) => {
 
     const recentDeliveries = await Delivery.find()
       .populate("driver", "name phone")
-      .populate("vehicle", "plateNumber model")
+      .populate("warehouse", "plateNumber model")
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();
@@ -81,7 +81,7 @@ router.get("/api/drivers/available", async (req, res) => {
 
     const availableDrivers = await Driver.find({
       status: { $in: ["available", "active"] },
-    }).select("_id name phone email vehicle");
+    }).select("_id name phone email warehouse");
 
     res.json({
       success: true,
@@ -95,18 +95,20 @@ router.get("/api/drivers/available", async (req, res) => {
   }
 });
 
-// Get available vehicles for dropdown
-router.get("/api/vehicles/available", async (req, res) => {
+// Get available warehouses for dropdown
+router.get("/api/warehouses/available", async (req, res) => {
   try {
-    const Vehicle = require("../models/Vehicle");
+    const warehouse = require("../models/warehouse");
 
-    const availableVehicles = await Vehicle.find({
-      status: { $in: ["available", "in_use"] },
-    }).select("_id plateNumber model year capacity driver");
+    const availablewarehouses = await warehouse
+      .find({
+        status: { $in: ["available", "in_use"] },
+      })
+      .select("_id plateNumber model year capacity driver");
 
     res.json({
       success: true,
-      data: availableVehicles,
+      data: availablewarehouses,
     });
   } catch (error) {
     res.status(500).json({

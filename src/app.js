@@ -23,6 +23,10 @@ const io = socketIo(server);
 // Connect to database
 connectDB();
 
+// Body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // // Security middleware
 // app.use(helmet());
 app.use(compression());
@@ -34,9 +38,43 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Debug middleware
+app.use((req, res, next) => {
+  if (req.method === "POST" && req.url.includes("add-incident")) {
+    console.log("=== FORM SUBMISSION DEBUG ===");
+    console.log("Content-Type:", req.headers["content-type"]);
+    console.log("Body:", req.body);
+    console.log("Body Keys:", Object.keys(req.body));
+    console.log("=== END DEBUG ===");
+  }
+  next();
+});
+
+// Add this middleware in your main server file
+app.use((req, res, next) => {
+  if (
+    req.headers["content-type"] &&
+    req.headers["content-type"].startsWith("multipart/form-data")
+  ) {
+    // Parse multipart/form-data manually
+    const busboy = require("busboy");
+    const bb = busboy({ headers: req.headers });
+    const fields = {};
+
+    bb.on("field", (name, val) => {
+      fields[name] = val;
+    });
+
+    bb.on("finish", () => {
+      req.body = fields;
+      next();
+    });
+
+    req.pipe(bb);
+  } else {
+    next();
+  }
+});
 
 // Session configuration
 app.use(
@@ -141,6 +179,7 @@ app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   res.locals.baseUrl = config.app.baseUrl;
+  res.locals.user = req.user || null;
 
   res.locals.mapboxToken = process.env.MAPBOX_ACCESS_TOKEN;
 

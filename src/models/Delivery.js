@@ -101,9 +101,9 @@ const deliverySchema = new mongoose.Schema(
       index: true,
     },
 
-    vehicle: {
+    warehouse: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Vehicle",
+      ref: "Warehouse",
     },
 
     estimatedDelivery: {
@@ -168,45 +168,103 @@ const deliverySchema = new mongoose.Schema(
       {
         type: {
           type: String,
-          enum: ["accident", "breakdown", "traffic", "weather", "other"],
+          enum: [
+            "accident",
+            "breakdown",
+            "traffic",
+            "weather",
+            "customer_issue",
+            "package_damage",
+            "theft",
+            "other",
+          ],
           required: true,
         },
-        description: { type: String, required: true },
-        location: {
-          type: { type: String, enum: ["Point"], default: "Point" },
-          coordinates: { type: [Number] }, // [lng, lat]
-        },
-        address: { type: String },
         severity: {
           type: String,
           enum: ["low", "medium", "high", "critical"],
           default: "medium",
         },
-        reportedAt: { type: Date, default: Date.now },
-        estimatedDelay: { type: Number, default: 0 }, // minutes
-        emergencyServices: { type: Boolean, default: false },
-        resolved: { type: Boolean, default: false },
-        resolvedAt: { type: Date },
-        // For Mapbox display
-        mapboxMarkerId: { type: String },
+        description: {
+          type: String,
+          required: true,
+        },
+        reportedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        resolved: {
+          type: Boolean,
+          default: false,
+        },
+        resolvedAt: Date,
+        estimatedDelay: Number, // in minutes
+        emergencyServices: Boolean,
+        address: String,
+        location: {
+          type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point",
+          },
+          coordinates: {
+            type: [Number], // [longitude, latitude]
+            default: [0, 0],
+          },
+        },
+        policeReport: String,
+        driverInvolved: Boolean,
+        packageAffected: Boolean,
+        additionalDetails: mongoose.Schema.Types.Mixed, // For any extra data
+        reportedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        resolvedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
       },
     ],
 
-    // Enhanced delay info
+    // Delay info (updated when incident causes delay)
     delayInfo: {
-      reason: {
-        type: String,
-        enum: ["traffic", "weather", "vehicle", "driver", "recipient", "other"],
-      },
-      description: { type: String },
-      estimatedDelay: { type: Number }, // minutes
-      reportedAt: { type: Date },
-      resolvedAt: { type: Date },
+      reason: String,
+      description: String,
+      estimatedDelay: Number,
+      reportedAt: Date,
+      resolvedAt: Date,
+      incidentId: mongoose.Schema.Types.ObjectId,
       location: {
-        type: { type: String, enum: ["Point"] },
-        coordinates: { type: [Number] },
+        type: {
+          type: String,
+          enum: ["Point"],
+          default: "Point",
+        },
+        coordinates: {
+          type: [Number],
+          default: [0, 0],
+        },
       },
+      address: String,
     },
+
+    // History log
+    history: [
+      {
+        action: String,
+        description: String,
+        details: mongoose.Schema.Types.Mixed,
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        timestamp: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
 
     // Geocoding service configuration
     geocoding: {

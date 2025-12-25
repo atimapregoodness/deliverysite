@@ -5,6 +5,6 @@ module.exports = {
   Admin: require("./Admin"),
   Delivery: require("./Delivery"),
   Driver: require("./Driver"),
-  Vehicle: require("./Vehicle"),
+  Warehouse: require("./Warehouse"),
   Route: require("./Route"),
 };

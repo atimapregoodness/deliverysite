@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="driverModalLabel">Assign Driver & Vehicle</h5>
+        <h5 class="modal-title" id="driverModalLabel">Assign Driver & Warehouse</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form id="driverForm" data-delivery-id="<%= delivery._id %>">
@@ -10,7 +10,7 @@
           <div class="mb-4">
             <div class="alert alert-info">
               <i class="fas fa-info-circle me-2"></i>
-              Assign a driver and vehicle to this delivery. The driver will be notified of the assignment.
+              Assign a driver and warehouse to this delivery. The driver will be notified of the assignment.
             </div>
           </div>
           
@@ -27,7 +27,7 @@
                       let driverId = '';
                       let driverPhone = driver.phone || '';
                       let driverEmail = driver.email || '';
-                      let driverVehicleId = '';
+                      let driverStatus = driver.status || 'unknown';
                       
                       // Handle driver object
                       if (driver._id) {
@@ -42,26 +42,19 @@
                           selected = driverId === delivery.driver;
                         }
                       }
-                      
-                      // Handle driver's vehicle
-                      if (driver.vehicle) {
-                        if (typeof driver.vehicle === 'object' && driver.vehicle._id) {
-                          driverVehicleId = driver.vehicle._id.toString();
-                        } else if (typeof driver.vehicle === 'string') {
-                          driverVehicleId = driver.vehicle;
-                        }
-                      }
                     %>
                     <option value="<%= driverId %>" 
                             <%= selected ? 'selected' : '' %> 
                             data-phone="<%= driverPhone %>" 
                             data-email="<%= driverEmail %>"
-                            data-vehicle="<%= driverVehicleId %>">
+                            data-status="<%= driverStatus %>">
                       <%= driver.name || 'Unknown Driver' %> 
                       <% if (driverPhone) { %> - <%= driverPhone %><% } %>
-                      <% if (driver.vehicle && driver.vehicle.plateNumber) { %> (<%= driver.vehicle.plateNumber %>)<% } %>
+                      - <%= driverStatus %>
                     </option>
                   <% }) %>
+                <% } else { %>
+                  <option value="" disabled>No available drivers</option>
                 <% } %>
               </select>
             </div>
@@ -80,89 +73,97 @@
                       <small class="text-muted">Email</small>
                       <div id="driverEmail" class="fw-semibold">Not available</div>
                     </div>
-                    <div class="col-12 mt-2">
-                      <small class="text-muted">Assigned Vehicle</small>
-                      <div id="driverVehicle" class="fw-semibold">No vehicle assigned</div>
+                    <div class="col-md-6">
+                      <small class="text-muted">Status</small>
+                      <div id="driverStatus" class="fw-semibold">Not available</div>
+                    </div>
+                    <div class="col-md-6">
+                      <small class="text-muted">Assigned Deliveries</small>
+                      <div id="driverDeliveries" class="fw-semibold">
+                        <% if (delivery.driver && delivery.driver.currentDeliveries) { %>
+                          <%= delivery.driver.currentDeliveries.length %> active
+                        <% } else { %>
+                          No active deliveries
+                        <% } %>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <!-- Vehicle Selection -->
+            <!-- Warehouse Selection -->
             <div class="col-12">
-              <label class="form-label">Select Vehicle</label>
-              <select class="form-select" name="vehicleId" id="vehicleSelect" onchange="updateVehicleInfo()">
-                <option value="">Unassigned - Remove current vehicle</option>
-                <% if (vehicles && vehicles.length > 0) { %>
-                  <% vehicles.forEach(function(vehicle) { %>
+              <label class="form-label">Select Warehouse</label>
+              <select class="form-select" name="warehouseId" id="warehouseSelect" onchange="updateWarehouseInfo()">
+                <option value="">Unassigned - Remove current warehouse</option>
+                <% if (warehouses && warehouses.length > 0) { %>
+                  <% warehouses.forEach(function(warehouse) { %>
                     <% 
                       let selected = false;
-                      let vehicleId = '';
-                      let vehicleModel = vehicle.model || '';
-                      let vehicleYear = vehicle.year || '';
-                      let vehicleCapacity = vehicle.capacity || '';
-                      let vehicleDriverId = '';
+                      let warehouseId = '';
+                      let warehouseName = warehouse.name || '';
+                      let warehouseCode = warehouse.code || '';
+                      let warehouseLocation = '';
+                      let warehouseType = warehouse.type || '';
                       
-                      // Handle vehicle object
-                      if (vehicle._id) {
-                        vehicleId = vehicle._id.toString();
+                      // Handle warehouse object
+                      if (warehouse._id) {
+                        warehouseId = warehouse._id.toString();
                       }
                       
-                      // Handle delivery.vehicle (could be ObjectId string or populated object)
-                      if (delivery.vehicle) {
-                        if (typeof delivery.vehicle === 'object' && delivery.vehicle._id) {
-                          selected = vehicleId === delivery.vehicle._id.toString();
-                        } else if (typeof delivery.vehicle === 'string') {
-                          selected = vehicleId === delivery.vehicle;
+                      // Handle delivery.warehouse (could be ObjectId string or populated object)
+                      if (delivery.warehouse) {
+                        if (typeof delivery.warehouse === 'object' && delivery.warehouse._id) {
+                          selected = warehouseId === delivery.warehouse._id.toString();
+                        } else if (typeof delivery.warehouse === 'string') {
+                          selected = warehouseId === delivery.warehouse;
                         }
                       }
                       
-                      // Handle vehicle's driver
-                      if (vehicle.driver) {
-                        if (typeof vehicle.driver === 'object' && vehicle.driver._id) {
-                          vehicleDriverId = vehicle.driver._id.toString();
-                        } else if (typeof vehicle.driver === 'string') {
-                          vehicleDriverId = vehicle.driver;
-                        }
+                      // Format location coordinates for display
+                      if (warehouse.location && warehouse.location.coordinates) {
+                        warehouseLocation = warehouse.location.coordinates.join(', ');
                       }
                     %>
-                    <option value="<%= vehicleId %>" 
+                    <option value="<%= warehouseId %>" 
                             <%= selected ? 'selected' : '' %>
-                            data-model="<%= vehicleModel %>"
-                            data-year="<%= vehicleYear %>"
-                            data-capacity="<%= vehicleCapacity %>"
-                            data-driver="<%= vehicleDriverId %>">
-                      <%= vehicle.plateNumber || 'Unknown Vehicle' %> 
-                      <% if (vehicleModel) { %> - <%= vehicleModel %><% } %>
-                      <% if (vehicle.driver && vehicle.driver.name) { %> (<%= vehicle.driver.name %>)<% } %>
+                            data-name="<%= warehouseName %>"
+                            data-code="<%= warehouseCode %>"
+                            data-location="<%= warehouseLocation %>"
+                            data-type="<%= warehouseType %>">
+                      <%= warehouseName %> 
+                      <% if (warehouseCode) { %> (<%= warehouseCode %>)<% } %>
+                      <% if (warehouseType) { %> - <%= warehouseType.replace('_', ' ') %><% } %>
                     </option>
                   <% }) %>
+                <% } else { %>
+                  <option value="" disabled>No available warehouses</option>
                 <% } %>
               </select>
             </div>
             
-            <!-- Vehicle Info Display -->
-            <div class="col-12" id="vehicleInfo" style="display: none;">
+            <!-- Warehouse Info Display -->
+            <div class="col-12" id="warehouseInfo" style="display: none;">
               <div class="card border-success">
                 <div class="card-body">
-                  <h6 class="card-title">Selected Vehicle Information</h6>
+                  <h6 class="card-title">Selected Warehouse Information</h6>
                   <div class="row">
-                    <div class="col-md-4">
-                      <small class="text-muted">Model</small>
-                      <div id="vehicleModel" class="fw-semibold">Not available</div>
+                    <div class="col-md-6">
+                      <small class="text-muted">Name</small>
+                      <div id="warehouseName" class="fw-semibold">Not available</div>
                     </div>
-                    <div class="col-md-4">
-                      <small class="text-muted">Year</small>
-                      <div id="vehicleYear" class="fw-semibold">Not available</div>
+                    <div class="col-md-6">
+                      <small class="text-muted">Code</small>
+                      <div id="warehouseCode" class="fw-semibold">Not available</div>
                     </div>
-                    <div class="col-md-4">
-                      <small class="text-muted">Capacity</small>
-                      <div id="vehicleCapacity" class="fw-semibold">Not available</div>
+                    <div class="col-md-6">
+                      <small class="text-muted">Type</small>
+                      <div id="warehouseType" class="fw-semibold">Not available</div>
                     </div>
-                    <div class="col-12 mt-2">
-                      <small class="text-muted">Current Driver</small>
-                      <div id="vehicleDriver" class="fw-semibold">Available</div>
+                    <div class="col-md-6">
+                      <small class="text-muted">Location</small>
+                      <div id="warehouseLocation" class="fw-semibold">Not available</div>
                     </div>
                   </div>
                 </div>
@@ -205,7 +206,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary" id="submitDriverBtn">
-            <i class="fas fa-user-check me-2"></i>Assign Driver & Vehicle
+            <i class="fas fa-user-check me-2"></i>Assign Driver & Warehouse
           </button>
         </div>
       </form>
@@ -214,6 +215,10 @@
 </div>
 
 <script>
+  // Store current values to detect changes
+  let currentDriverId = '';
+  let currentWarehouseId = '';
+  
   function updateDriverInfo() {
     const select = document.getElementById('driverSelect');
     const selectedOption = select.options[select.selectedIndex];
@@ -222,59 +227,37 @@
     if (selectedOption && selectedOption.value) {
       const phone = selectedOption.dataset.phone || 'Not available';
       const email = selectedOption.dataset.email || 'Not available';
-      const hasVehicle = selectedOption.dataset.vehicle && selectedOption.dataset.vehicle !== '';
+      const status = selectedOption.dataset.status || 'Unknown';
       
       document.getElementById('driverPhone').textContent = phone;
       document.getElementById('driverEmail').textContent = email;
-      document.getElementById('driverVehicle').textContent = hasVehicle ? 'Has pre-assigned vehicle' : 'No vehicle assigned';
-      driverInfo.style.display = 'block';
+      document.getElementById('driverStatus').textContent = status;
       
-      // Auto-select the driver's vehicle if they have one
-      if (hasVehicle) {
-        const vehicleSelect = document.getElementById('vehicleSelect');
-        for (let i = 0; i < vehicleSelect.options.length; i++) {
-          if (vehicleSelect.options[i].value === selectedOption.dataset.vehicle) {
-            vehicleSelect.value = selectedOption.dataset.vehicle;
-            updateVehicleInfo();
-            break;
-          }
-        }
-      }
+      driverInfo.style.display = 'block';
     } else {
       driverInfo.style.display = 'none';
     }
   }
   
-  function updateVehicleInfo() {
-    const select = document.getElementById('vehicleSelect');
+  function updateWarehouseInfo() {
+    const select = document.getElementById('warehouseSelect');
     const selectedOption = select.options[select.selectedIndex];
-    const vehicleInfo = document.getElementById('vehicleInfo');
+    const warehouseInfo = document.getElementById('warehouseInfo');
     
     if (selectedOption && selectedOption.value) {
-      const model = selectedOption.dataset.model || 'Not available';
-      const year = selectedOption.dataset.year || 'Not available';
-      const capacity = selectedOption.dataset.capacity || 'Not available';
-      const hasDriver = selectedOption.dataset.driver && selectedOption.dataset.driver !== '';
+      const name = selectedOption.dataset.name || 'Not available';
+      const code = selectedOption.dataset.code || 'Not available';
+      const location = selectedOption.dataset.location || 'Not available';
+      const type = selectedOption.dataset.type || 'Not specified';
       
-      document.getElementById('vehicleModel').textContent = model;
-      document.getElementById('vehicleYear').textContent = year;
-      document.getElementById('vehicleCapacity').textContent = capacity;
-      document.getElementById('vehicleDriver').textContent = hasDriver ? 'Currently has a driver' : 'Available';
-      vehicleInfo.style.display = 'block';
+      document.getElementById('warehouseName').textContent = name;
+      document.getElementById('warehouseCode').textContent = code;
+      document.getElementById('warehouseLocation').textContent = location;
+      document.getElementById('warehouseType').textContent = type;
       
-      // Auto-select the vehicle's driver if they have one
-      if (hasDriver) {
-        const driverSelect = document.getElementById('driverSelect');
-        for (let i = 0; i < driverSelect.options.length; i++) {
-          if (driverSelect.options[i].value === selectedOption.dataset.driver) {
-            driverSelect.value = selectedOption.dataset.driver;
-            updateDriverInfo();
-            break;
-          }
-        }
-      }
+      warehouseInfo.style.display = 'block';
     } else {
-      vehicleInfo.style.display = 'none';
+      warehouseInfo.style.display = 'none';
     }
   }
   
@@ -285,140 +268,178 @@
     const errorDiv = document.getElementById('driverFormError');
     const successDiv = document.getElementById('driverFormSuccess');
     
-    // Initialize on page load
-    updateDriverInfo();
-    updateVehicleInfo();
-    
-    driverForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
+    if (driverForm) {
+      // Store current values
+      currentDriverId = document.getElementById('driverSelect').value;
+      currentWarehouseId = document.getElementById('warehouseSelect').value;
       
-      // Reset messages
-      errorDiv.style.display = 'none';
-      successDiv.style.display = 'none';
+      // Initialize on page load
+      updateDriverInfo();
+      updateWarehouseInfo();
       
-      // Get form data
-      const formData = new FormData(driverForm);
-      const data = {};
-      formData.forEach((value, key) => {
-        // Handle checkboxes
-        if (key === 'notifyDriver' || key === 'updateSchedule') {
-          data[key] = value === 'true';
-        } else {
-          data[key] = value;
+      driverForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Reset messages
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        
+        // Get form data
+        const formData = new FormData(driverForm);
+        const data = {};
+        
+        // Track what we're actually sending
+        const newDriverId = document.getElementById('driverSelect').value;
+        const newWarehouseId = document.getElementById('warehouseSelect').value;
+        
+        // Build data object - send empty string for unassigned, don't send unchanged values
+        if (newDriverId !== currentDriverId) {
+          data.driverId = newDriverId || '';
         }
-      });
-      
-      // Get delivery ID from data attribute
-      const deliveryId = driverForm.dataset.deliveryId;
-      
-      // Show loading state
-      const originalBtnText = submitBtn.innerHTML;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Assigning...';
-      submitBtn.disabled = true;
-      
-      try {
-        const response = await fetch(`/admin/deliveries/${deliveryId}/assign-driver`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
         
-        const result = await response.json();
+        if (newWarehouseId !== currentWarehouseId) {
+          data.warehouseId = newWarehouseId || '';
+        }
         
-        if (result.success) {
-          // Show success message
-          successDiv.textContent = result.message || 'Driver assigned successfully!';
-          successDiv.style.display = 'block';
+        // Add checkboxes if needed
+        const notifyDriver = document.getElementById('notifyDriver');
+        const updateSchedule = document.getElementById('updateSchedule');
+        if (notifyDriver) data.notifyDriver = notifyDriver.checked;
+        if (updateSchedule) data.updateSchedule = updateSchedule.checked;
+        
+        // Add notes if not empty
+        const notes = driverForm.querySelector('textarea[name="notes"]');
+        if (notes && notes.value.trim()) {
+          data.notes = notes.value.trim();
+        }
+        
+        // Check if we have any changes
+        if (Object.keys(data).length === 0) {
+          errorDiv.textContent = 'No changes made. Please select a different driver or warehouse.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+        
+        // Get delivery ID from data attribute
+        const deliveryId = driverForm.dataset.deliveryId;
+        
+        // Show loading state
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Assigning...';
+        submitBtn.disabled = true;
+        
+        try {
+          console.log('Sending assignment data:', data);
           
-          // Update the page with new assignment
-          updateDeliveryDetails(result.delivery);
+          const response = await fetch(`/admin/deliveries/${deliveryId}/assign-driver`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+          });
           
-          // Close modal after 2 seconds
-          setTimeout(() => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('driverModal'));
-            modal.hide();
+          // Check if response is JSON
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Non-JSON response:', text.substring(0, 200));
+            throw new Error(`Server error: Received non-JSON response (Status: ${response.status})`);
+          }
+          
+          const result = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(result.error || `HTTP error! status: ${response.status}`);
+          }
+          
+          if (result.success) {
+            // Show success message
+            successDiv.textContent = result.message || 'Assignment successful!';
+            successDiv.style.display = 'block';
             
-            // Show toast notification
-            showToast('success', 'Assignment Successful', result.message);
+            // Update current values
+            currentDriverId = newDriverId;
+            currentWarehouseId = newWarehouseId;
             
-            // Reload the page after a short delay to show updated data
+            // Close modal after 2 seconds
             setTimeout(() => {
-              window.location.reload();
-            }, 1000);
-          }, 2000);
-        } else {
-          // Show error message
-          errorDiv.textContent = result.error || 'Failed to assign driver';
+              const modalElement = document.getElementById('driverModal');
+              if (modalElement) {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) modal.hide();
+              }
+              
+              // Show toast notification
+              showToast('success', 'Assignment Successful', result.message);
+              
+              // Reload the page after a short delay to show updated data
+              setTimeout(() => {
+                window.location.reload();
+              }, 1500);
+            }, 2000);
+          } else {
+            throw new Error(result.error || 'Failed to assign driver/warehouse');
+          }
+          
+        } catch (error) {
+          console.error('Error:', error);
+          errorDiv.textContent = error.message || 'An error occurred while assigning driver/warehouse';
           errorDiv.style.display = 'block';
           
           // Reset button
           submitBtn.innerHTML = originalBtnText;
           submitBtn.disabled = false;
         }
-      } catch (error) {
-        console.error('Error:', error);
-        errorDiv.textContent = 'Network error. Please try again.';
-        errorDiv.style.display = 'block';
-        
-        // Reset button
-        submitBtn.innerHTML = originalBtnText;
-        submitBtn.disabled = false;
-      }
-    });
+      });
+    }
   });
   
-  function updateDeliveryDetails(delivery) {
-    // Update driver name on page if element exists
-    const driverNameElement = document.querySelector('.driver-name');
-    if (driverNameElement && delivery.driver) {
-      driverNameElement.textContent = delivery.driver.name || 'Unassigned';
-    }
-    
-    // Update vehicle info on page if element exists
-    const vehicleInfoElement = document.querySelector('.vehicle-info');
-    if (vehicleInfoElement && delivery.vehicle) {
-      vehicleInfoElement.textContent = `${delivery.vehicle.plateNumber || ''} ${delivery.vehicle.model || ''}`.trim();
-    }
-  }
-  
   function showToast(type, title, message) {
-    // Check if toast container exists, create if not
-    let toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) {
-      toastContainer = document.createElement('div');
-      toastContainer.id = 'toastContainer';
-      toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-      document.body.appendChild(toastContainer);
-    }
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => toast.remove());
     
-    // Create toast
-    const toastId = 'toast-' + Date.now();
-    const toastHtml = `
-      <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-${type} text-white">
-          <strong class="me-auto">${title}</strong>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-bg-${type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    
+    toast.innerHTML = `
+      <div class="d-flex">
         <div class="toast-body">
-          ${message}
+          <i class="fas ${icon} me-2"></i>${message}
         </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
     `;
     
-    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    toastContainer.appendChild(toast);
     
-    // Show toast
-    const toastEl = document.getElementById(toastId);
-    const toast = new bootstrap.Toast(toastEl, {
-      delay: 5000
+    const bsToast = new bootstrap.Toast(toast, {
+      autohide: type === 'success',
+      delay: type === 'success' ? 3000 : 5000
     });
-    toast.show();
+    
+    bsToast.show();
     
     // Remove toast after it's hidden
-    toastEl.addEventListener('hidden.bs.toast', function () {
-      toastEl.remove();
+    toast.addEventListener('hidden.bs.toast', function () {
+      toast.remove();
     });
+  }
+  
+  function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container position-fixed top-0 end-0 p-3';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
   }
 </script>

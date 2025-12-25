@@ -1,31 +1,55 @@
 <%- layout('layouts/main') %>
 <style>
   :root {
-    --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-    --primary-color: #2563eb;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --dark-gradient: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+    --primary-color: #6366f1;
     --accent-color: #f59e0b;
-    --dark-color: #111827;
+    --success-color: #10b981;
+    --dark-color: #0f172a;
     --light-color: #f8fafc;
-    --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --hover-shadow: 0 12px 40px rgba(37, 99, 235, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 30px 60px rgba(99, 102, 241, 0.15);
   }
 
   body {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: #f8fafc;
     min-height: 100vh;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      sans-serif;
   }
 
   .hero-section {
-    background: var(--primary-gradient);
-    color: white;
-    border-radius: 20px;
-    padding: 3rem 1.5rem;
-    margin-top: 1.5rem;
+    background: var(--glass-bg);
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    color: #000;
+    border-radius: 24px;
+    padding: 4rem 2rem;
+    margin-top: 2rem;
     position: relative;
     overflow: hidden;
+    box-shadow: var(--card-shadow);
   }
 
   .hero-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(99, 102, 241, 0.1) 0%,
+      transparent 70%
+    );
+    z-index: -1;
+  }
+
+  .hero-section::after {
     content: "";
     position: absolute;
     top: -50%;
@@ -33,54 +57,63 @@
     width: 100%;
     height: 200%;
     background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.1) 1px,
-      transparent 1px
+      circle at center,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 70%
     );
-    background-size: 40px 40px;
-    opacity: 0.3;
-    animation: backgroundShift 20s linear infinite;
+    animation: float 20s linear infinite;
   }
 
   .tracking-card {
-    background: white;
-    border-radius: 18px;
-    padding: 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 3rem;
     box-shadow: var(--card-shadow);
-    border: none;
-    margin-top: -40px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-top: -60px;
     position: relative;
     z-index: 10;
   }
 
   .tracking-input {
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 0.875rem 1.25rem;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    background: #fafafa;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.5px;
+  }
+
+  .tracking-input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
   }
 
   .tracking-input:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
     background: white;
+    transform: translateY(-1px);
   }
 
   .btn-track {
     background: var(--primary-gradient);
     border: none;
-    border-radius: 12px;
-    padding: 0.875rem 1.75rem;
+    border-radius: 16px;
+    padding: 1rem 2.5rem;
     font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
+    font-size: 1.125rem;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
   }
 
-  .btn-track::after {
+  .btn-track::before {
     content: "";
     position: absolute;
     top: 0;
@@ -93,87 +126,94 @@
       rgba(255, 255, 255, 0.2),
       transparent
     );
-    transition: left 0.5s;
+    transition: left 0.7s;
   }
 
-  .btn-track:hover::after {
+  .btn-track:hover::before {
     left: 100%;
   }
 
   .btn-track:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--hover-shadow);
   }
 
   .feature-card {
-    background: white;
-    border-radius: 14px;
-    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
     height: 100%;
-    border: 1px solid #f1f5f9;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .feature-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-8px) scale(1.02);
     border-color: var(--primary-color);
     box-shadow: var(--hover-shadow);
   }
 
   .feature-icon {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(
-      135deg,
-      rgba(37, 99, 235, 0.1) 0%,
-      rgba(30, 64, 175, 0.05) 100%
-    );
-    border-radius: 12px;
+    width: 64px;
+    height: 64px;
+    background: var(--primary-gradient);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.875rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
   }
 
-  .floating-animation {
-    animation: float 4s ease-in-out infinite;
+  .feature-icon i {
+    font-size: 1.75rem;
+    color: white;
   }
 
   @keyframes float {
     0%,
     100% {
-      transform: translateY(0px) rotate(0deg);
+      transform: translate(0, 0) rotate(0deg);
     }
-    50% {
-      transform: translateY(-10px) rotate(2deg);
+    33% {
+      transform: translate(30px, 30px) rotate(120deg);
+    }
+    66% {
+      transform: translate(-20px, 40px) rotate(240deg);
     }
   }
 
-  @keyframes backgroundShift {
-    0% {
-      transform: translate(0, 0);
-    }
+  @keyframes pulse {
+    0%,
     100% {
-      transform: translate(40px, 40px);
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
     }
   }
 
   .map-preview {
-    height: 240px;
-    border-radius: 14px;
+    height: 280px;
+    border-radius: 20px;
     overflow: hidden;
-    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.3);
   }
 
   .stats-card {
-    background: white;
-    border-radius: 14px;
-    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
     text-align: center;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .stats-card::before {
@@ -181,22 +221,18 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
+    width: 6px;
     height: 100%;
     background: var(--primary-gradient);
   }
 
   .stats-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-5px);
     box-shadow: var(--hover-shadow);
   }
 
   .glow {
-    box-shadow: 0 0 40px rgba(37, 99, 235, 0.15);
-  }
-
-  .input-group {
-    gap: 0.75rem;
+    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.2);
   }
 
   .stats-number {
@@ -204,17 +240,112 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .badge-modern {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .section-title {
+    position: relative;
+    display: inline-block;
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+  }
+
+  .section-title::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: var(--primary-gradient);
+    border-radius: 2px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0.25rem;
+  }
+
+  .scan-animation {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scan-animation::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--accent-color),
+      transparent
+    );
+    animation: scan 3s ease-in-out infinite;
+  }
+
+  @keyframes scan {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  .powered-badge {
+    display: inline-flex;
+    align-items: center;
+    background: var(--dark-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 1rem;
+  }
+
+  .input-group {
+    gap: 1rem;
   }
 
   @media (max-width: 768px) {
     .hero-section {
       padding: 2rem 1rem;
-      border-radius: 16px;
+      border-radius: 20px;
+      margin-top: 1rem;
     }
 
     .tracking-card {
-      padding: 1.5rem;
-      margin-top: -30px;
+      padding: 2rem 1.5rem;
+      margin-top: -40px;
     }
 
     .input-group {
@@ -223,49 +354,115 @@
 
     .btn-track {
       width: 100%;
+      padding: 1rem;
     }
+
+    .section-title {
+      font-size: 2rem;
+    }
+
+    .stats-number {
+      font-size: 2.5rem;
+    }
+  }
+
+  /* Modern scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--primary-gradient);
+    border-radius: 4px;
+  }
+
+  /* Selection color */
+  ::selection {
+    background: rgba(99, 102, 241, 0.3);
+    color: white;
   }
 </style>
 
 <!-- Main Content -->
-<div class="container px-3 px-md-4">
+<div class="container px-3 px-md-4 py-4">
   <!-- Hero Section -->
   <div class="hero-section text-center">
     <div class="position-relative" style="z-index: 2">
-      <h1 class="display-5 fw-bold mb-2">Track Your Delivery in Real-Time</h1>
-      <p class="lead mb-3 opacity-90 fs-6">
-        Live updates, interactive maps & predictive analytics
+      <h1 class="display-4 fw-bold mb-3 text-dark" style="font-weight: 900">
+        Advanced Delivery Intelligence
+      </h1>
+      <p
+        class="lead mb-4 opacity-90 fs-5"
+        style="max-width: 800px; margin: 0 auto"
+      >
+        Real-time AI-powered tracking with predictive analytics and interactive
+        Mapbox visualization
       </p>
 
-      <!-- Floating Elements -->
+      <div class="d-flex justify-content-center gap-2 flex-wrap mb-4">
+        <span class="chip"> <i class="fas fa-bolt me-2"></i>Live Updates </span>
+        <span class="chip">
+          <i class="fas fa-robot me-2"></i>AI Predictions
+        </span>
+        <span class="chip">
+          <i class="fas fa-map-marked-alt me-2"></i>Interactive Maps
+        </span>
+        <span class="chip">
+          <i class="fas fa-shield-alt me-2"></i>Enterprise Security
+        </span>
+      </div>
+
+      <!-- Animated elements -->
       <div
-        class="position-absolute top-0 start-0 floating-animation"
-        style="z-index: 1"
+        class="position-absolute top-0 start-0"
+        style="z-index: 1; animation: float 6s ease-in-out infinite"
       >
         <div
-          class="bg-white opacity-10 rounded-circle"
-          style="width: 80px; height: 80px"
+          class="rounded-circle"
+          style="
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(
+              circle,
+              rgba(255, 255, 255, 0.1) 0%,
+              transparent 70%
+            );
+          "
         ></div>
       </div>
       <div
-        class="position-absolute bottom-0 end-0 floating-animation"
-        style="animation-delay: 1s; z-index: 1"
+        class="position-absolute bottom-0 end-0"
+        style="z-index: 1; animation: float 8s ease-in-out infinite 1s"
       >
         <div
-          class="bg-white opacity-10 rounded-circle"
-          style="width: 60px; height: 60px"
+          class="rounded-circle"
+          style="
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(
+              circle,
+              rgba(255, 255, 255, 0.1) 0%,
+              transparent 70%
+            );
+          "
         ></div>
       </div>
     </div>
   </div>
 
   <!-- Tracking Card -->
-  <div class="tracking-card glow">
+  <div class="tracking-card glow scan-animation">
     <div class="row align-items-center g-4">
       <div class="col-lg-8">
-        <h2 class="h4 fw-bold mb-2">Enter Tracking Details</h2>
-        <p class="text-muted mb-3 fs-7">
-          Track with ID, order number, or reference
+        <h2 class="fw-bold mb-3 text-dark">Track Delivery in Real-Time</h2>
+        <p class="text-dark mb-4 fs-6">
+          Enter your unique tracking ID for AI-powered predictive tracking, live
+          location updates, and delivery analytics.
         </p>
 
         <form id="trackingForm" onsubmit="handleTrackSubmit(event)">
@@ -273,35 +470,89 @@
             <input
               type="text"
               id="trackingId"
-              class="form-control tracking-input"
-              placeholder="Enter tracking ID (e.g., DEL82917463)"
+              class="form-control tracking-input shadow-sm"
+              placeholder="DEL-51434020-X3RY"
+              pattern="^DEL-\d{8}-[A-Z0-9]{4}$"
+              title="Format: DEL-8 digits-4 characters (e.g., DEL-51434020-X3RY)"
               required
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
             />
-            <button class="btn btn-track" type="submit">
-              <i class="fas fa-search me-2"></i>Track Package
+            <button class="btn btn-track shadow-lg" type="submit">
+              <i class="fas fa-satellite-dish me-2"></i>Track Delivery
             </button>
           </div>
 
-          <div class="form-text mt-2 fs-7">
-            <i class="fas fa-info-circle me-1"></i>
-            Find tracking ID in order confirmation email
+          <div
+            class="d-flex flex-wrap align-items-center justify-content-between mt-3"
+          >
+            <div class="form-text text-muted fs-7">
+              <i class="fas fa-key me-1"></i>
+              Format: DEL-XXXXXXXX-XXXX (Example: DEL-51434020-X3RY)
+            </div>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary"
+              onclick="pasteFromClipboard()"
+            >
+              <i class="fas fa-paste me-1"></i>Paste from clipboard
+            </button>
           </div>
         </form>
+
+        <div class="mt-4">
+          <div class="powered-badge">
+            <i class="fab fa-mapbox me-2"></i>
+            Powered by Mapbox AI & Predictive Analytics
+          </div>
+        </div>
       </div>
       <div class="col-lg-4">
         <div
-          class="map-preview d-flex align-items-center justify-content-center"
+          class="map-preview d-flex align-items-center justify-content-center position-relative"
         >
-          <div class="text-center p-3">
+          <div class="text-center p-4" style="z-index: 2">
             <div
-              class="bg-white rounded-circle p-2 mb-2 d-inline-block shadow-sm"
+              class="bg-white rounded-circle p-3 mb-3 d-inline-block shadow-lg"
             >
-              <i class="fas fa-map-marked-alt fa-lg text-primary"></i>
+              <i class="fas fa-map-marked-alt fa-2x text-primary"></i>
             </div>
-            <h5 class="fw-bold mb-1 fs-6">Live Map Tracking</h5>
-            <p class="text-muted fs-7 mb-0">
-              Real-time Mapbox integration[citation:5]
+            <h5 class="fw-bold mb-2 fs-5">Live AI Tracking</h5>
+            <p class="text-white opacity-90 mb-3 fs-7">
+              Real-time predictive analytics with Mapbox visualization
             </p>
+            <div class="badge-modern">
+              <i class="fas fa-brain me-1"></i>
+              AI-Powered
+            </div>
+          </div>
+          <!-- Animated map grid -->
+          <div class="position-absolute w-100 h-100" style="z-index: 1">
+            <div
+              class="position-absolute top-0 start-0 w-100 h-100"
+              style="
+                background: linear-gradient(
+                  90deg,
+                  transparent 49%,
+                  rgba(255, 255, 255, 0.1) 50%,
+                  transparent 51%
+                );
+                background-size: 20px 20px;
+              "
+            ></div>
+            <div
+              class="position-absolute top-0 start-0 w-100 h-100"
+              style="
+                background: linear-gradient(
+                  0deg,
+                  transparent 49%,
+                  rgba(255, 255, 255, 0.1) 50%,
+                  transparent 51%
+                );
+                background-size: 20px 20px;
+              "
+            ></div>
           </div>
         </div>
       </div>
@@ -309,146 +560,364 @@
   </div>
 
   <!-- Features Section -->
-  <div class="row g-3 mt-3">
-    <div class="col-md-4">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+  <div class="mt-5">
+    <h3 class="section-title">Enterprise Tracking Features</h3>
+    <p class="text-muted mb-4 fs-6">
+      Advanced capabilities for modern logistics
+    </p>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-satellite"></i>
+          </div>
+          <h5 class="fw-bold mb-2 fs-5">AI-Powered Predictive Tracking</h5>
+          <p class="text-muted mb-3 fs-7">
+            Machine learning algorithms predict delivery times with 99.2%
+            accuracy using historical data and real-time conditions.
+          </p>
+          <div class="d-flex align-items-center">
+            <div class="progress flex-grow-1 me-2" style="height: 6px">
+              <div class="progress-bar bg-success" style="width: 92%"></div>
+            </div>
+            <small class="text-success fw-bold">92% Accurate</small>
+          </div>
         </div>
-        <h5 class="fw-bold mb-2 fs-6">Real-Time Location</h5>
-        <p class="text-muted mb-0 fs-7">
-          Live tracking with precise geocoding[citation:4][citation:6]
-        </p>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-brain fa-lg text-primary"></i>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-map-marked-alt"></i>
+          </div>
+          <h5 class="fw-bold mb-2 fs-5">Interactive Mapbox Integration</h5>
+          <p class="text-muted mb-3 fs-7">
+            Real-time visualization with geocoding, route optimization, and live
+            traffic analysis powered by Mapbox.
+          </p>
+          <div class="d-flex align-items-center">
+            <div class="progress flex-grow-1 me-2" style="height: 6px">
+              <div class="progress-bar bg-primary" style="width: 98%"></div>
+            </div>
+            <small class="text-primary fw-bold">Real-time</small>
+          </div>
         </div>
-        <h5 class="fw-bold mb-2 fs-6">Predictive ETA</h5>
-        <p class="text-muted mb-0 fs-7">
-          AI-powered delivery predictions[citation:6]
-        </p>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-bell fa-lg text-primary"></i>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h5 class="fw-bold mb-2 fs-5">Advanced Analytics Dashboard</h5>
+          <p class="text-muted mb-3 fs-7">
+            Comprehensive analytics with delivery metrics, performance insights,
+            and predictive trend analysis.
+          </p>
+          <div class="d-flex align-items-center">
+            <div class="progress flex-grow-1 me-2" style="height: 6px">
+              <div class="progress-bar bg-warning" style="width: 85%"></div>
+            </div>
+            <small class="text-warning fw-bold">85% Faster</small>
+          </div>
         </div>
-        <h5 class="fw-bold mb-2 fs-6">Smart Alerts</h5>
-        <p class="text-muted mb-0 fs-7">
-          Proactive delay & arrival notifications[citation:4]
-        </p>
       </div>
     </div>
   </div>
 
   <!-- Stats Section -->
-  <div class="row g-3 mt-3">
+  <div class="row g-4 mt-4">
     <div class="col-md-3 col-6">
       <div class="stats-card">
-        <h3 class="display-6 fw-bold stats-number">24/7</h3>
-        <p class="text-muted mb-0 fs-7">Real-Time Tracking</p>
+        <h3 class="stats-number">24/7</h3>
+        <p class="text-muted mb-0 fs-7">Live AI Monitoring</p>
+        <small class="text-success fw-bold d-block mt-1">
+          <i class="fas fa-arrow-up me-1"></i>99.9% Uptime
+        </small>
       </div>
     </div>
     <div class="col-md-3 col-6">
       <div class="stats-card">
-        <h3 class="display-6 fw-bold stats-number">99.8%</h3>
+        <h3 class="stats-number">99.8%</h3>
         <p class="text-muted mb-0 fs-7">Delivery Accuracy</p>
+        <small class="text-primary fw-bold d-block mt-1">
+          <i class="fas fa-bullseye me-1"></i>AI-Powered
+        </small>
       </div>
     </div>
     <div class="col-md-3 col-6">
       <div class="stats-card">
-        <h3 class="display-6 fw-bold stats-number">150+</h3>
-        <p class="text-muted mb-0 fs-7">Cities Covered</p>
-      </div>
-    </div>
-    <div class="col-md-3 col-6">
-      <div class="stats-card">
-        <h3 class="display-6 fw-bold stats-number">30min</h3>
+        <h3 class="stats-number">30s</h3>
         <p class="text-muted mb-0 fs-7">Update Frequency</p>
+        <small class="text-warning fw-bold d-block mt-1">
+          <i class="fas fa-bolt me-1"></i>Real-time
+        </small>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stats-card">
+        <h3 class="stats-number">150+</h3>
+        <p class="text-muted mb-0 fs-7">Enterprise Clients</p>
+        <small class="text-info fw-bold d-block mt-1">
+          <i class="fas fa-shield-alt me-1"></i>Secured
+        </small>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  function handleTrackSubmit(event) {
+  // Enhanced tracking ID validation
+  function validateTrackingId(trackingId) {
+    // Format: DEL-XXXXXXXX-XXXX
+    const pattern = /^DEL-\d{8}-[A-Z0-9]{4}$/;
+
+    if (!pattern.test(trackingId)) {
+      // Provide more specific error messages
+      if (!trackingId.startsWith("DEL-")) {
+        return 'Tracking ID must start with "DEL-"';
+      }
+
+      const parts = trackingId.split("-");
+      if (parts.length !== 3) {
+        return "Format: DEL-8 digits-4 characters (e.g., DEL-51434020-X3RY)";
+      }
+
+      if (parts[1].length !== 8 || !/^\d{8}$/.test(parts[1])) {
+        return "Middle part must be 8 digits";
+      }
+
+      if (parts[2].length !== 4 || !/^[A-Z0-9]{4}$/.test(parts[2])) {
+        return "Last part must be 4 alphanumeric characters";
+      }
+
+      return "Invalid tracking ID format";
+    }
+
+    return null;
+  }
+
+  async function handleTrackSubmit(event) {
     event.preventDefault();
 
     const input = document.getElementById("trackingId");
     let trackingId = input.value.trim().toUpperCase();
 
-    // Required check
-    if (!trackingId) {
-      showNotification("Please enter a tracking ID.", "error");
+    // Remove any extra spaces or invalid characters
+    trackingId = trackingId.replace(/\s+/g, "");
+
+    // Validate format
+    const validationError = validateTrackingId(trackingId);
+    if (validationError) {
+      showNotification(validationError, "error");
       input.focus();
+      input.select();
       return;
     }
 
-    // Format validation (must match backend)
-    const trackingRegex = /^DEL[A-Z0-9]{8}$/;
-    if (!trackingRegex.test(trackingId)) {
-      showNotification(
-        "Invalid tracking ID format. Example: DEL82917463",
-        "warning"
-      );
-      input.focus();
-      return;
-    }
-
-    // Add loading state
+    // Show loading state with enhanced animation
     const btn = document.querySelector(".btn-track");
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Tracking...';
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = `
+      <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
+      <span class="loading-text">Analyzing with AI...</span>
+    `;
     btn.disabled = true;
 
-    // Simulate API call delay
+    // Add typing effect to input
+    input.style.borderColor = "#10b981";
+    input.style.boxShadow = "0 0 0 3px rgba(16, 185, 129, 0.1)";
+
+    // Simulate AI processing
     setTimeout(() => {
-      // Redirect using query string
+      // Redirect to tracking results
       window.location.href = `/delivery/track/results?trackingId=${encodeURIComponent(
         trackingId
       )}`;
-    }, 500);
+    }, 1000);
   }
 
-  // Notification function
-  function showNotification(message, type) {
+  // Modern notification system
+  function showNotification(message, type = "info") {
+    // Remove existing notifications
+    const existing = document.querySelectorAll(".notification-toast");
+    existing.forEach((n) => n.remove());
+
+    const icons = {
+      success: "fas fa-check-circle",
+      error: "fas fa-exclamation-circle",
+      warning: "fas fa-exclamation-triangle",
+      info: "fas fa-info-circle",
+    };
+
+    const colors = {
+      success: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+      error: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+      warning: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+      info: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+    };
+
     const notification = document.createElement("div");
-    notification.className = `position-fixed top-0 end-0 m-3 p-3 rounded shadow-lg bg-${
-      type === "error" ? "danger" : "warning"
-    } text-white`;
-    notification.style.zIndex = "9999";
+    notification.className = "notification-toast position-fixed top-4 end-4";
+    notification.style.zIndex = "99999";
     notification.innerHTML = `
-      <div class="d-flex align-items-center">
-        <i class="fas fa-${
-          type === "error" ? "exclamation-triangle" : "info-circle"
-        } me-2"></i>
-        <span>${message}</span>
+      <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header" style="background: ${
+          colors[type]
+        }; color: white; border-radius: 12px 12px 0 0;">
+          <i class="${icons[type]} me-2"></i>
+          <strong class="me-auto">${
+            type.charAt(0).toUpperCase() + type.slice(1)
+          }</strong>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body bg-white" style="border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+          ${message}
+        </div>
       </div>
     `;
+
     document.body.appendChild(notification);
 
-    setTimeout(() => notification.remove(), 3000);
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 5000);
+
+    // Add close button functionality
+    notification.querySelector(".btn-close").addEventListener("click", () => {
+      notification.remove();
+    });
   }
 
-  // Smart sample ID rotation
-  const sampleIds = ["DEL82917463", "DEL55123489", "DEL99345612"];
-  let currentIndex = 0;
+  // Clipboard paste functionality
+  async function pasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      const input = document.getElementById("trackingId");
+      input.value = text.trim().toUpperCase();
+      input.focus();
+      input.select();
 
-  function rotateSampleId() {
-    const input = document.getElementById("trackingId");
-    if (document.activeElement !== input) {
-      input.value = sampleIds[currentIndex];
-      currentIndex = (currentIndex + 1) % sampleIds.length;
+      // Validate and show feedback
+      const validationError = validateTrackingId(input.value);
+      if (!validationError) {
+        input.style.borderColor = "#10b981";
+        input.style.boxShadow = "0 0 0 3px rgba(16, 185, 129, 0.1)";
+        showNotification("Tracking ID pasted successfully!", "success");
+      } else {
+        input.style.borderColor = "#ef4444";
+        input.style.boxShadow = "0 0 0 3px rgba(239, 68, 68, 0.1)";
+      }
+    } catch (err) {
+      showNotification(
+        "Unable to access clipboard. Please paste manually.",
+        "warning"
+      );
     }
   }
 
-  // Initialize with first sample
+  // Dynamic sample IDs rotation
+  const sampleIds = [
+    "DEL-51434020-X3RY",
+    "DEL-62389145-B8TZ",
+    "DEL-98701234-K9LX",
+    "DEL-34567890-P4QW",
+  ];
+
+  let currentSampleIndex = 0;
+
+  function rotateSampleId() {
+    const input = document.getElementById("trackingId");
+    if (!input.value || sampleIds.includes(input.value.toUpperCase())) {
+      // Only rotate if input is empty or contains a sample ID
+      if (document.activeElement !== input) {
+        input.value = sampleIds[currentSampleIndex];
+        currentSampleIndex = (currentSampleIndex + 1) % sampleIds.length;
+
+        // Animate the change
+        input.style.opacity = "0.7";
+        setTimeout(() => {
+          input.style.opacity = "1";
+          input.style.transform = "translateY(-2px)";
+          setTimeout(() => {
+            input.style.transform = "translateY(0)";
+          }, 300);
+        }, 50);
+      }
+    }
+  }
+
+  // Enhanced input interaction
   document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("trackingId");
+
+    // Initialize with first sample
     rotateSampleId();
-    setInterval(rotateSampleId, 3000);
+
+    // Rotate every 4 seconds
+    setInterval(rotateSampleId, 4000);
+
+    // Clear sample when user focuses
+    input.addEventListener("focus", () => {
+      if (sampleIds.includes(input.value.toUpperCase())) {
+        input.value = "";
+      }
+      input.style.borderColor = "#6366f1";
+      input.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)";
+    });
+
+    // Validate on blur
+    input.addEventListener("blur", () => {
+      if (input.value.trim() !== "") {
+        const error = validateTrackingId(input.value.toUpperCase());
+        if (error) {
+          input.style.borderColor = "#ef4444";
+          input.style.boxShadow = "0 0 0 3px rgba(239, 68, 68, 0.1)";
+        } else {
+          input.style.borderColor = "#10b981";
+          input.style.boxShadow = "0 0 0 3px rgba(16, 185, 129, 0.1)";
+        }
+      }
+    });
+
+    // Auto-format as user types
+    input.addEventListener("input", (e) => {
+      let value = e.target.value.toUpperCase();
+
+      // Remove any non-alphanumeric except dashes
+      value = value.replace(/[^A-Z0-9-]/g, "");
+
+      // Auto-insert first dash after "DEL"
+      if (value.startsWith("DEL") && value.length > 3 && value[3] !== "-") {
+        value = "DEL-" + value.slice(3);
+      }
+
+      // Auto-insert second dash after 12 characters
+      if (value.length > 12 && value[12] !== "-") {
+        value = value.slice(0, 12) + "-" + value.slice(12);
+      }
+
+      // Limit length
+      if (value.length > 17) {
+        value = value.slice(0, 17);
+      }
+
+      e.target.value = value;
+    });
+
+    // Add keyboard shortcuts
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.key === "/") {
+        e.preventDefault();
+        input.focus();
+        input.select();
+      }
+
+      if (e.key === "Escape") {
+        input.blur();
+      }
+    });
   });
 </script>

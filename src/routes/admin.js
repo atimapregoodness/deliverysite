@@ -7,6 +7,10 @@ const { isAuthenticated, isAdmin } = require("../middlewares/auth");
 router.use(isAuthenticated);
 router.use(isAdmin);
 
+// For multipart/form-data, add multer
+const multer = require("multer");
+const upload = multer(); // No disk storage needed
+
 // ============================================
 // DASHBOARD ROUTES
 // ============================================
@@ -35,7 +39,11 @@ router.post(
   "/deliveries/:id/update-status",
   adminController.updateDeliveryStatus
 ); // Status modal
-router.post("/deliveries/:id/add-incident", adminController.addIncident); // Incident modal
+router.post(
+  "/deliveries/:id/add-incident",
+  upload.none(),
+  adminController.addIncident
+); // Incident modal
 router.post("/deliveries/:id/update-location", adminController.updateLocation); // Location modal
 router.post("/deliveries/:id/assign-driver", adminController.assignDriver); // Driver modal
 
@@ -43,9 +51,17 @@ router.post("/deliveries/:id/assign-driver", adminController.assignDriver); // D
 router.post("/deliveries/:id/geocode", adminController.geocodeAddresses);
 router.post("/deliveries/:id/mark-delivered", adminController.markAsDelivered);
 router.post("/deliveries/:id/cancel", adminController.cancelDelivery);
+
+// Resolve incident
 router.post(
   "/deliveries/:id/incidents/:incidentId/resolve",
   adminController.resolveIncident
+);
+
+// Add this route to your routes file
+router.post(
+  "/deliveries/:id/incidents/:incidentIndex/delete",
+  adminController.deleteIncident
 );
 
 // Delete delivery (AJAX)
@@ -57,7 +73,7 @@ router.get("/deliveries/:id/print", async (req, res) => {
     const Delivery = require("../models/Delivery");
     const delivery = await Delivery.findById(req.params.id)
       .populate("driver", "name phone")
-      .populate("vehicle", "plateNumber model")
+      .populate("warehouse", "plateNumber model")
       .lean();
 
     if (!delivery) {
@@ -85,12 +101,12 @@ router.get("/deliveries/:id/print", async (req, res) => {
 });
 
 // ============================================
-// VEHICLE MANAGEMENT ROUTES
+// warehouse MANAGEMENT ROUTES
 // ============================================
 
-// Vehicle management
-router.get("/vehicles", adminController.getAllVehicles);
-// router.post("/vehicles", adminController.createVehicle);
+// warehouse management
+router.get("/warehouse", adminController.getAllWarehouses);
+// router.post("/warehouses", adminController.createwarehouse);
 
 // ============================================
 // DRIVER MANAGEMENT ROUTES

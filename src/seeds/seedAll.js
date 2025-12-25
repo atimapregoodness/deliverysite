@@ -1,6 +1,6 @@
 const seedAdmins = require("./seedAdmin");
 const seedDrivers = require("./seedDrivers");
-const seedVehicles = require("./seedVehicles");
+const seedWarehouses = require("./seedWarehouses");
 const seedDeliveries = require("./seedDeliveries");
 
 const seedAll = async () => {
@@ -13,8 +13,8 @@ const seedAll = async () => {
     console.log("\n2. Seeding drivers...");
     await seedDrivers();
 
-    console.log("\n3. Seeding vehicles...");
-    await seedVehicles();
+    console.log("\n3. Seeding warehouse...");
+    await seedWarehouses();
 
     console.log("\n4. Seeding deliveries...");
     await seedDeliveries();

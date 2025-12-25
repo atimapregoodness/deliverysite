@@ -38,6 +38,7 @@
                 id="incidentType"
                 onchange="updateIncidentFields()"
               >
+                <option value="">Select type</option>
                 <option value="accident">Accident</option>
                 <option value="breakdown">Vehicle Breakdown</option>
                 <option value="traffic">Traffic Delay</option>
@@ -57,6 +58,7 @@
                 id="severitySelect"
                 onchange="updateEmergencyFields()"
               >
+                <option value="">Select severity</option>
                 <option value="low">Low - Minor issue</option>
                 <option value="medium" selected>
                   Medium - Affects delivery time
@@ -70,14 +72,16 @@
               <textarea
                 class="form-control"
                 name="description"
+                id="description"
                 rows="3"
                 required
                 placeholder="Describe what happened, including any relevant details"
               ></textarea>
             </div>
 
-            <div id="incidentAdditionalFields">
-              <!-- Dynamic fields based on incident type -->
+            <!-- Dynamic fields container -->
+            <div class="row g-3" id="incidentAdditionalFields">
+              <!-- Dynamic fields will be inserted here -->
             </div>
 
             <div class="col-md-6">
@@ -100,25 +104,19 @@
               />
             </div>
 
-            <div id="emergencyFields" style="display: none">
-              <div class="col-12">
-                <div class="alert alert-danger">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      name="emergencyServices"
-                      id="emergencyServices"
-                    />
-                    <label class="form-check-label" for="emergencyServices">
-                      <i class="fas fa-ambulance me-2"></i>Emergency services
-                      were called
-                    </label>
-                  </div>
-                  <div class="form-text mt-2">
-                    Check this box if police, ambulance, or fire services were
-                    called to the scene.
-                  </div>
+            <div class="col-12" id="emergencyFields" style="display: none">
+              <div class="alert alert-danger">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="emergencyServices"
+                    id="emergencyServices"
+                  />
+                  <label class="form-check-label" for="emergencyServices">
+                    <i class="fas fa-ambulance me-2"></i>Emergency services were
+                    called
+                  </label>
                 </div>
               </div>
             </div>
@@ -132,9 +130,9 @@
                   id="driverInvolved"
                   checked
                 />
-                <label class="form-check-label" for="driverInvolved">
-                  Driver involved in incident
-                </label>
+                <label class="form-check-label" for="driverInvolved"
+                  >Driver involved in incident</label
+                >
               </div>
             </div>
 
@@ -146,9 +144,9 @@
                   name="packageAffected"
                   id="packageAffected"
                 />
-                <label class="form-check-label" for="packageAffected">
-                  Package affected/damaged
-                </label>
+                <label class="form-check-label" for="packageAffected"
+                  >Package affected/damaged</label
+                >
               </div>
             </div>
           </div>
@@ -161,7 +159,7 @@
           >
             Cancel
           </button>
-          <button type="submit" class="btn btn-warning">
+          <button type="submit" class="btn btn-warning" id="submitBtn">
             <i class="fas fa-exclamation-triangle me-2"></i>Report Incident
           </button>
         </div>
@@ -196,7 +194,6 @@
           </div>
         `;
         break;
-
       case "breakdown":
         html = `
           <div class="col-md-6">
@@ -218,7 +215,6 @@
           </div>
         `;
         break;
-
       case "package_damage":
         html = `
           <div class="col-md-6">
@@ -237,8 +233,9 @@
           </div>
         `;
         break;
-
       case "theft":
+        const now = new Date();
+        const currentDateTime = now.toISOString().slice(0, 16);
         html = `
           <div class="col-12">
             <div class="alert alert-danger">
@@ -252,8 +249,7 @@
           </div>
           <div class="col-md-6">
             <label class="form-label">Time of Theft</label>
-            <input type="datetime-local" class="form-control" name="theftTime" 
-                   value="<%= new Date().toISOString().slice(0, 16) %>">
+            <input type="datetime-local" class="form-control" name="theftTime" value="${currentDateTime}">
           </div>
         `;
         break;
@@ -274,9 +270,146 @@
     }
   }
 
-  // Initialize fields on page load
+  // PURE JAVASCRIPT FORM HANDLER (No jQuery)
   document.addEventListener("DOMContentLoaded", function () {
     updateIncidentFields();
     updateEmergencyFields();
+
+    // Get form elements
+    const form = document.getElementById("incidentForm");
+    const submitBtn = document.querySelector(
+      '#incidentForm button[type="submit"]'
+    );
+    const incidentModal = document.getElementById("incidentModal");
+
+    if (form) {
+      // Handle form submission with AJAX
+      submitBtn.addEventListener("click", async function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log("Form submit button clicked");
+
+        // Validate
+        const type = document.getElementById("incidentType").value;
+        const severity = document.getElementById("severitySelect").value;
+        const description = document.getElementById("description").value;
+
+        if (!type || !severity || !description) {
+          alert(
+            "Please fill in all required fields: Type, Severity, and Description"
+          );
+          return;
+        }
+
+        // Special validation for theft incidents
+        if (type === "theft") {
+          const policeReport = document.querySelector(
+            'input[name="policeReport"]'
+          );
+          if (policeReport && !policeReport.value.trim()) {
+            alert("Police report number is required for theft incidents");
+            policeReport.focus();
+            return;
+          }
+        }
+
+        // Show loading
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin me-2"></i>Reporting...';
+        submitBtn.disabled = true;
+
+        // Collect form data
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+          data[key] = value;
+        });
+
+        console.log("Data to send:", data);
+        console.log("Sending to:", form.action);
+
+        try {
+          // Send AJAX request
+          const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          console.log("Response status:", response.status);
+
+          // First check if response is OK
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Server error response:", errorText);
+            throw new Error(
+              `Server returned ${response.status}: ${response.statusText}`
+            );
+          }
+
+          // Try to parse as JSON
+          const result = await response.json();
+          console.log("Response data:", result);
+
+          if (result.success) {
+            // Show success message
+            alert("Incident reported successfully!");
+
+            // Close modal using Bootstrap 5 JavaScript
+            if (incidentModal) {
+              const modal = bootstrap.Modal.getInstance(incidentModal);
+              if (modal) {
+                modal.hide();
+              } else {
+                // If no instance exists, create one and hide it
+                const bsModal = new bootstrap.Modal(incidentModal);
+                bsModal.hide();
+              }
+            }
+
+            // Reload page after a short delay
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
+          } else {
+            // Show specific error from server
+            alert("Error: " + (result.error || "Unknown error occurred"));
+            submitBtn.innerHTML =
+              '<i class="fas fa-exclamation-triangle me-2"></i>Report Incident';
+            submitBtn.disabled = false;
+          }
+        } catch (error) {
+          console.error("Fetch error:", error);
+          console.error("Error message:", error.message);
+
+          alert(
+            "An error occurred. Please try again. Details: " + error.message
+          );
+          submitBtn.innerHTML =
+            '<i class="fas fa-exclamation-triangle me-2"></i>Report Incident';
+          submitBtn.disabled = false;
+        }
+      });
+    }
+
+    // Reset form when modal closes using Bootstrap 5 events
+    if (incidentModal) {
+      incidentModal.addEventListener("hidden.bs.modal", function () {
+        if (form) {
+          form.reset();
+          updateIncidentFields();
+          updateEmergencyFields();
+        }
+        if (submitBtn) {
+          submitBtn.innerHTML =
+            '<i class="fas fa-exclamation-triangle me-2"></i>Report Incident';
+          submitBtn.disabled = false;
+        }
+      });
+    }
   });
 </script>

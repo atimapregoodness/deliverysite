@@ -5,8 +5,12 @@
         <h5 class="modal-title" id="editModalLabel">Edit Delivery</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form id="editForm" action="/admin/deliveries/<%= delivery._id %>/update" method="POST">
+      <form id="editForm">
         <div class="modal-body">
+          <!-- Hidden field for delivery ID -->
+          <input type="hidden" id="editDeliveryId" value="<%= delivery._id %>">
+          <input type="hidden" name="trackingId" value="<%= delivery.trackingId %>">
+          
           <!-- Sender Information -->
           <div class="mb-4">
             <h6 class="mb-3 text-primary">
@@ -90,13 +94,13 @@
               </div>
               <div class="col-12">
                 <label class="form-label">Delivery Instructions</label>
-                <textarea class="form-control" name="receiver[deliveryInstructions]" rows="2" 
-                          placeholder="Any special instructions for delivery"><%= delivery.receiver.deliveryInstructions || '' %></textarea>
+                <textarea class="form-control" name="receiver[deliveryInstructions]" rows="2"><%= delivery.receiver.deliveryInstructions || '' %></textarea>
               </div>
               <div class="col-12">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="receiver[signatureRequired]" id="signatureRequired"
+                  <input class="form-check-input" type="checkbox" name="receiver[signatureRequired]" id="signatureRequired" value="true"
                          <%= delivery.receiver.signatureRequired ? 'checked' : '' %>>
+                  <input type="hidden" name="receiver[signatureRequired]" value="false">
                   <label class="form-check-label" for="signatureRequired">
                     Signature Required upon delivery
                   </label>
@@ -131,26 +135,26 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label">Weight (kg) *</label>
-                <input type="number" step="0.1" class="form-control" name="package[weight]" value="<%= delivery.package.weight %>" required>
+                <input type="number" step="0.1" min="0.1" class="form-control" name="package[weight]" value="<%= delivery.package.weight %>" required>
               </div>
               <div class="col-md-4">
                 <label class="form-label">Value ($)</label>
-                <input type="number" step="0.01" class="form-control" name="package[value]" value="<%= delivery.package.value || 0 %>">
+                <input type="number" step="0.01" min="0" class="form-control" name="package[value]" value="<%= delivery.package.value || 0 %>">
               </div>
               <div class="col-md-4">
                 <label class="form-label">Length (cm)</label>
-                <input type="number" step="0.1" class="form-control" name="package[dimensions][length]" 
-                       value="<%= delivery.package.dimensions && delivery.package.dimensions.length || '' %>">
+                <input type="number" step="0.1" min="0" class="form-control" name="package[dimensions][length]" 
+                       value="<%= delivery.package.dimensions?.length || '' %>">
               </div>
               <div class="col-md-4">
                 <label class="form-label">Width (cm)</label>
-                <input type="number" step="0.1" class="form-control" name="package[dimensions][width]" 
-                       value="<%= delivery.package.dimensions && delivery.package.dimensions.width || '' %>">
+                <input type="number" step="0.1" min="0" class="form-control" name="package[dimensions][width]" 
+                       value="<%= delivery.package.dimensions?.width || '' %>">
               </div>
               <div class="col-md-4">
                 <label class="form-label">Height (cm)</label>
-                <input type="number" step="0.1" class="form-control" name="package[dimensions][height]" 
-                       value="<%= delivery.package.dimensions && delivery.package.dimensions.height || '' %>">
+                <input type="number" step="0.1" min="0" class="form-control" name="package[dimensions][height]" 
+                       value="<%= delivery.package.dimensions?.height || '' %>">
               </div>
             </div>
           </div>
@@ -160,6 +164,17 @@
               <label class="form-label">Estimated Delivery Date *</label>
               <input type="datetime-local" class="form-control" name="estimatedDelivery"
                      value="<%= new Date(delivery.estimatedDelivery).toISOString().slice(0, 16) %>" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Status</label>
+              <select class="form-select" name="status">
+                <option value="pending" <%= delivery.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="processing" <%= delivery.status === 'processing' ? 'selected' : '' %>>Processing</option>
+                <option value="in_transit" <%= delivery.status === 'in_transit' ? 'selected' : '' %>>In Transit</option>
+                <option value="out_for_delivery" <%= delivery.status === 'out_for_delivery' ? 'selected' : '' %>>Out for Delivery</option>
+                <option value="delivered" <%= delivery.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                <option value="cancelled" <%= delivery.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+              </select>
             </div>
           </div>
         </div>
@@ -173,3 +188,159 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const editForm = document.getElementById('editForm');
+  
+  if (editForm) {
+    editForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const deliveryId = document.getElementById('editDeliveryId').value;
+      const submitBtn = editForm.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      
+      // Show loading state
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+      submitBtn.disabled = true;
+      
+      try {
+        // Convert form data to object
+        const formData = new FormData(editForm);
+        const data = {};
+        
+        // Process form data to handle nested objects
+        for (const [key, value] of formData.entries()) {
+          // Handle nested object syntax (e.g., "sender[name]")
+          if (key.includes('[') && key.includes(']')) {
+            const keys = key.replace(/\]/g, '').split('[');
+            let current = data;
+            
+            for (let i = 0; i < keys.length - 1; i++) {
+              if (!current[keys[i]]) {
+                current[keys[i]] = {};
+              }
+              current = current[keys[i]];
+            }
+            
+            current[keys[keys.length - 1]] = value;
+          } else {
+            data[key] = value;
+          }
+        }
+        
+        // Handle checkbox for signatureRequired
+        if (data.receiver) {
+          const checkbox = editForm.querySelector('input[name="receiver[signatureRequired]"][type="checkbox"]');
+          const hiddenInput = editForm.querySelector('input[name="receiver[signatureRequired]"][type="hidden"]');
+          
+          // Use checkbox value if checked, otherwise use hidden input value
+          data.receiver.signatureRequired = checkbox.checked ? 'true' : hiddenInput.value;
+        }
+        
+        console.log('Sending data:', data); // Debug log
+        
+        // Send AJAX request
+        const response = await fetch(`/admin/deliveries/${deliveryId}/update`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          // Get the response text to see what we actually got
+          const text = await response.text();
+          console.error('Non-JSON response:', text.substring(0, 200));
+          throw new Error(`Server returned non-JSON response. Status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || `HTTP error! status: ${response.status}`);
+        }
+        
+        if (result.success) {
+          // Show success message
+          showToast('success', 'Delivery updated successfully!');
+          
+          // Close modal
+          const modalElement = document.getElementById('editModal');
+          if (modalElement) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) modal.hide();
+          }
+          
+          // Reload the page to see changes
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } else {
+          throw new Error(result.error || 'Failed to update delivery');
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('error', error.message || 'An error occurred while updating the delivery');
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+      }
+    });
+  }
+  
+  // Toast notification function
+  function showToast(type, message) {
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-bg-${type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    
+    toast.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="fas ${icon} me-2"></i>${message}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    const bsToast = new bootstrap.Toast(toast, {
+      autohide: type === 'success',
+      delay: type === 'success' ? 3000 : 5000
+    });
+    
+    bsToast.show();
+    
+    // Remove toast after it's hidden
+    toast.addEventListener('hidden.bs.toast', function () {
+      toast.remove();
+    });
+  }
+  
+  function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container position-fixed top-0 end-0 p-3';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
+  }
+});
+</script>

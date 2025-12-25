@@ -1,6 +1,7 @@
 // controllers/trackingController.js
 const Delivery = require("../models/Delivery");
 const Driver = require("../models/Driver");
+const Warehouse = require("../models/Warehouse"); // Add this import
 const { generateTrackingId, formatStatus } = require("../utils/deliveryUtils");
 
 /* ============================
@@ -281,7 +282,11 @@ class TrackingController {
     res.render("pages/track-form", {
       title: "Track Delivery - ExpressLog",
       page: "tracking",
-      sampleTrackingIds: ["DEL82917463", "DEL55123489", "DEL99345612"],
+      sampleTrackingIds: [
+        "DEL-51434020-X3RY",
+        "DEL-62389145-B8TZ",
+        "DEL-98701234-K9LX",
+      ],
       error: req.query.error || null,
       trackingId: req.query.trackingId || "",
     });
@@ -304,14 +309,14 @@ class TrackingController {
         });
       }
 
-      // Validate format
-      const trackingRegex = /^DEL[A-Z0-9]{8}$/;
+      // Validate format - UPDATED for new format: DEL-XXXXXXXX-XXXX
+      const trackingRegex = /^DEL-\d{8}-[A-Z0-9]{4}$/;
       if (!trackingRegex.test(trackingId)) {
         return res.render("pages/track-form", {
           title: "Track Delivery - ExpressLog",
           page: "tracking",
           error:
-            "Invalid tracking ID format. Use DEL followed by 8 letters or numbers.",
+            "Invalid tracking ID format. Use DEL-XXXXXXXX-XXXX (e.g., DEL-51434020-X3RY).",
           trackingId,
         });
       }
@@ -352,10 +357,10 @@ class TrackingController {
         return res.redirect("/track?error=Tracking ID is required");
       }
 
-      // Fetch delivery with driver and vehicle details
+      // Fetch delivery with driver and warehouse details - UPDATED
       const delivery = await Delivery.findOne({ trackingId })
-        .populate("driver", "name phone rating photo")
-        .populate("vehicle", "plateNumber model color type");
+        .populate("driver", "name phone rating photo status")
+        .populate("warehouse", "name code location address city state phone"); // Changed from vehicle to warehouse
 
       if (!delivery) {
         return res.redirect("/track?error=Tracking ID not found");
@@ -424,13 +429,26 @@ class TrackingController {
         address: { city: "Loading..." },
       };
       packageData.driver = packageData.driver || { name: "N/A", phone: "N/A" };
-      packageData.vehicle = packageData.vehicle || {
-        plateNumber: "N/A",
-        model: "N/A",
+      packageData.warehouse = packageData.warehouse || {
+        // Changed from vehicle to warehouse
+        name: "N/A",
+        code: "N/A",
+        location: { coordinates: [0, 0] },
       };
       packageData.trackingData = packageData.trackingData || {
         routeProgress: progress,
       };
+
+      // Format warehouse address for display
+      if (packageData.warehouse && packageData.warehouse.address) {
+        packageData.warehouse.formattedAddress = [
+          packageData.warehouse.address,
+          packageData.warehouse.city,
+          packageData.warehouse.state,
+        ]
+          .filter(Boolean)
+          .join(", ");
+      }
 
       // Render EJS with fully matched dynamic data
       return res.render("pages/tracking-results", {
@@ -463,7 +481,9 @@ class TrackingController {
 
       const delivery = await Delivery.findOne({
         trackingId: trackingId.toUpperCase(),
-      });
+      })
+        .populate("driver", "name phone")
+        .populate("warehouse", "name code location"); // Changed from vehicle to warehouse
 
       if (!delivery) {
         return res.redirect("/track?error=Tracking ID not found");
@@ -715,7 +735,9 @@ class TrackingController {
 
       const delivery = await Delivery.findOne({
         trackingId: trackingId.toUpperCase(),
-      });
+      })
+        .populate("driver", "name phone")
+        .populate("warehouse", "name code"); // Changed from vehicle to warehouse
 
       if (!delivery) {
         return res.render("pages/error", {
@@ -758,9 +780,7 @@ class TrackingController {
       // For demo, use a sample driver ID
       const driverId = "65f4a1b2c8d9e0f1a2b3c4d5"; // Sample driver ID
 
-      const driver = await Driver.findById(driverId).populate(
-        "assignedVehicle"
-      );
+      const driver = await Driver.findById(driverId);
 
       if (!driver) {
         // Create demo driver if not found
@@ -780,6 +800,7 @@ class TrackingController {
         driver: driverId,
         status: { $in: ["in_transit", "pending"] },
       })
+        .populate("warehouse", "name code") // Changed from vehicle to warehouse
         .sort({ estimatedDelivery: 1 })
         .limit(5);
 
@@ -815,7 +836,9 @@ class TrackingController {
 
       const delivery = await Delivery.findOne({
         trackingId: trackingId.toUpperCase(),
-      });
+      })
+        .populate("driver", "name phone")
+        .populate("warehouse", "name code"); // Changed from vehicle to warehouse
 
       if (!delivery) {
         return res.redirect("/track?error=Delivery not found");
@@ -883,7 +906,9 @@ class TrackingController {
 
       const delivery = await Delivery.findOne({
         trackingId: trackingId.toUpperCase(),
-      });
+      })
+        .populate("driver", "name phone")
+        .populate("warehouse", "name code"); // Changed from vehicle to warehouse
 
       res.render("pages/support", {
         title: `Support - ${trackingId}`,
@@ -999,7 +1024,7 @@ class TrackingController {
   getDemoDeliveries() {
     return [
       {
-        trackingId: "DEL82917463",
+        trackingId: "DEL-51434020-X3RY",
         status: "in_transit",
         receiver: {
           name: "John Smith",
@@ -1015,9 +1040,17 @@ class TrackingController {
             coordinates: [-74.0059, 40.7127],
           },
         },
+        warehouse: {
+          // Changed from vehicle to warehouse
+          name: "Main Warehouse",
+          code: "WH-001",
+          location: {
+            coordinates: [-74.0065, 40.7132],
+          },
+        },
       },
       {
-        trackingId: "DEL55123489",
+        trackingId: "DEL-62389145-B8TZ",
         status: "pending",
         receiver: {
           name: "Sarah Johnson",
@@ -1031,6 +1064,14 @@ class TrackingController {
           routeProgress: 0,
           currentLocation: {
             coordinates: [-74.0065, 40.7132],
+          },
+        },
+        warehouse: {
+          // Changed from vehicle to warehouse
+          name: "Brooklyn Warehouse",
+          code: "WH-002",
+          location: {
+            coordinates: [-73.989, 40.6782],
           },
         },
       },

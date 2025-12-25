@@ -9,7 +9,7 @@
     "seed": "node src/seeds/seedAll.js",
     "seed:admin": "node src/seeds/seedAdmin.js",
     "seed:drivers": "node src/seeds/seedDrivers.js",
-    "seed:vehicles": "node src/seeds/seedVehicles.js",
+    "seed:warehouse": "node src/seeds/seedWarehouses.js",
     "seed:deliveries": "node src/seeds/seedDeliveries.js"
   },
   "dependencies": {

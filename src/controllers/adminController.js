@@ -1,6 +1,6 @@
-const { Delivery, Vehicle, Driver } = require("../models");
+const { Delivery, Warehouse, Driver } = require("../models");
 const mongoose = require("mongoose");
-const axios = require("axios"); // Added missing import
+const axios = require("axios");
 const DeliveryService = require("../services/deliveryService");
 const {
   formatDate,
@@ -9,7 +9,7 @@ const {
 } = require("../utils/helpers");
 
 class AdminController {
-  // Dashboard
+  // Dashboard - Updated to use warehouses
   getDashboard = async (req, res) => {
     try {
       const data = await this.getDashboardInternalData();
@@ -21,7 +21,7 @@ class AdminController {
       });
     } catch (error) {
       console.error("Dashboard Render Error:", error);
-      res.render("admin", {
+      res.render("admin/dashboard", {
         title: "Admin Dashboard",
         error_msg: "Failed to load dashboard",
         stats: {},
@@ -52,7 +52,7 @@ class AdminController {
       Delivery.countDocuments({ status: "delayed" }),
       Delivery.find()
         .populate("driver", "name")
-        .populate("vehicle", "plateNumber model")
+        .populate("warehouse", "name code")
         .sort({ updatedAt: -1 })
         .limit(10)
         .lean(),
@@ -65,6 +65,9 @@ class AdminController {
           )
         : 0;
 
+    // Get warehouse count
+    const warehouseCount = await Warehouse.countDocuments();
+
     return {
       stats: {
         activeDeliveries,
@@ -72,12 +75,13 @@ class AdminController {
         deliveriesChange,
         pendingDeliveries,
         delayedDeliveries,
+        warehouseCount,
       },
       recentActivities,
     };
   }
 
-  // Admin delivery list
+  // Admin delivery list - Updated to use warehouses
   listDeliveries = async (req, res) => {
     try {
       const {
@@ -86,6 +90,7 @@ class AdminController {
         status,
         search,
         driver,
+        warehouse,
         date,
         category,
         sortBy = "createdAt",
@@ -102,6 +107,12 @@ class AdminController {
       if (driver && driver !== "all") {
         if (mongoose.Types.ObjectId.isValid(driver)) {
           query.driver = driver;
+        }
+      }
+
+      if (warehouse && warehouse !== "all") {
+        if (mongoose.Types.ObjectId.isValid(warehouse)) {
+          query.warehouse = warehouse;
         }
       }
 
@@ -138,7 +149,7 @@ class AdminController {
       // Execute query with pagination
       const deliveries = await Delivery.find(query)
         .populate("driver", "name phone email")
-        .populate("vehicle", "plateNumber model")
+        .populate("warehouse", "name code")
         .sort(sortOptions)
         .limit(parseInt(limit))
         .skip((parseInt(page) - 1) * parseInt(limit))
@@ -162,8 +173,13 @@ class AdminController {
         statusStats[stat._id] = stat.count;
       });
 
-      // Get available drivers for filter dropdown
-      const drivers = await Driver.find({ active: true }).select("name _id");
+      // Get available drivers and warehouses for filter dropdowns
+      const [drivers, warehouses] = await Promise.all([
+        Driver.find({ status: { $in: ["active", "available"] } }).select(
+          "name _id"
+        ),
+        Warehouse.find().select("name _id code"),
+      ]);
 
       res.render("admin/deliveries", {
         title: "Manage Deliveries",
@@ -175,6 +191,7 @@ class AdminController {
           status,
           search,
           driver,
+          warehouse,
           date,
           category,
           sortBy,
@@ -199,7 +216,9 @@ class AdminController {
           };
           return colors[status] || "bg-gray-100 text-gray-800";
         },
-        currentFilters: { status, search, driver, date, category },
+        currentFilters: { status, search, driver, warehouse, date, category },
+        drivers,
+        warehouses,
       });
     } catch (error) {
       console.error("Error fetching deliveries:", error);
@@ -208,13 +227,21 @@ class AdminController {
     }
   };
 
-  // Show create form
+  // Show create form - Updated to use warehouses
   showCreateForm = async (req, res) => {
     try {
-      const [drivers, vehicles] = await Promise.all([
-        Driver.find({ status: "active" }).select("_id name phone"),
-        Vehicle.find({ status: "available" }).select("_id plateNumber model"),
+      const [drivers, warehouses] = await Promise.all([
+        Driver.find({ status: { $in: ["active", "available"] } }).select(
+          "_id name phone"
+        ),
+        Warehouse.find().select("_id name code location"),
       ]);
+
+      // Convert warehouse coordinates to string for form input
+      const warehousesWithCoords = warehouses.map((warehouse) => ({
+        ...warehouse.toObject(),
+        coordinatesString: warehouse.location.coordinates.join(","),
+      }));
 
       res.render("admin/create-delivery", {
         title: "Create New Delivery",
@@ -284,7 +311,7 @@ class AdminController {
           },
         },
         drivers,
-        vehicles,
+        warehouses: warehousesWithCoords,
       });
     } catch (error) {
       console.error("Error in showCreateForm:", error);
@@ -293,33 +320,92 @@ class AdminController {
     }
   };
 
-  // Create delivery
+  // Create delivery - Updated to use warehouses
   createDelivery = async (req, res) => {
     try {
       const deliveryData = req.body;
 
+      // Auto-generate trackingId if not provided
+      if (!deliveryData.trackingId || deliveryData.trackingId.trim() === "") {
+        // Generate a unique tracking ID
+        const timestamp = Date.now().toString().slice(-8);
+        const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+        deliveryData.trackingId = `DEL-${timestamp}-${random}`;
+      }
+
       // Set createdBy
       deliveryData.createdBy = req.user._id;
 
-      // Process coordinates
-      if (deliveryData.sender?.address?.coordinates) {
-        deliveryData.sender.address.coordinates = {
-          type: "Point",
-          coordinates: [
-            parseFloat(deliveryData.sender.address.coordinates[0]) || 0,
-            parseFloat(deliveryData.sender.address.coordinates[1]) || 0,
-          ],
-        };
+      // Handle checkbox - convert string to boolean
+      if (deliveryData.receiver?.signatureRequired !== undefined) {
+        deliveryData.receiver.signatureRequired =
+          deliveryData.receiver.signatureRequired === "true" ||
+          deliveryData.receiver.signatureRequired === true;
       }
 
-      if (deliveryData.receiver?.address?.coordinates) {
+      // Handle empty driver/warehouse - set to null
+      if (deliveryData.driver === "" || !deliveryData.driver) {
+        deliveryData.driver = null;
+      }
+
+      if (deliveryData.warehouse === "" || !deliveryData.warehouse) {
+        deliveryData.warehouse = null;
+      }
+
+      // Process coordinates for sender
+      if (deliveryData.sender?.address?.coordinates?.coordinates) {
+        const senderLng =
+          parseFloat(deliveryData.sender.address.coordinates.coordinates[0]) ||
+          0;
+        const senderLat =
+          parseFloat(deliveryData.sender.address.coordinates.coordinates[1]) ||
+          0;
+
+        deliveryData.sender.address.coordinates = {
+          type: "Point",
+          coordinates: [senderLng, senderLat],
+        };
+
+        // Set geocoding metadata for sender
+        deliveryData.sender.address.geocoded =
+          senderLng !== 0 && senderLat !== 0;
+        deliveryData.sender.address.lastGeocodedAt = new Date();
+      } else {
+        // Default sender coordinates if not provided
+        deliveryData.sender.address.coordinates = {
+          type: "Point",
+          coordinates: [0, 0],
+        };
+        deliveryData.sender.address.geocoded = false;
+      }
+
+      // Process coordinates for receiver
+      if (deliveryData.receiver?.address?.coordinates?.coordinates) {
+        const receiverLng =
+          parseFloat(
+            deliveryData.receiver.address.coordinates.coordinates[0]
+          ) || 0;
+        const receiverLat =
+          parseFloat(
+            deliveryData.receiver.address.coordinates.coordinates[1]
+          ) || 0;
+
         deliveryData.receiver.address.coordinates = {
           type: "Point",
-          coordinates: [
-            parseFloat(deliveryData.receiver.address.coordinates[0]) || 0,
-            parseFloat(deliveryData.receiver.address.coordinates[1]) || 0,
-          ],
+          coordinates: [receiverLng, receiverLat],
         };
+
+        // Set geocoding metadata for receiver
+        deliveryData.receiver.address.geocoded =
+          receiverLng !== 0 && receiverLat !== 0;
+        deliveryData.receiver.address.lastGeocodedAt = new Date();
+      } else {
+        // Default receiver coordinates if not provided
+        deliveryData.receiver.address.coordinates = {
+          type: "Point",
+          coordinates: [0, 0],
+        };
+        deliveryData.receiver.address.geocoded = false;
       }
 
       // Process package data
@@ -332,82 +418,193 @@ class AdminController {
           deliveryData.package.category || "other";
 
         if (deliveryData.package.dimensions) {
-          deliveryData.package.dimensions.length =
-            parseFloat(deliveryData.package.dimensions.length) || 0;
-          deliveryData.package.dimensions.width =
-            parseFloat(deliveryData.package.dimensions.width) || 0;
-          deliveryData.package.dimensions.height =
-            parseFloat(deliveryData.package.dimensions.height) || 0;
+          if (deliveryData.package.dimensions.length) {
+            deliveryData.package.dimensions.length = parseFloat(
+              deliveryData.package.dimensions.length
+            );
+          }
+          if (deliveryData.package.dimensions.width) {
+            deliveryData.package.dimensions.width = parseFloat(
+              deliveryData.package.dimensions.width
+            );
+          }
+          if (deliveryData.package.dimensions.height) {
+            deliveryData.package.dimensions.height = parseFloat(
+              deliveryData.package.dimensions.height
+            );
+          }
+
+          // Remove dimensions if all values are falsy
+          if (
+            !deliveryData.package.dimensions.length &&
+            !deliveryData.package.dimensions.width &&
+            !deliveryData.package.dimensions.height
+          ) {
+            delete deliveryData.package.dimensions;
+          }
         }
       }
+
+      // Initialize tracking data - start from warehouse if assigned
+      let startingCoordinates = [0, 0];
+      if (deliveryData.warehouse) {
+        const warehouse = await Warehouse.findById(deliveryData.warehouse);
+        if (warehouse && warehouse.location && warehouse.location.coordinates) {
+          startingCoordinates = warehouse.location.coordinates;
+        }
+      }
+
+      deliveryData.trackingData = {
+        active: false,
+        currentLocation: {
+          type: "Point",
+          coordinates: startingCoordinates,
+        },
+        routeProgress: 0,
+        lastUpdated: new Date(),
+        speed: 0,
+        bearing: 0,
+      };
+
+      // Initialize route data
+      deliveryData.route = {
+        mapboxDirections: null,
+        totalDistance: 0,
+        totalDuration: 0,
+        geometry: null,
+        bounds: null,
+        legs: [],
+        optimized: false,
+      };
+
+      // Initialize incidents array
+      deliveryData.incidents = [];
+
+      // Initialize history
+      deliveryData.history = [
+        {
+          action: "created",
+          description: `Delivery created with tracking ID: ${deliveryData.trackingId}`,
+          timestamp: new Date(),
+          user: req.user._id,
+        },
+      ];
+
+      // Initialize geocoding data
+      deliveryData.geocoding = {
+        provider: "mapbox",
+        lastGeocodedAt: new Date(),
+        geocodingAttempts: 0,
+      };
+
+      // Set updatedBy
+      deliveryData.updatedBy = req.user._id;
 
       // Create the delivery
       const delivery = new Delivery(deliveryData);
       await delivery.save();
 
-      req.flash("success", "Delivery created successfully!");
+      req.flash(
+        "success",
+        `Delivery created successfully! Tracking ID: ${delivery.trackingId}`
+      );
       res.redirect("/admin/deliveries");
     } catch (error) {
       console.error("Error creating delivery:", error);
 
       if (error.name === "ValidationError") {
         const errors = Object.values(error.errors).map((err) => err.message);
-        req.flash("error", errors.join(", "));
+        req.flash("error", `Validation Error: ${errors.join(", ")}`);
       } else if (error.code === 11000) {
-        req.flash("error", "Tracking ID already exists");
+        req.flash(
+          "error",
+          "Tracking ID already exists. Please try again or use a different ID."
+        );
       } else {
-        req.flash("error", "Failed to create delivery");
+        req.flash("error", `Failed to create delivery: ${error.message}`);
       }
 
-      return res.redirect("/admin/deliveries/create");
+      // Return with form data to repopulate form
+      const drivers = await Driver.find({
+        status: { $in: ["active", "available"] },
+      });
+      const warehouses = await Warehouse.find();
+
+      return res.render("admin/create-delivery", {
+        title: "Create Delivery",
+        drivers,
+        warehouses: warehouses.map((w) => ({
+          ...w.toObject(),
+          coordinatesString: w.location.coordinates.join(","),
+        })),
+        formData: req.body, // Pass back form data
+        errors: req.flash("error"),
+      });
     }
   };
 
-  // Get delivery details
+  // Get delivery details - Updated for warehouses
   getDeliveryDetails = async (req, res) => {
     try {
       const { id } = req.params;
 
-      let delivery = await Delivery.findById(id)
+      // 1. Find delivery by _id or trackingId
+      let delivery = await Delivery.findOne({
+        $or: [{ _id: id }, { trackingId: id }],
+      })
         .populate("createdBy", "name email")
-        .populate("driver", "name phone email")
-        .populate("vehicle", "plateNumber model");
-
-      if (!delivery) {
-        delivery = await Delivery.findOne({ trackingId: id })
-          .populate("createdBy", "name email")
-          .populate("driver", "name phone email")
-          .populate("vehicle", "plateNumber model");
-      }
+        .populate("driver", "name phone email status")
+        .populate("warehouse", "name code location");
 
       if (!delivery) {
         req.flash("error", "Delivery not found");
         return res.redirect("/admin/deliveries");
       }
 
-      // Get available drivers and vehicles for dropdowns
-      const [drivers, vehicles] = await Promise.all([
-        Driver.find({ status: "active" }).select("_id name phone"),
-        Vehicle.find({ status: "available" }).select("_id plateNumber model"),
+      // 2. Sort incidents (newest → oldest)
+      if (Array.isArray(delivery.incidents)) {
+        delivery.incidents.sort((a, b) => {
+          const dateA = a.reportedAt ? new Date(a.reportedAt) : 0;
+          const dateB = b.reportedAt ? new Date(b.reportedAt) : 0;
+          return dateB - dateA;
+        });
+      }
+
+      // 3. Fetch drivers & warehouses for assignment dropdowns
+      const [drivers, warehouses] = await Promise.all([
+        Driver.find({
+          status: { $in: ["active", "available", "on_delivery"] },
+        })
+          .select("_id name phone email status")
+          .lean(),
+
+        Warehouse.find().select("_id name code location").lean(),
       ]);
 
+      // Format coordinates for display
+      if (delivery.warehouse && delivery.warehouse.location) {
+        delivery.warehouse.coordinatesString =
+          delivery.warehouse.location.coordinates.join(", ");
+      }
+
+      // 4. Render page
       res.render("admin/delivery-details", {
         title: `Delivery ${delivery.trackingId}`,
-        delivery,
+        delivery: delivery.toObject(),
         drivers,
-        vehicles,
+        warehouses,
         formatDate,
         getStatusColor,
         getSeverityColor,
       });
     } catch (error) {
       console.error("Error fetching delivery details:", error);
-      req.flash("error", "Error fetching delivery: " + error.message);
+      req.flash("error", `Error fetching delivery: ${error.message}`);
       res.redirect("/admin/deliveries");
     }
   };
 
-  // Update delivery (handles form submission from edit modal)
+  // Update delivery - Updated for warehouses
   updateDelivery = async (req, res) => {
     try {
       const { id } = req.params;
@@ -430,9 +627,16 @@ class AdminController {
       const processUpdate = (data) => {
         const result = {};
         for (const key in data) {
-          if (data[key] !== undefined && data[key] !== "") {
-            if (typeof data[key] === "object" && data[key] !== null) {
-              result[key] = processUpdate(data[key]);
+          if (data[key] !== undefined) {
+            if (
+              typeof data[key] === "object" &&
+              data[key] !== null &&
+              !Array.isArray(data[key])
+            ) {
+              const nested = processUpdate(data[key]);
+              if (Object.keys(nested).length > 0) {
+                result[key] = nested;
+              }
             } else {
               result[key] = data[key];
             }
@@ -448,177 +652,266 @@ class AdminController {
         cleanedData.estimatedDelivery = new Date(cleanedData.estimatedDelivery);
       }
 
-      if (cleanedData.sender?.address) {
-        if (
-          cleanedData.sender.address.coordinates &&
-          Array.isArray(cleanedData.sender.address.coordinates)
-        ) {
-          cleanedData.sender.address.coordinates = {
-            type: "Point",
-            coordinates: cleanedData.sender.address.coordinates.map((coord) =>
-              typeof coord === "string" ? parseFloat(coord) || 0 : coord
-            ),
-          };
-        }
-      }
-
-      if (cleanedData.receiver?.address) {
-        if (
-          cleanedData.receiver.address.coordinates &&
-          Array.isArray(cleanedData.receiver.address.coordinates)
-        ) {
-          cleanedData.receiver.address.coordinates = {
-            type: "Point",
-            coordinates: cleanedData.receiver.address.coordinates.map((coord) =>
-              typeof coord === "string" ? parseFloat(coord) || 0 : coord
-            ),
-          };
-        }
+      // Handle checkbox for signatureRequired
+      if (
+        cleanedData.receiver &&
+        typeof cleanedData.receiver.signatureRequired === "boolean"
+      ) {
+        // Already boolean from AJAX request
       }
 
       // Handle package dimensions
-      if (cleanedData.package?.dimensions) {
+      if (cleanedData.package && cleanedData.package.dimensions) {
         const dims = cleanedData.package.dimensions;
-        if (dims.length || dims.width || dims.height) {
+
+        // Check if any dimension was provided
+        const hasDimensions =
+          dims.length !== undefined ||
+          dims.width !== undefined ||
+          dims.height !== undefined;
+
+        if (hasDimensions) {
           cleanedData.package.dimensions = {
             length: parseFloat(dims.length) || 0,
             width: parseFloat(dims.width) || 0,
             height: parseFloat(dims.height) || 0,
           };
+        } else {
+          delete cleanedData.package.dimensions;
         }
       }
 
-      // Convert numbers
-      if (cleanedData.package?.weight) {
-        cleanedData.package.weight = parseFloat(cleanedData.package.weight);
-      }
-      if (cleanedData.package?.value) {
-        cleanedData.package.value = parseFloat(cleanedData.package.value);
+      // Convert numeric fields
+      if (cleanedData.package) {
+        if (cleanedData.package.weight !== undefined) {
+          cleanedData.package.weight =
+            parseFloat(cleanedData.package.weight) || 0;
+        }
+        if (cleanedData.package.value !== undefined) {
+          cleanedData.package.value =
+            parseFloat(cleanedData.package.value) || 0;
+        }
       }
 
-      // Update delivery
+      // Update delivery with cleaned data
       Object.keys(cleanedData).forEach((key) => {
         if (key === "sender" || key === "receiver" || key === "package") {
-          delivery[key] = { ...delivery[key], ...cleanedData[key] };
+          delivery[key] = { ...delivery[key].toObject(), ...cleanedData[key] };
         } else {
           delivery[key] = cleanedData[key];
         }
       });
 
+      // Update timestamps and user
       delivery.updatedAt = new Date();
       delivery.updatedBy = req.user._id;
 
       await delivery.save();
 
-      res.json({
+      // Always return JSON for AJAX requests
+      return res.json({
         success: true,
         message: "Delivery updated successfully",
         delivery,
       });
     } catch (error) {
       console.error("Error updating delivery:", error);
-      res.status(500).json({
+
+      // Return JSON error for AJAX requests
+      return res.status(500).json({
         success: false,
-        error: error.message,
+        error: error.message || "Internal server error",
       });
     }
   };
 
-  // Update delivery status (handles status modal)
+  // Update delivery status - Updated for warehouses
   updateDeliveryStatus = async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, notes, ...otherData } = req.body;
+      const updateData = req.body;
 
-      const delivery = await Delivery.findById(id);
+      console.log("API Update request for ID:", id);
+      console.log("Update data:", updateData);
+
+      // Find the delivery
+      let delivery = await Delivery.findById(id);
       if (!delivery) {
+        delivery = await Delivery.findOne({ trackingId: id });
+      }
+
+      if (!delivery) {
+        console.log("Delivery not found for ID:", id);
         return res.status(404).json({
           success: false,
           error: "Delivery not found",
         });
       }
 
-      // Update status
-      delivery.status = status;
+      // Helper function to clean update data
+      const cleanUpdateData = (data) => {
+        const cleaned = {};
 
-      // Handle special cases
-      if (status === "delivered") {
-        delivery.actualDelivery = new Date();
-        delivery.trackingData.routeProgress = 100;
-        delivery.trackingData.active = false;
-
-        if (otherData.signatureReceived === "on") {
-          delivery.signatureReceived = true;
-        }
-
-        // Resolve all incidents
-        if (delivery.incidents && delivery.incidents.length > 0) {
-          delivery.incidents.forEach((incident) => {
-            if (!incident.resolved) {
-              incident.resolved = true;
-              incident.resolvedAt = new Date();
+        for (const key in data) {
+          if (data[key] !== undefined && data[key] !== null) {
+            if (typeof data[key] === "object" && !Array.isArray(data[key])) {
+              const nested = cleanUpdateData(data[key]);
+              if (Object.keys(nested).length > 0) {
+                cleaned[key] = nested;
+              }
+            } else if (data[key] !== "") {
+              // Only skip empty strings for non-required fields
+              cleaned[key] = data[key];
             }
+          }
+        }
+        return cleaned;
+      };
+
+      const cleanedData = cleanUpdateData(updateData);
+      console.log("Cleaned data:", cleanedData);
+
+      // Handle special fields
+      if (cleanedData.estimatedDelivery) {
+        cleanedData.estimatedDelivery = new Date(cleanedData.estimatedDelivery);
+        if (isNaN(cleanedData.estimatedDelivery)) {
+          return res.status(400).json({
+            success: false,
+            error: "Invalid date format for estimatedDelivery",
           });
         }
-      } else if (status === "in_transit") {
-        delivery.trackingData.active = true;
-        if (delivery.trackingData.routeProgress < 10) {
-          delivery.trackingData.routeProgress = 10;
-        }
-      } else if (status === "cancelled") {
-        delivery.cancellationReason = otherData.cancellationReason;
-        delivery.trackingData.active = false;
-        if (otherData.refundRequired === "on") {
-          delivery.refundRequired = true;
-        }
-      } else if (status === "delayed") {
-        delivery.delayInfo = {
-          reason: otherData.delayReason || "Unknown",
-          description: otherData.delayDescription || "",
-          estimatedDelay: parseInt(otherData.estimatedDelay) || 30,
-          reportedAt: new Date(),
+      }
+
+      // Handle checkbox boolean conversion
+      if (cleanedData.receiver?.signatureRequired !== undefined) {
+        cleanedData.receiver.signatureRequired =
+          cleanedData.receiver.signatureRequired === "true" ||
+          cleanedData.receiver.signatureRequired === true;
+      }
+
+      // Handle package dimensions
+      if (cleanedData.package?.dimensions) {
+        const dims = cleanedData.package.dimensions;
+        cleanedData.package.dimensions = {
+          length: parseFloat(dims.length) || 0,
+          width: parseFloat(dims.width) || 0,
+          height: parseFloat(dims.height) || 0,
         };
       }
 
-      // Add status history
-      if (!delivery.statusHistory) {
-        delivery.statusHistory = [];
+      // Convert numeric fields
+      if (cleanedData.package?.weight) {
+        cleanedData.package.weight = parseFloat(cleanedData.package.weight);
+        if (
+          isNaN(cleanedData.package.weight) ||
+          cleanedData.package.weight <= 0
+        ) {
+          return res.status(400).json({
+            success: false,
+            error: "Package weight must be a positive number",
+          });
+        }
       }
 
-      delivery.statusHistory.push({
-        status,
-        timestamp: new Date(),
-        notes: notes || "",
-        changedBy: req.user._id,
-      });
+      if (cleanedData.package?.value) {
+        cleanedData.package.value = parseFloat(cleanedData.package.value);
+        if (isNaN(cleanedData.package.value) || cleanedData.package.value < 0) {
+          cleanedData.package.value = 0;
+        }
+      }
 
+      // Merge the updates - handle nested objects properly
+      const mergeObjects = (target, source) => {
+        for (const key in source) {
+          if (
+            source[key] &&
+            typeof source[key] === "object" &&
+            !Array.isArray(source[key])
+          ) {
+            if (!target[key]) target[key] = {};
+            mergeObjects(target[key], source[key]);
+          } else {
+            target[key] = source[key];
+          }
+        }
+      };
+
+      // Create a copy of delivery to merge into
+      const deliveryObj = delivery.toObject();
+      mergeObjects(deliveryObj, cleanedData);
+
+      // Update the document
+      delivery.set(deliveryObj);
+
+      // Update metadata
       delivery.updatedAt = new Date();
-      delivery.updatedBy = req.user._id;
+      if (req.user && req.user._id) {
+        delivery.updatedBy = req.user._id;
+      }
 
+      // Save changes
       await delivery.save();
 
-      res.json({
+      console.log("Delivery updated successfully:", delivery._id);
+
+      // Return success response
+      return res.json({
         success: true,
-        message: `Delivery status updated to ${status}`,
-        delivery,
+        message: "Delivery updated successfully",
+        delivery: {
+          _id: delivery._id,
+          trackingId: delivery.trackingId,
+          status: delivery.status,
+          estimatedDelivery: delivery.estimatedDelivery,
+          sender: delivery.sender,
+          receiver: delivery.receiver,
+          package: delivery.package,
+        },
       });
     } catch (error) {
-      console.error("Error updating delivery status:", error);
-      res.status(500).json({
+      console.error("API Error updating delivery:", error);
+
+      // Handle Mongoose validation errors
+      if (error.name === "ValidationError") {
+        const errors = {};
+        Object.keys(error.errors).forEach((key) => {
+          errors[key] = error.errors[key].message;
+        });
+
+        return res.status(400).json({
+          success: false,
+          error: "Validation failed",
+          errors,
+        });
+      }
+
+      // Handle duplicate key error
+      if (error.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          error: "Duplicate key error",
+          field: Object.keys(error.keyPattern)[0],
+        });
+      }
+
+      // Generic server error
+      return res.status(500).json({
         success: false,
-        error: error.message,
+        error: error.message || "Internal server error",
       });
     }
   };
 
-  // Add incident (handles incident modal) - FIXED
+  // Add incident - Updated for warehouses
   addIncident = async (req, res) => {
     try {
+      console.log("=== BACKEND STARTING ===");
+      console.log("Request body:", req.body);
+
       const { id } = req.params;
       const incidentData = req.body;
 
-      console.log("Incident Data Received:", incidentData); // Debug log
-
+      // Find delivery
       const delivery = await Delivery.findById(id);
       if (!delivery) {
         return res.status(404).json({
@@ -628,91 +921,117 @@ class AdminController {
       }
 
       // Validate required fields
-      if (!incidentData.type || !incidentData.description) {
+      if (
+        !incidentData.type ||
+        !incidentData.severity ||
+        !incidentData.description
+      ) {
         return res.status(400).json({
           success: false,
-          error: "Incident type and description are required",
+          error: "Type, severity, and description are required",
         });
       }
 
-      // Create incident object matching schema
+      // Create incident object
       const incident = {
         type: incidentData.type,
-        severity: incidentData.severity || "medium",
-        description: incidentData.description,
+        severity: incidentData.severity,
+        description: incidentData.description.trim(),
         reportedAt: new Date(),
-        estimatedDelay: parseInt(incidentData.estimatedDelay) || 0,
+        estimatedDelay: parseInt(incidentData.estimatedDelay) || 30,
         emergencyServices: incidentData.emergencyServices === "on",
         resolved: false,
         reportedBy: req.user._id,
+        driverInvolved: incidentData.driverInvolved === "on",
+        packageAffected: incidentData.packageAffected === "on",
       };
 
-      // Add address if provided
-      if (incidentData.address) {
-        incident.address = incidentData.address;
-      }
+      // Add optional fields
+      if (incidentData.address) incident.address = incidentData.address.trim();
+      if (incidentData.policeReport)
+        incident.policeReport = incidentData.policeReport.trim();
 
-      // Add location if coordinates provided
-      if (incidentData.longitude && incidentData.latitude) {
-        const lon = parseFloat(incidentData.longitude);
-        const lat = parseFloat(incidentData.latitude);
+      // Add additional details
+      incident.additionalDetails = {};
+      if (incidentData.otherParties)
+        incident.additionalDetails.otherParties = incidentData.otherParties;
+      if (incidentData.vehicleIssue)
+        incident.additionalDetails.vehicleIssue = incidentData.vehicleIssue;
+      if (incidentData.towRequired)
+        incident.additionalDetails.towRequired =
+          incidentData.towRequired === "yes";
+      if (incidentData.damageType)
+        incident.additionalDetails.damageType = incidentData.damageType;
+      if (incidentData.valueLoss)
+        incident.additionalDetails.valueLoss =
+          parseInt(incidentData.valueLoss) || 0;
+      if (incidentData.theftTime)
+        incident.additionalDetails.theftTime = new Date(incidentData.theftTime);
 
-        if (!isNaN(lon) && !isNaN(lat)) {
-          incident.location = {
-            type: "Point",
-            coordinates: [lon, lat],
-          };
+      // Add to delivery
+      if (!delivery.incidents) delivery.incidents = [];
+      delivery.incidents.push(incident);
+
+      // Update delivery status if needed
+      if (
+        incidentData.severity !== "low" &&
+        delivery.status !== "delivered" &&
+        delivery.status !== "cancelled"
+      ) {
+        delivery.status = "delayed";
+        delivery.delayInfo = {
+          reason: incidentData.type,
+          description: incidentData.description.substring(0, 100),
+          estimatedDelay: parseInt(incidentData.estimatedDelay) || 30,
+          reportedAt: new Date(),
+        };
+        if (incident.address) {
+          delivery.delayInfo.address = incident.address;
         }
       }
 
-      // Initialize incidents array if not exists
-      if (!delivery.incidents) {
-        delivery.incidents = [];
-      }
-
-      delivery.incidents.push(incident);
-
-      // Update delivery status to delayed if incident reported
-      if (delivery.status !== "delivered" && delivery.status !== "cancelled") {
-        delivery.status = "delayed";
-
-        // Set delay info
-        delivery.delayInfo = {
-          reason: incidentData.type || "incident",
-          description: incidentData.description || "Incident reported",
-          estimatedDelay: parseInt(incidentData.estimatedDelay) || 30,
-          reportedAt: new Date(),
-          location: incident.location,
-        };
-      }
+      // Add history
+      if (!delivery.history) delivery.history = [];
+      delivery.history.push({
+        action: "incident_reported",
+        description: `${incidentData.type} incident reported`,
+        details: {
+          severity: incidentData.severity,
+          estimatedDelay: incident.estimatedDelay,
+        },
+        user: req.user._id,
+        timestamp: new Date(),
+      });
 
       delivery.updatedAt = new Date();
       delivery.updatedBy = req.user._id;
 
       await delivery.save();
 
-      res.json({
+      console.log("Incident saved successfully");
+
+      // ALWAYS return JSON
+      return res.json({
         success: true,
         message: "Incident reported successfully",
-        incident,
+        deliveryId: delivery._id,
+        incident: incident,
       });
     } catch (error) {
       console.error("Error adding incident:", error);
-      res.status(500).json({
+
+      // ALWAYS return JSON even for errors
+      return res.status(500).json({
         success: false,
-        error: error.message,
+        error: error.message || "An unexpected error occurred",
       });
     }
   };
 
-  // Update location (handles location modal) - FIXED
-  updateLocation = async (req, res) => {
+  // Delete incident
+  deleteIncident = async (req, res) => {
     try {
-      const { id } = req.params;
-      const { longitude, latitude, progress, speed, bearing, source } =
-        req.body;
-
-      console.log("Location Update Data:", { longitude, latitude }); // Debug log
+      const { id, incidentIndex } = req.params;
 
       const delivery = await Delivery.findById(id);
       if (!delivery) {
@@ -722,19 +1041,111 @@ class AdminController {
         });
       }
 
+      // Check if incident exists
+      if (!delivery.incidents || incidentIndex >= delivery.incidents.length) {
+        return res.status(404).json({
+          success: false,
+          error: "Incident not found",
+        });
+      }
+
+      // Get incident before deleting for logging
+      const deletedIncident = delivery.incidents[incidentIndex];
+
+      // Remove the incident
+      delivery.incidents.splice(incidentIndex, 1);
+
+      // Add to history
+      delivery.history.push({
+        action: "incident_deleted",
+        description: `${deletedIncident.type} incident deleted`,
+        details: {
+          severity: deletedIncident.severity,
+          reportedAt: deletedIncident.reportedAt,
+        },
+        user: req.user._id,
+        timestamp: new Date(),
+      });
+
+      await delivery.save();
+
+      req.flash("success", "Incident deleted successfully");
+      res.redirect(`/admin/deliveries/${delivery._id}`);
+    } catch (error) {
+      console.error("Error deleting incident:", error);
+      req.flash("error", `Error deleting incident: ${error.message}`);
+      res.redirect(`/admin/deliveries/${id}`);
+    }
+  };
+
+  // Update location - Updated for warehouses
+  updateLocation = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const {
+        longitude,
+        latitude,
+        progress,
+        speed,
+        bearing,
+        source,
+        accuracy,
+        updateMap,
+        notifyCustomer,
+      } = req.body;
+
+      console.log("Location Update Data:", {
+        longitude,
+        latitude,
+        progress,
+        source,
+        accuracy,
+      });
+
+      const delivery = await Delivery.findById(id);
+      if (!delivery) {
+        return res.status(404).json({
+          success: false,
+          error: "Delivery not found",
+        });
+      }
+
+      // Check if delivery can be updated
+      if (delivery.status === "delivered" || delivery.status === "cancelled") {
+        return res.status(400).json({
+          success: false,
+          error: `Cannot update location for a ${delivery.status} delivery`,
+        });
+      }
+
       // Validate and parse coordinates
       let lon, lat;
 
-      // Handle different input formats
-      if (typeof longitude === "string" && typeof latitude === "string") {
+      // Parse longitude
+      if (typeof longitude === "string") {
         lon = parseFloat(longitude.replace(/[^\d.-]/g, ""));
-        lat = parseFloat(latitude.replace(/[^\d.-]/g, ""));
+      } else if (typeof longitude === "number") {
+        lon = longitude;
       } else {
-        lon = parseFloat(longitude);
-        lat = parseFloat(latitude);
+        return res.status(400).json({
+          success: false,
+          error: "Longitude must be a valid number",
+        });
       }
 
-      console.log("Parsed coordinates:", { lon, lat }); // Debug log
+      // Parse latitude
+      if (typeof latitude === "string") {
+        lat = parseFloat(latitude.replace(/[^\d.-]/g, ""));
+      } else if (typeof latitude === "number") {
+        lat = latitude;
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: "Latitude must be a valid number",
+        });
+      }
+
+      console.log("Parsed coordinates:", { lon, lat });
 
       // Check if coordinates are valid numbers
       if (isNaN(lon) || isNaN(lat)) {
@@ -745,11 +1156,27 @@ class AdminController {
         });
       }
 
-      // Update location
+      // Validate coordinate ranges
+      if (lat < -90 || lat > 90) {
+        return res.status(400).json({
+          success: false,
+          error: "Latitude must be between -90 and 90 degrees.",
+        });
+      }
+
+      if (lon < -180 || lon > 180) {
+        return res.status(400).json({
+          success: false,
+          error: "Longitude must be between -180 and 180 degrees.",
+        });
+      }
+
+      // Update tracking data
       delivery.trackingData.currentLocation.coordinates = [lon, lat];
+      delivery.trackingData.lastUpdated = new Date();
 
       // Update progress if provided
-      if (progress !== undefined && progress !== null) {
+      if (progress !== undefined && progress !== null && progress !== "") {
         const progressNum = parseInt(progress);
         if (!isNaN(progressNum)) {
           delivery.trackingData.routeProgress = Math.min(
@@ -759,29 +1186,37 @@ class AdminController {
         }
       }
 
-      // Update speed and bearing if provided
-      if (speed !== undefined && speed !== null) {
+      // Update speed if provided
+      if (speed !== undefined && speed !== null && speed !== "") {
         const speedNum = parseFloat(speed);
         if (!isNaN(speedNum)) {
-          delivery.trackingData.speed = speedNum;
+          delivery.trackingData.speed = Math.max(0, speedNum);
         }
       }
 
-      if (bearing !== undefined && bearing !== null) {
+      // Update bearing if provided
+      if (bearing !== undefined && bearing !== null && bearing !== "") {
         const bearingNum = parseInt(bearing);
         if (!isNaN(bearingNum)) {
-          delivery.trackingData.bearing = bearingNum;
+          // Normalize bearing to 0-360 degrees
+          delivery.trackingData.bearing = ((bearingNum % 360) + 360) % 360;
         }
       }
-
-      delivery.trackingData.lastUpdated = new Date();
 
       // Update source if provided
       if (source) {
         delivery.trackingData.source = source;
       }
 
-      // If location is near destination, update progress
+      // Update accuracy if provided (store in tracking data)
+      if (accuracy) {
+        if (!delivery.trackingData.metadata) {
+          delivery.trackingData.metadata = {};
+        }
+        delivery.trackingData.metadata.accuracy = accuracy;
+      }
+
+      // Calculate distance to destination and update progress if near
       const receiverCoords =
         delivery.receiver.address?.coordinates?.coordinates;
       if (
@@ -791,36 +1226,170 @@ class AdminController {
       ) {
         const distance = this.calculateDistance([lon, lat], receiverCoords);
 
+        // Store distance for tracking
+        delivery.trackingData.remainingDistance = Math.round(distance);
+
+        // Update progress based on distance to destination
+        if (delivery.route?.totalDistance && delivery.route.totalDistance > 0) {
+          const distanceTravelled = delivery.route.totalDistance - distance;
+          const calculatedProgress = Math.min(
+            100,
+            Math.max(
+              0,
+              (distanceTravelled / delivery.route.totalDistance) * 100
+            )
+          );
+
+          // If calculated progress is higher than current, update it
+          if (calculatedProgress > delivery.trackingData.routeProgress) {
+            delivery.trackingData.routeProgress =
+              Math.round(calculatedProgress);
+          }
+        }
+
         // If within 100 meters, mark as near destination
-        if (distance < 100 && delivery.trackingData.routeProgress < 95) {
-          delivery.trackingData.routeProgress = 95;
+        if (distance < 100) {
+          delivery.trackingData.routeProgress = Math.max(
+            delivery.trackingData.routeProgress,
+            95
+          );
+
+          // Update delivery status to "in_transit" if it's pending
+          if (delivery.status === "pending") {
+            delivery.status = "in_transit";
+            delivery.trackingData.active = true;
+          }
         }
       }
 
+      // Update delivery status to "in_transit" if coordinates are set and it was pending
+      if (delivery.status === "pending" && lon !== 0 && lat !== 0) {
+        delivery.status = "in_transit";
+        delivery.trackingData.active = true;
+
+        // Add status history entry
+        if (!delivery.statusHistory) {
+          delivery.statusHistory = [];
+        }
+
+        delivery.statusHistory.push({
+          status: "in_transit",
+          timestamp: new Date(),
+          notes: "Location updated, delivery started",
+          changedBy: req.user._id,
+        });
+      }
+
+      // Update timestamps and user info
       delivery.updatedAt = new Date();
       delivery.updatedBy = req.user._id;
 
+      // Add to update log if exists
+      if (!delivery.updateLog) {
+        delivery.updateLog = [];
+      }
+
+      delivery.updateLog.push({
+        action: "location_update",
+        timestamp: new Date(),
+        coordinates: [lon, lat],
+        updatedBy: req.user._id,
+        source: source || "manual",
+      });
+
+      // Save the delivery
       await delivery.save();
 
-      res.json({
+      // If notifyCustomer is true, send notification (optional)
+      if (notifyCustomer === "true" || notifyCustomer === true) {
+        console.log(
+          `Notification sent to customer for delivery ${delivery.trackingId}`
+        );
+
+        // Example notification log
+        if (!delivery.notifications) {
+          delivery.notifications = [];
+        }
+
+        delivery.notifications.push({
+          type: "location_update",
+          sentAt: new Date(),
+          recipient: delivery.receiver.email,
+          status: "sent",
+        });
+
+        await delivery.save();
+      }
+
+      // Prepare response data
+      const responseData = {
         success: true,
         message: "Location updated successfully",
         location: delivery.trackingData.currentLocation,
-      });
+        progress: delivery.trackingData.routeProgress,
+        delivery: {
+          _id: delivery._id,
+          trackingId: delivery.trackingId,
+          status: delivery.status,
+          receiver: {
+            name: delivery.receiver.name,
+            address: delivery.receiver.address,
+          },
+          trackingData: {
+            active: delivery.trackingData.active,
+            routeProgress: delivery.trackingData.routeProgress,
+            speed: delivery.trackingData.speed,
+            bearing: delivery.trackingData.bearing,
+            lastUpdated: delivery.trackingData.lastUpdated,
+          },
+        },
+      };
+
+      // If updateMap is true, trigger map update (optional)
+      if (updateMap === "true" || updateMap === true) {
+        console.log(`Map update triggered for delivery ${delivery.trackingId}`);
+
+        // Add to response if you want to notify frontend
+        responseData.mapUpdate = {
+          triggered: true,
+          timestamp: new Date(),
+          coordinates: [lon, lat],
+        };
+      }
+
+      res.json(responseData);
     } catch (error) {
       console.error("Error updating location:", error);
+
+      // More specific error messages
+      if (error.name === "ValidationError") {
+        const errors = Object.values(error.errors).map((err) => err.message);
+        return res.status(400).json({
+          success: false,
+          error: "Validation error",
+          details: errors,
+        });
+      }
+
+      if (error.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          error: "Duplicate tracking data detected",
+        });
+      }
+
       res.status(500).json({
         success: false,
-        error: error.message,
+        error: error.message || "Internal server error",
       });
     }
   };
 
-  // Assign driver (handles driver modal)
+  // Assign driver and warehouse - Updated for warehouses
   assignDriver = async (req, res) => {
     try {
       const { id } = req.params;
-      const { driverId, vehicleId, notes, notifyDriver } = req.body;
+      const { driverId, warehouseId } = req.body;
 
       const delivery = await Delivery.findById(id);
       if (!delivery) {
@@ -830,9 +1399,13 @@ class AdminController {
         });
       }
 
+      const previousDriverId = delivery.driver?.toString();
+      const previousWarehouseId = delivery.warehouse?.toString();
+
       const updates = {};
 
-      // Assign driver if provided
+      /* ---------------- DRIVER HANDLING ---------------- */
+
       if (driverId && driverId !== "null" && driverId !== "undefined") {
         const driver = await Driver.findById(driverId);
         if (!driver) {
@@ -842,70 +1415,93 @@ class AdminController {
           });
         }
 
+        // Check if driver is available
+        if (driver.status === "off_duty" || driver.status === "break") {
+          return res.status(400).json({
+            success: false,
+            error: `Driver is currently ${driver.status.replace(
+              "_",
+              " "
+            )} and cannot be assigned`,
+          });
+        }
+
         updates.driver = driverId;
 
-        // If driver has a vehicle, assign it automatically if no vehicle specified
-        if (driver.vehicle && !vehicleId) {
-          updates.vehicle = driver.vehicle;
+        // Auto-assign driver's current warehouse if none selected
+        if (!warehouseId || warehouseId === "") {
+          // Drivers no longer have assigned vehicles, so we don't auto-assign warehouses
         }
-      } else {
-        // Remove driver assignment
+      } else if (driverId === "" || driverId === null) {
         updates.driver = null;
       }
 
-      // Assign vehicle if provided
-      if (vehicleId && vehicleId !== "null" && vehicleId !== "undefined") {
-        const vehicle = await Vehicle.findById(vehicleId);
-        if (!vehicle) {
+      /* ---------------- WAREHOUSE HANDLING ---------------- */
+
+      if (
+        warehouseId &&
+        warehouseId !== "null" &&
+        warehouseId !== "undefined"
+      ) {
+        const warehouse = await Warehouse.findById(warehouseId);
+        if (!warehouse) {
           return res.status(404).json({
             success: false,
-            error: "Vehicle not found",
+            error: "Warehouse not found",
           });
         }
 
-        // Check if vehicle is available
-        if (vehicle.status !== "available" && vehicle.status !== "in_use") {
-          return res.status(400).json({
-            success: false,
-            error: "Vehicle is not available",
-          });
-        }
+        updates.warehouse = warehouseId;
 
-        updates.vehicle = vehicleId;
-      } else if (!driverId || driverId === "null" || driverId === "undefined") {
-        // Remove vehicle assignment only if driver is also being removed
-        updates.vehicle = null;
+        // Update tracking starting location to warehouse location
+        if (warehouse.location && warehouse.location.coordinates) {
+          delivery.trackingData.currentLocation.coordinates =
+            warehouse.location.coordinates;
+        }
+      } else if (warehouseId === "" || warehouseId === null) {
+        updates.warehouse = null;
       }
 
-      // Update delivery
+      /* ---------------- RELEASE PREVIOUS ASSIGNMENTS ---------------- */
+
+      // Only release driver if we're changing it
+      if (updates.driver !== undefined) {
+        if (previousDriverId && previousDriverId !== updates.driver) {
+          await Driver.findByIdAndUpdate(previousDriverId, {
+            $pull: { currentDeliveries: id },
+            status: "available",
+          });
+        }
+      }
+
+      // No need to release warehouse as they don't track assigned deliveries
+
+      /* ---------------- UPDATE DELIVERY ---------------- */
+
       const updatedDelivery = await Delivery.findByIdAndUpdate(
         id,
         { $set: updates },
         { new: true }
-      );
+      )
+        .populate("driver", "name phone email")
+        .populate("warehouse", "name code location");
 
-      // Update driver and vehicle status if assigned
-      if (driverId && driverId !== "null" && driverId !== "undefined") {
-        await Driver.findByIdAndUpdate(driverId, {
-          $addToSet: { assignedDeliveries: id },
-          status: "busy",
-        });
-      }
+      /* ---------------- ASSIGN NEW DRIVER / WAREHOUSE ---------------- */
 
-      if (vehicleId && vehicleId !== "null" && vehicleId !== "undefined") {
-        await Vehicle.findByIdAndUpdate(vehicleId, {
-          status: "in_use",
-          $addToSet: { assignedDeliveries: id },
+      if (updates.driver && updates.driver !== null) {
+        await Driver.findByIdAndUpdate(updates.driver, {
+          $addToSet: { currentDeliveries: id },
+          status: "on_delivery",
         });
       }
 
       res.json({
         success: true,
-        message: "Driver assigned successfully",
+        message: "Assignment updated successfully",
         delivery: updatedDelivery,
       });
     } catch (error) {
-      console.error("Error assigning driver:", error);
+      console.error("Error assigning driver and warehouse:", error);
       res.status(500).json({
         success: false,
         error: error.message,
@@ -913,7 +1509,7 @@ class AdminController {
     }
   };
 
-  // Geocode addresses - FIXED to use model's geocoding method
+  // Geocode addresses
   geocodeAddresses = async (req, res) => {
     try {
       const { id } = req.params;
@@ -977,7 +1573,7 @@ class AdminController {
     }
   };
 
-  // Cancel delivery
+  // Cancel delivery - Updated for warehouses
   cancelDelivery = async (req, res) => {
     try {
       const { id } = req.params;
@@ -1003,20 +1599,15 @@ class AdminController {
       delivery.cancellationReason = req.body.reason || "Admin cancellation";
       delivery.trackingData.active = false;
 
-      // Update driver and vehicle status
+      // Update driver status only
       if (delivery.driver) {
         await Driver.findByIdAndUpdate(delivery.driver, {
-          $pull: { assignedDeliveries: id },
+          $pull: { currentDeliveries: id },
           status: "available",
         });
       }
 
-      if (delivery.vehicle) {
-        await Vehicle.findByIdAndUpdate(delivery.vehicle, {
-          $pull: { assignedDeliveries: id },
-          status: "available",
-        });
-      }
+      // Warehouses don't need to be updated as they don't track deliveries
 
       delivery.updatedAt = new Date();
       delivery.updatedBy = req.user._id;
@@ -1040,57 +1631,167 @@ class AdminController {
   resolveIncident = async (req, res) => {
     try {
       const { id, incidentId } = req.params;
+      const { resolutionNotes } = req.body;
+
+      console.log("Resolving incident:", {
+        deliveryId: id,
+        incidentId,
+        resolutionNotes,
+      });
 
       const delivery = await Delivery.findById(id);
       if (!delivery) {
-        return res.status(404).json({
-          success: false,
-          error: "Delivery not found",
-        });
+        req.flash("error", "Delivery not found");
+        return res.redirect("/admin/deliveries");
       }
 
-      // Find the incident
-      const incident = delivery.incidents.id(incidentId);
+      // Check if delivery has incidents
+      if (
+        !delivery.incidents ||
+        !Array.isArray(delivery.incidents) ||
+        delivery.incidents.length === 0
+      ) {
+        req.flash("error", "No incidents found for this delivery");
+        return res.redirect(`/admin/deliveries/${id}`);
+      }
+
+      // Find incident by ID
+      const incident = delivery.incidents.find(
+        (inc) => inc._id && inc._id.toString() === incidentId
+      );
+
       if (!incident) {
-        return res.status(404).json({
-          success: false,
-          error: "Incident not found",
-        });
+        req.flash("error", "Incident not found");
+        return res.redirect(`/admin/deliveries/${id}`);
+      }
+
+      console.log("Found incident:", {
+        id: incident._id,
+        type: incident.type,
+        resolved: incident.resolved,
+        resolvedAt: incident.resolvedAt,
+      });
+
+      // Check if already resolved - with better feedback
+      if (incident.resolved) {
+        const resolvedTime = incident.resolvedAt
+          ? new Date(incident.resolvedAt).toLocaleString()
+          : "previously";
+
+        req.flash(
+          "warning",
+          `⚠️ Incident "${incident.type}" was already resolved ${resolvedTime} by ` +
+            (incident.resolvedBy
+              ? `user ${incident.resolvedBy}`
+              : "an administrator")
+        );
+        return res.redirect(`/admin/deliveries/${id}`);
       }
 
       // Mark incident as resolved
       incident.resolved = true;
       incident.resolvedAt = new Date();
+      incident.resolvedBy = req.user._id;
 
-      // Check if all incidents are resolved
+      // Add resolution notes to additionalDetails
+      if (resolutionNotes && resolutionNotes.trim()) {
+        if (!incident.additionalDetails) {
+          incident.additionalDetails = {};
+        }
+        incident.additionalDetails.resolutionNotes = resolutionNotes.trim();
+        incident.additionalDetails.resolvedBy = req.user._id;
+        incident.additionalDetails.resolvedAt = new Date();
+      }
+
+      // Check if all incidents are now resolved
       const allResolved = delivery.incidents.every((inc) => inc.resolved);
-      if (allResolved && delivery.status === "delayed") {
-        // Revert to previous status or set to in_transit
-        delivery.status = "in_transit";
-        if (delivery.delayInfo) {
-          delivery.delayInfo.resolvedAt = new Date();
+
+      // If delivery was delayed due to this incident and all incidents are resolved,
+      // update status back to in_transit (if not already delivered/cancelled)
+      if (
+        allResolved &&
+        delivery.status === "delayed" &&
+        delivery.status !== "delivered" &&
+        delivery.status !== "cancelled"
+      ) {
+        // Check if there's an estimated delay that has passed
+        const now = new Date();
+        let shouldUpdateStatus = true;
+
+        if (delivery.delayInfo && delivery.delayInfo.estimatedDelay) {
+          // Calculate when the delay should end
+          const delayEndTime = new Date(delivery.delayInfo.reportedAt);
+          delayEndTime.setMinutes(
+            delayEndTime.getMinutes() + delivery.delayInfo.estimatedDelay
+          );
+
+          // If delay hasn't passed yet, keep status as delayed
+          if (now < delayEndTime) {
+            shouldUpdateStatus = false;
+          }
+        }
+
+        if (shouldUpdateStatus) {
+          delivery.status = "in_transit";
+
+          // Clear delay info
+          delivery.delayInfo = null;
+
+          // Add to history
+          if (!delivery.history) delivery.history = [];
+          delivery.history.push({
+            action: "incident_resolved_delay_cleared",
+            description: "All incidents resolved, returning to normal delivery",
+            details: {
+              resolvedIncidents: delivery.incidents.filter(
+                (inc) => inc.resolved
+              ).length,
+              totalIncidents: delivery.incidents.length,
+            },
+            user: req.user._id,
+            timestamp: new Date(),
+          });
         }
       }
 
+      // Add to history
+      if (!delivery.history) delivery.history = [];
+      delivery.history.push({
+        action: "incident_resolved",
+        description: `${incident.type} incident resolved`,
+        details: {
+          severity: incident.severity,
+          resolutionNotes: resolutionNotes?.trim(),
+          allIncidentsResolved: allResolved,
+        },
+        user: req.user._id,
+        timestamp: new Date(),
+      });
+
       delivery.updatedAt = new Date();
       delivery.updatedBy = req.user._id;
+
       await delivery.save();
 
-      res.json({
-        success: true,
-        message: "Incident resolved successfully",
-        incident,
+      console.log("Incident successfully resolved:", {
+        incidentId: incident._id,
+        resolvedAt: incident.resolvedAt,
+        resolvedBy: incident.resolvedBy,
       });
+
+      req.flash(
+        "success",
+        `✅ Incident "${incident.type}" has been marked as resolved`
+      );
+      res.redirect(`/admin/deliveries/${delivery._id}#accident`);
     } catch (error) {
       console.error("Error resolving incident:", error);
-      res.status(500).json({
-        success: false,
-        error: error.message,
-      });
+      req.flash("error", `Error resolving incident: ${error.message}`);
+      res.redirect(`/admin/deliveries/${req.params.id}`);
     }
   };
 
-  // Delete delivery
+  // Delete delivery - Updated for warehouses
   deleteDelivery = async (req, res) => {
     try {
       const { id } = req.params;
@@ -1103,18 +1804,14 @@ class AdminController {
         });
       }
 
-      // Remove delivery from driver and vehicle assignments
+      // Remove delivery from driver assignments only
       if (delivery.driver) {
         await Driver.findByIdAndUpdate(delivery.driver, {
-          $pull: { assignedDeliveries: id },
+          $pull: { currentDeliveries: id },
         });
       }
 
-      if (delivery.vehicle) {
-        await Vehicle.findByIdAndUpdate(delivery.vehicle, {
-          $pull: { assignedDeliveries: id },
-        });
-      }
+      // Warehouses don't track deliveries, so no need to update
 
       // Delete the delivery
       await Delivery.findByIdAndDelete(id);
@@ -1132,31 +1829,33 @@ class AdminController {
     }
   };
 
-  // Vehicle Management
-  getAllVehicles = async (req, res) => {
+  // Warehouse Management (replaces Vehicle Management)
+  getAllWarehouses = async (req, res) => {
     try {
-      const vehicles = await Vehicle.find()
-        .populate("driver", "name phone")
-        .sort({ status: 1, model: 1 });
+      const warehouses = await Warehouse.find().sort({ name: 1 });
 
-      res.render("admin/vehicles", {
-        title: "Vehicle Management",
-        vehicles,
+      // Format coordinates for display
+      const warehousesWithFormattedCoords = warehouses.map((warehouse) => ({
+        ...warehouse.toObject(),
+        coordinatesString: warehouse.location.coordinates.join(", "),
+      }));
+
+      res.render("admin/warehouses", {
+        title: "Warehouse Management",
+        warehouses: warehousesWithFormattedCoords,
         admin: req.user,
       });
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
-      req.flash("error", "Error loading vehicles");
+      console.error("Error fetching warehouses:", error);
+      req.flash("error", "Error loading warehouses");
       res.redirect("/admin");
     }
   };
 
-  // Driver Management
+  // Driver Management - Updated to remove vehicle references
   getAllDrivers = async (req, res) => {
     try {
-      const drivers = await Driver.find()
-        .populate("vehicle", "plateNumber model")
-        .sort({ status: 1, name: 1 });
+      const drivers = await Driver.find().sort({ status: 1, name: 1 });
 
       res.render("admin/drivers", {
         title: "Driver Management",

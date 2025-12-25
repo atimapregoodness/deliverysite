@@ -50,7 +50,6 @@
     color: #374151;
   }
 </style>
-
 <div class="min-h-screen bg-gray-50">
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div class="px-4 py-6 sm:px-0">
@@ -62,7 +61,7 @@
             </div>
 
             <!-- Stats Overview -->
-            <div class="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-6 gap-4">
                 <div class="bg-white rounded-lg shadow p-4">
                     <div class="flex items-center">
                         <div class="p-2 bg-blue-100 rounded-lg">
@@ -130,12 +129,30 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-purple-100 rounded-lg">
+                            <i class="fas fa-warehouse text-purple-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Warehouses</p>
+                            <p class="text-2xl font-bold text-gray-900">
+                                <% if (warehouses && warehouses.length) { %>
+                                    <%= warehouses.length %>
+                                <% } else { %>
+                                    0
+                                <% } %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Filters -->
             <div class="mt-6 bg-white shadow rounded-lg p-4">
-                <form method="GET" class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                    <div class="flex-1">
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
                         <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
                         <input type="text" name="search" id="search" value="<%= query.search || '' %>" 
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -165,15 +182,31 @@
                             <option value="other" <%= query.category === 'other' ? 'selected' : '' %>>Other</option>
                         </select>
                     </div>
+                    <div>
+                        <label for="warehouse" class="block text-sm font-medium text-gray-700">Warehouse</label>
+                        <select id="warehouse" name="warehouse" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">All Warehouses</option>
+                            <% if (warehouses && warehouses.length) { %>
+                                <% warehouses.forEach(warehouse => { %>
+                                    <option value="<%= warehouse._id %>" 
+                                            <%= query.warehouse === warehouse._id.toString() ? 'selected' : '' %>>
+                                        <%= warehouse.name %> (<%= warehouse.code %>)
+                                    </option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
                     <div class="flex items-end">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out">
-                            <i class="fas fa-filter mr-2"></i>Filter
-                        </button>
-                        <% if (query.search || query.status || query.category) { %>
-                            <a href="/admin/deliveries" class="ml-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-150 ease-in-out">
-                                Clear
-                            </a>
-                        <% } %>
+                        <div class="flex items-center space-x-2 w-full">
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out flex-1">
+                                <i class="fas fa-filter mr-2"></i>Filter
+                            </button>
+                            <% if (query.search || query.status || query.category || query.warehouse) { %>
+                                <a href="/admin/deliveries" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-150 ease-in-out flex items-center justify-center">
+                                    <i class="fas fa-times mr-2"></i>Clear
+                                </a>
+                            <% } %>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -225,6 +258,12 @@
                                                                 <%= delivery.driver.name %>
                                                             </div>
                                                         <% } %>
+                                                        <% if (delivery.warehouse && delivery.warehouse.name) { %>
+                                                            <div class="hidden sm:flex items-center text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                                                <i class="fas fa-warehouse mr-1.5 text-gray-400"></i>
+                                                                <%= delivery.warehouse.name %>
+                                                            </div>
+                                                        <% } %>
                                                         <i class="fas fa-chevron-right text-gray-400"></i>
                                                     </div>
                                                 </div>
@@ -259,13 +298,26 @@
                                                     <div>
                                                         <h4 class="text-sm font-medium text-gray-700 mb-2">Route</h4>
                                                         <div class="space-y-2">
+                                                            <!-- Origin (Warehouse or Sender) -->
                                                             <div class="flex items-start text-sm text-gray-600">
-                                                                <i class="fas fa-map-marker-alt text-red-400 mt-0.5 mr-2 w-5"></i>
-                                                                <div>
-                                                                    <p class="font-medium"><%= delivery.sender.name %></p>
-                                                                    <p class="text-gray-500 text-xs"><%= delivery.sender.address.city %>, <%= delivery.sender.address.state %></p>
-                                                                </div>
+                                                                <% if (delivery.warehouse && delivery.warehouse.name) { %>
+                                                                    <i class="fas fa-warehouse text-blue-400 mt-0.5 mr-2 w-5"></i>
+                                                                    <div>
+                                                                        <p class="font-medium"><%= delivery.warehouse.name %></p>
+                                                                        <p class="text-gray-500 text-xs">Warehouse</p>
+                                                                        <% if (delivery.warehouse.code) { %>
+                                                                            <p class="text-gray-500 text-xs">Code: <%= delivery.warehouse.code %></p>
+                                                                        <% } %>
+                                                                    </div>
+                                                                <% } else { %>
+                                                                    <i class="fas fa-map-marker-alt text-red-400 mt-0.5 mr-2 w-5"></i>
+                                                                    <div>
+                                                                        <p class="font-medium"><%= delivery.sender.name %></p>
+                                                                        <p class="text-gray-500 text-xs"><%= delivery.sender.address.city %>, <%= delivery.sender.address.state %></p>
+                                                                    </div>
+                                                                <% } %>
                                                             </div>
+                                                            <!-- Destination -->
                                                             <div class="flex items-start text-sm text-gray-600">
                                                                 <i class="fas fa-flag-checkered text-green-400 mt-0.5 mr-2 w-5"></i>
                                                                 <div>
@@ -274,7 +326,8 @@
                                                                     <% if (delivery.receiver.deliveryInstructions) { %>
                                                                         <p class="text-gray-500 text-xs mt-1">
                                                                             <i class="fas fa-info-circle mr-1"></i>
-                                                                            <%= delivery.receiver.deliveryInstructions %>
+                                                                            <%= delivery.receiver.deliveryInstructions.substring(0, 50) %>
+                                                                            <%= delivery.receiver.deliveryInstructions.length > 50 ? '...' : '' %>
                                                                         </p>
                                                                     <% } %>
                                                                 </div>
@@ -317,7 +370,9 @@
                                                                 <div class="flex items-center text-sm bg-red-50 px-3 py-2 rounded-md">
                                                                     <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
                                                                     <span class="font-medium text-red-700"><%= incident.type.toUpperCase() %>:</span>
-                                                                    <span class="ml-2 text-red-600"><%= incident.description %></span>
+                                                                    <span class="ml-2 text-red-600"><%= incident.description.substring(0, 100) %>
+                                                                        <%= incident.description.length > 100 ? '...' : '' %>
+                                                                    </span>
                                                                 </div>
                                                             <% } %>
                                                         <% }); %>
@@ -348,14 +403,14 @@
                                 </div>
                                 <div class="flex space-x-2">
                                     <% if (query.page > 1) { %>
-                                        <a href="?page=<%= (query.page || 1) - 1 %>&limit=<%= query.limit || 20 %><%= query.search ? '&search=' + encodeURIComponent(query.search) : '' %><%= query.status ? '&status=' + query.status : '' %><%= query.category ? '&category=' + query.category : '' %>" 
+                                        <a href="?page=<%= (query.page || 1) - 1 %>&limit=<%= query.limit || 20 %><%= query.search ? '&search=' + encodeURIComponent(query.search) : '' %><%= query.status ? '&status=' + query.status : '' %><%= query.category ? '&category=' + query.category : '' %><%= query.warehouse ? '&warehouse=' + query.warehouse : '' %>" 
                                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                                             <i class="fas fa-chevron-left mr-2 text-sm"></i>Previous
                                         </a>
                                     <% } %>
                                     
                                     <% if ((query.page || 1) * (query.limit || 20) < total) { %>
-                                        <a href="?page=<%= (query.page || 1) + 1 %>&limit=<%= query.limit || 20 %><%= query.search ? '&search=' + encodeURIComponent(query.search) : '' %><%= query.status ? '&status=' + query.status : '' %><%= query.category ? '&category=' + query.category : '' %>" 
+                                        <a href="?page=<%= (query.page || 1) + 1 %>&limit=<%= query.limit || 20 %><%= query.search ? '&search=' + encodeURIComponent(query.search) : '' %><%= query.status ? '&status=' + query.status : '' %><%= query.category ? '&category=' + query.category : '' %><%= query.warehouse ? '&warehouse=' + query.warehouse : '' %>" 
                                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                                             Next<i class="fas fa-chevron-right ml-2 text-sm"></i>
                                         </a>
@@ -370,7 +425,7 @@
                         <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
                         <h3 class="text-lg font-medium text-gray-900">No deliveries found</h3>
                         <p class="mt-2 text-sm text-gray-500">
-                            <% if (query.search || query.status || query.category) { %>
+                            <% if (query.search || query.status || query.category || query.warehouse) { %>
                                 Try adjusting your search or filter to find what you're looking for.
                             <% } else { %>
                                 Get started by creating a new delivery.
