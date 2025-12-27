@@ -492,21 +492,30 @@
           </div>
           <% } %>
         </div>
+<a href="/delivery/track/print/<%= delivery.trackingId %>" target="_blank">
+  <button class="btn btn-modern btn-modern-primary btn-sm">
+    <i class="fas fa-print me-1"></i>Print Receipt
+  </button>
+</a>
+                  
       </div>
       <div class="col-md-4 text-md-end">
-        <div class="eta-card mt-3">
-          <div class="eta-time">
-            <% if(package.estimatedDelivery) { %> <%= new
-            Date(package.estimatedDelivery).toLocaleTimeString([], {hour:
-            '2-digit', minute:'2-digit'}) %> <% } else { %> N/A <% } %>
+        <div class="d-flex gap-2 align-items-start justify-content-md-end flex-wrap">
+
+          <div class="eta-card mt-0">
+            <div class="eta-time">
+              <% if(package.estimatedDelivery) { %> <%= new
+              Date(package.estimatedDelivery).toLocaleTimeString([], {hour:
+              '2-digit', minute:'2-digit'}) %> <% } else { %> N/A <% } %>
+            </div>
+            <div class="eta-label">Estimated Delivery</div>
+            <% if(package.estimatedDelivery) { %>
+            <div class="small text-white opacity-90 mt-1">
+              <%= new Date(package.estimatedDelivery).toLocaleDateString('en-US',
+              { weekday: 'short', month: 'short', day: 'numeric' }) %>
+            </div>
+            <% } %>
           </div>
-          <div class="eta-label">Estimated Delivery</div>
-          <% if(package.estimatedDelivery) { %>
-          <div class="small text-white opacity-90 mt-1">
-            <%= new Date(package.estimatedDelivery).toLocaleDateString('en-US',
-            { weekday: 'short', month: 'short', day: 'numeric' }) %>
-          </div>
-          <% } %>
         </div>
       </div>
     </div>
@@ -589,7 +598,7 @@
           <div class="progress-track">
             <div
               class="progress-fill"
-              style="width: <%= package.trackingData?.routeProgress || 0 %>%"
+              style="width: <%= package.trackingData?.vehicleProgress || 0 %>%"
             ></div>
           </div>
 
@@ -598,7 +607,7 @@
             <div class="col-6 col-md-3 mb-3">
               <div class="stats-card">
                 <div class="stats-value">
-                  <%= package.trackingData?.routeProgress || 0 %>%
+                  <%= package.trackingData?.vehicleProgress || 0 %>%
                 </div>
                 <div class="stats-label">Progress</div>
               </div>
@@ -635,630 +644,750 @@
               </div>
             </div>
           </div>
-          <!-- Status Indicators -->
-          <% // Avoid reserved keyword "package" const pkg = delivery &&
-          delivery.package ? delivery.package : {}; const currentStatus =
-          pkg.status || 'pickup'; const stages = [ { key: 'pickup', label:
-          'Pickup' }, { key: 'in_transit', label: 'In Transit' }, { key:
-          'out_for_delivery', label: 'Out for Delivery' }, { key: 'delivered',
-          label: 'Delivered' } ]; const currentIndex = stages.findIndex(function
-          (s) { return s.key === currentStatus; }); %>
+        </div>
 
-          <div class="delivery-progress mt-4">
-            <!-- Labels -->
+        <div class="card-body">
+          <h4 class="h6 fw-bold mb-3">Delivery Progress</h4>
+          <div class="progress-container-light">
             <div
-              class="d-flex justify-content-between mb-2 text-muted small fw-semibold"
-            >
-              <% stages.forEach(stage => { %>
-              <div class="text-center flex-fill"><%= stage.label %></div>
-              <% }) %>
+              class="progress-bar-light"
+              id="progressBar"
+              style="width: <%= package.trackingData.routeProgress %>%"
+            ></div>
+          </div>
+          <div class="row text-center mt-3 small">
+            <% const stages = ['Order Received', 'Processing', 'In Transit',
+            'Out for Delivery', 'Delivered']; %> <% stages.forEach((stage, i) =>
+            { %>
+            <div class="col">
+              <div class="text-muted"><%= stage %></div>
+              <% if(i < package.trackingData.routeProgress / 25){ %>
+              <div class="fw-bold text-success">✓</div>
+              <% } else if(i === Math.floor(package.trackingData.routeProgress /
+              25)){ %>
+              <div class="fw-bold text-primary">●</div>
+              <% } else { %>
+              <div class="fw-bold text-muted">○</div>
+              <% } %>
             </div>
+            <% }) %>
+          </div>
+        </div>
+        </div>
 
-            <!-- Progress Bar -->
-            <div class="position-relative progress-track">
-              <!-- Active Progress -->
+        <!-- Timeline -->
+        <div class="modern-card mb-4">
+          <div class="card-header-modern">
+            <h4 class="h5 fw-bold mb-0">
+              <i class="fas fa-history me-2"></i>Delivery Timeline
+            </h4>
+          </div>
+          <div class="card-body-modern">
+            <div class="timeline-modern">
+              <div class="timeline-item-modern completed">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="fw-bold mb-1 text-dark">Order Created</h6>
+                    <p class="text-muted small mb-0">
+                      Tracking ID: <%= package.trackingId %>
+                    </p>
+                  </div>
+                  <div class="text-end">
+                    <div class="small fw-bold">
+                      <%= new Date(package.createdAt).toLocaleDateString() %>
+                    </div>
+                    <div class="small text-muted">
+                      <%= new Date(package.createdAt).toLocaleTimeString() %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <% package.trackingData.waypoints?.forEach((wp, idx) => { %>
               <div
-                class="progress-fill"
-                style="
-                  width: <%= ((currentIndex + 1) / stages.length) * 100 %>%;
-                "
-              ></div>
-
-              <!-- Steps -->
-              <div class="d-flex justify-content-between position-relative">
-                <% stages.forEach((stage, i) => { const completed = i <=
-                currentIndex; %>
-                <div class="progress-step text-center flex-fill">
-                  <div class="step-circle <%= completed ? 'completed' : '' %>">
-                    <% if (completed) { %>
-                    <i class="fas fa-check"></i>
+                class="timeline-item-modern <%= wp.arrived ? 'completed' : (idx === 0 ? 'current' : '') %>"
+              >
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="fw-bold mb-1"><%= wp.name %></h6>
+                    <p class="text-muted small mb-0">
+                      <%= wp.type.toUpperCase() %>
+                    </p>
+                    <% if(wp.arrived && wp.timestamp) { %>
+                    <div class="small text-success mt-1 ">
+                      <i class="fas fa-check-circle me-1"></i>Arrived
+                    </div>
                     <% } %>
                   </div>
-
-                  <% if (i < stages.length - 1) { %>
-                  <div class="step-arrow">
-                    <i class="fas fa-chevron-right"></i>
+                  <div class="text-end">
+                    <% if(wp.timestamp) { %>
+                    <div class="small fw-bold">
+                      <%= new Date(wp.timestamp).toLocaleDateString() %>
+                    </div>
+                    <div class="small text-muted">
+                      <%= new Date(wp.timestamp).toLocaleTimeString() %>
+                    </div>
+                    <% } else { %>
+                    <div class="small text-warning">Pending</div>
+                    <% } %>
                   </div>
-                  <% } %>
                 </div>
-                <% }) %>
               </div>
+              <% }) %>
+
+              <!-- Only show delivered timeline item if package is delivered -->
+              <% if(package.status === 'delivered') { %>
+              <div class="timeline-item-modern completed">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="fw-bold mb-1">Package Delivered</h6>
+                    <p class="text-muted small mb-0">
+                      Successfully delivered to recipient
+                    </p>
+                    <% if(package.actualDelivery) { %>
+                    <div class="small text-success mt-1">
+                      <i class="fas fa-check-circle me-1"></i>Delivered
+                    </div>
+                    <% } %>
+                  </div>
+                  <div class="text-end">
+                    <% if(package.actualDelivery) { %>
+                    <div class="small fw-bold">
+                      <%= new Date(package.actualDelivery).toLocaleDateString()
+                      %>
+                    </div>
+                    <div class="small text-muted">
+                      <%= new Date(package.actualDelivery).toLocaleTimeString()
+                      %>
+                    </div>
+                    <% } else { %>
+                    <div class="small text-success">Completed</div>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+              <% } else { %>
+              <div class="timeline-item-modern">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="fw-bold mb-1 text-dark">Estimated Delivery</h6>
+                    <p class="text-muted small mb-0">Expected arrival time</p>
+                  </div>
+                  <div class="text-end">
+                    <div class="small fw-bold">
+                      <%= new
+                      Date(package.estimatedDelivery).toLocaleDateString() %>
+                    </div>
+                    <div class="small text-muted">
+                      <%= new
+                      Date(package.estimatedDelivery).toLocaleTimeString() %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <% } %>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Timeline -->
-      <div class="modern-card mb-4">
-        <div class="card-header-modern">
-          <h4 class="h5 fw-bold mb-0">
-            <i class="fas fa-history me-2"></i>Delivery Timeline
-          </h4>
-        </div>
-        <div class="card-body-modern">
-          <div class="timeline-modern">
-            <div class="timeline-item-modern completed">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h6 class="fw-bold mb-1">Order Created</h6>
-                  <p class="text-muted small mb-0">
-                    Tracking ID: <%= package.trackingId %>
-                  </p>
-                </div>
-                <div class="text-end">
-                  <div class="small fw-bold">
-                    <%= new Date(package.createdAt).toLocaleDateString() %>
-                  </div>
-                  <div class="small text-muted">
-                    <%= new Date(package.createdAt).toLocaleTimeString() %>
-                  </div>
-                </div>
+      <!-- Right Column: Details -->
+      <div class="col-lg-4">
+        <!-- Package Details -->
+        <div class="modern-card mb-4">
+          <div class="card-header-modern">
+            <h4 class="h5 fw-bold mb-0">
+              <i class="fas fa-box-open me-2"></i>Package Details
+            </h4>
+          </div>
+          <div class="card-body-modern">
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">Tracking ID</div>
+                <div class="info-value"><%= package.trackingId %></div>
               </div>
-            </div>
-
-            <% package.trackingData.waypoints?.forEach((wp, idx) => { %>
-            <div
-              class="timeline-item-modern <%= wp.arrived ? 'completed' : (idx === 0 ? 'current' : '') %>"
-            >
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h6 class="fw-bold mb-1"><%= wp.name %></h6>
-                  <p class="text-muted small mb-0">
-                    <%= wp.type.toUpperCase() %>
-                  </p>
-                  <% if(wp.arrived && wp.timestamp) { %>
-                  <div class="small text-success mt-1">
-                    <i class="fas fa-check-circle me-1"></i>Arrived
-                  </div>
-                  <% } %>
-                </div>
-                <div class="text-end">
-                  <% if(wp.timestamp) { %>
-                  <div class="small fw-bold">
-                    <%= new Date(wp.timestamp).toLocaleDateString() %>
-                  </div>
-                  <div class="small text-muted">
-                    <%= new Date(wp.timestamp).toLocaleTimeString() %>
-                  </div>
-                  <% } else { %>
-                  <div class="small text-warning">Pending</div>
-                  <% } %>
-                </div>
-              </div>
-            </div>
-            <% }) %>
-
-            <!-- Only show delivered timeline item if package is delivered -->
-            <% if(package.status === 'delivered') { %>
-            <div class="timeline-item-modern completed">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h6 class="fw-bold mb-1">Package Delivered</h6>
-                  <p class="text-muted small mb-0">
-                    Successfully delivered to recipient
-                  </p>
-                  <% if(package.actualDelivery) { %>
-                  <div class="small text-success mt-1">
-                    <i class="fas fa-check-circle me-1"></i>Delivered
-                  </div>
-                  <% } %>
-                </div>
-                <div class="text-end">
-                  <% if(package.actualDelivery) { %>
-                  <div class="small fw-bold">
-                    <%= new Date(package.actualDelivery).toLocaleDateString() %>
-                  </div>
-                  <div class="small text-muted">
-                    <%= new Date(package.actualDelivery).toLocaleTimeString() %>
-                  </div>
-                  <% } else { %>
-                  <div class="small text-success">Completed</div>
-                  <% } %>
-                </div>
-              </div>
-            </div>
-            <% } else { %>
-            <div class="timeline-item-modern">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h6 class="fw-bold mb-1">Estimated Delivery</h6>
-                  <p class="text-muted small mb-0">Expected arrival time</p>
-                </div>
-                <div class="text-end">
-                  <div class="small fw-bold">
-                    <%= new Date(package.estimatedDelivery).toLocaleDateString()
-                    %>
-                  </div>
-                  <div class="small text-muted">
-                    <%= new Date(package.estimatedDelivery).toLocaleTimeString()
-                    %>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <% } %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column: Details -->
-    <div class="col-lg-4">
-      <!-- Package Details -->
-      <div class="modern-card mb-4">
-        <div class="card-header-modern">
-          <h4 class="h5 fw-bold mb-0">
-            <i class="fas fa-box-open me-2"></i>Package Details
-          </h4>
-        </div>
-        <div class="card-body-modern">
-          <div class="info-grid">
-            <div class="info-item">
-              <div class="info-label">Tracking ID</div>
-              <div class="info-value"><%= package.trackingId %></div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Category</div>
-              <div class="info-value">
-                <span
-                  class="category-badge category-<%= package.package.category %>"
-                >
-                  <%= package.package.category.toUpperCase() %>
-                </span>
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Weight</div>
-              <div class="info-value"><%= package.package.weight %> kg</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Value</div>
-              <div class="info-value">
-                $<%= package.package.value?.toFixed(2) || '0.00' %>
-              </div>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <div class="info-label">Description</div>
-            <div class="info-value"><%= package.package.description %></div>
-          </div>
-
-          <div class="mb-3">
-            <div class="info-label">Dimensions</div>
-            <div class="info-value">
-              <%= package.package.dimensions?.length || 0 %> × <%=
-              package.package.dimensions?.width || 0 %> × <%=
-              package.package.dimensions?.height || 0 %> cm
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sender & Receiver -->
-      <div class="modern-card mb-4">
-        <div class="card-header-modern">
-          <h4 class="h5 fw-bold mb-0">
-            <i class="fas fa-exchange-alt me-2"></i>Sender & Receiver
-          </h4>
-        </div>
-        <div class="card-body-modern">
-          <div class="info-grid">
-            <div class="info-item">
-              <div class="info-label">Sender</div>
-              <div class="info-value"><%= package.sender.name %></div>
-              <div class="small text-muted"><%= package.sender.email %></div>
-              <div class="small text-muted"><%= package.sender.phone %></div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Receiver</div>
-              <div class="info-value"><%= package.receiver.name %></div>
-              <div class="small text-muted"><%= package.receiver.email %></div>
-              <div class="small text-muted"><%= package.receiver.phone %></div>
-            </div>
-          </div>
-
-          <div class="mt-3">
-            <div class="info-label">Pickup Address</div>
-            <div class="info-value"><%= package.pickupAddress %></div>
-          </div>
-
-          <div class="mt-3">
-            <div class="info-label">Delivery Address</div>
-            <div class="info-value"><%= package.deliveryAddress %></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Incidents -->
-      <% if(package.incidents && package.incidents.length > 0) { %>
-      <div class="modern-card mb-4">
-        <div class="card-header-modern">
-          <h4 class="h5 fw-bold mb-0">
-            <i class="fas fa-exclamation-triangle me-2"></i>Incidents
-            <span class="badge bg-danger ms-2"
-              ><%= package.incidents.length %></span
-            >
-          </h4>
-        </div>
-        <div class="card-body-modern p-0">
-          <div class="incidents-scrollable p-3">
-            <% package.incidents.forEach((incident, idx) => { %>
-            <div class="collapsible-section">
-              <div class="collapsible-header" onclick="toggleCollapse(this)">
-                <div>
-                  <strong><%= incident.type.toUpperCase() %></strong>
+              <div class="info-item">
+                <div class="info-label">Category</div>
+                <div class="info-value">
                   <span
-                    class="badge <%= incident.resolved ? 'bg-success' : 'bg-warning' %> ms-2"
+                    class="category-badge category-<%= package.package.category %>"
                   >
-                    <%= incident.resolved ? 'RESOLVED' : 'ACTIVE' %>
+                    <%= package.package.category.toUpperCase() %>
                   </span>
                 </div>
-                <i class="fas fa-chevron-down"></i>
               </div>
-              <div class="collapsible-content">
-                <p class="small mb-2"><%= incident.description %></p>
-                <div class="row g-2 small">
-                  <div class="col-6">
-                    <div class="text-muted">Severity</div>
-                    <div class="fw-bold">
-                      <%= incident.severity.toUpperCase() %>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="text-muted">Reported</div>
-                    <div class="fw-bold">
-                      <%= new Date(incident.reportedAt).toLocaleDateString() %>
-                    </div>
-                  </div>
-                  <% if(incident.estimatedDelay) { %>
-                  <div class="col-6">
-                    <div class="text-muted">Delay</div>
-                    <div class="fw-bold text-danger">
-                      <%= incident.estimatedDelay %> min
-                    </div>
-                  </div>
-                  <% } %> <% if(incident.resolvedAt) { %>
-                  <div class="col-12">
-                    <div class="text-muted">Resolved</div>
-                    <div class="fw-bold text-success">
-                      <%= new Date(incident.resolvedAt).toLocaleString() %>
-                    </div>
-                  </div>
-                  <% } %>
+              <div class="info-item">
+                <div class="info-label">Weight</div>
+                <div class="info-value"><%= package.package.weight %> kg</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Value</div>
+                <div class="info-value">
+                  $<%= package.package.value?.toFixed(2) || '0.00' %>
                 </div>
               </div>
             </div>
-            <% }) %>
+
+            <div class="mb-3">
+              <div class="info-label">Description</div>
+              <div class="info-value"><%= package.package.description %></div>
+            </div>
+
+            <div class="mb-3">
+              <div class="info-label">Dimensions</div>
+              <div class="info-value">
+                <%= package.package.dimensions?.length || 0 %> × <%=
+                package.package.dimensions?.width || 0 %> × <%=
+                package.package.dimensions?.height || 0 %> cm
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <% } %>
 
-      <!-- System Info -->
-      <div class="modern-card">
-        <div class="card-header-modern">
-          <h4 class="h5 fw-bold mb-0">
-            <i class="fas fa-info-circle me-2"></i>System Information
-          </h4>
+        <!-- Sender & Receiver -->
+        <div class="modern-card mb-4">
+          <div class="card-header-modern">
+            <h4 class="h5 fw-bold mb-0">
+              <i class="fas fa-exchange-alt me-2"></i>Sender & Receiver
+            </h4>
+          </div>
+          <div class="card-body-modern">
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">Sender</div>
+                <div class="info-value"><%= package.sender.name %></div>
+                <div class="small text-muted"><%= package.sender.email %></div>
+                <div class="small text-muted"><%= package.sender.phone %></div>
+          
+                                <div class="small text-muted">
+                  <%= package.sender.address.fullAddress %>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Receiver</div>
+                <div class="info-value"><%= package.receiver.name %></div>
+                <div class="small text-muted">
+                  <%= package.receiver.email %>
+                </div>
+                <div class="small text-muted">
+                  <%= package.receiver.phone %>
+                </div>
+                                <div class="small text-muted">
+                  <%= package.receiver.address.fullAddress %>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
         </div>
-        <div class="card-body-modern">
-          <div class="row g-2 small">
-            <div class="col-6">
-              <div class="text-muted">Created</div>
-              <div class="fw-bold">
-                <%= new Date(package.createdAt).toLocaleDateString() %>
+
+        <!-- Incidents -->
+        <% if(package.incidents && package.incidents.length > 0) { %>
+        <div class="modern-card mb-4">
+          <div class="card-header-modern">
+            <h4 class="h5 fw-bold mb-0">
+              <i class="fas fa-exclamation-triangle me-2"></i>Notice
+              <span class="badge bg-danger ms-2"
+                ><%= package.incidents.length %></span
+              >
+            </h4>
+          </div>
+          <div class="card-body-modern p-0">
+            <div class="incidents-scrollable p-3">
+              <% package.incidents.forEach((incident, idx) => { %>
+              <div class="collapsible-section">
+                <div class="collapsible-header" onclick="toggleCollapse(this)">
+                  <div>
+                    <strong><%= incident.type.toUpperCase() %></strong>
+                    <span
+                      class="badge <%= incident.resolved ? 'bg-success' : 'bg-warning' %> ms-2"
+                    >
+                      <%= incident.resolved ? 'RESOLVED' : 'ACTIVE' %>
+                    </span>
+                  </div>
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="collapsible-content">
+                  <p class="small mb-2"><%= incident.description %></p>
+                  <div class="row g-2 small">
+                    <div class="col-6">
+                      <div class="text-muted">Severity</div>
+                      <div class="fw-bold">
+                        <%= incident.severity.toUpperCase() %>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted">Reported</div>
+                      <div class="fw-bold">
+                        <%= new Date(incident.reportedAt).toLocaleDateString()
+                        %>
+                      </div>
+                    </div>
+                    <% if(incident.estimatedDelay) { %>
+                    <div class="col-6">
+                      <div class="text-muted">Delay</div>
+                      <div class="fw-bold text-danger">
+                        <%= incident.estimatedDelay %> min
+                      </div>
+                    </div>
+                    <% } %> <% if(incident.resolvedAt) { %>
+                    <div class="col-12">
+                      <div class="text-muted">Resolved</div>
+                      <div class="fw-bold text-success">
+                        <%= new Date(incident.resolvedAt).toLocaleString() %>
+                      </div>
+                    </div>
+                    <% } %>
+                  </div>
+                </div>
               </div>
+              <% }) %>
             </div>
-            <div class="col-6">
-              <div class="text-muted">Updated</div>
-              <div class="fw-bold">
-                <%= new Date(package.updatedAt).toLocaleDateString() %>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- System Info -->
+        <div class="modern-card">
+          <div class="card-header-modern">
+            <h4 class="h5 fw-bold mb-0">
+              <i class="fas fa-info-circle me-2"></i>System Information
+            </h4>
+          </div>
+          <div class="card-body-modern">
+            <div class="row g-2 small">
+              <div class="col-6">
+                <div class="text-muted">Created</div>
+                <div class="fw-bold">
+                  <%= new Date(package.createdAt).toLocaleDateString() %>
+                </div>
               </div>
-            </div>
-            <div class="col-12">
-              <div class="text-muted">Tracking</div>
-              <div class="fw-bold">
-                <% if(package.trackingData.active) { %>
-                <span class="text-success">✓ Active</span>
-                <% } else { %>
-                <span class="text-muted">Inactive</span>
-                <% } %>
+              <div class="col-6">
+                <div class="text-muted">Updated</div>
+                <div class="fw-bold">
+                  <%= new Date(package.updatedAt).toLocaleDateString() %>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="text-muted">Tracking</div>
+                <div class="fw-bold">
+                  <% if(package.trackingData.active) { %>
+                  <span class="text-success">✓ Active</span>
+                  <% } else { %>
+                  <span class="text-muted">Inactive</span>
+                  <% } %>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 </div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-<script>
-  const mapboxToken = "<%= mapboxToken %>";
-  const packageData = <%- JSON.stringify(package) %>;
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+  <script>
+    const mapboxToken = "<%= mapboxToken %>";
+    const packageData = <%- JSON.stringify(package) %>;
 
-  // Get coordinates
-  const startCoords = packageData.sender?.address?.coordinates?.coordinates || [-0.1278, 51.5074];
-  const endCoords = packageData.receiver?.address?.coordinates?.coordinates || [-0.1278, 51.5074];
-  const currentCoords = packageData.trackingData?.currentLocation?.coordinates || startCoords;
+    // Get coordinates
+    const startCoords = packageData.sender?.address?.coordinates?.coordinates || [-0.1278, 51.5074];
+    const endCoords = packageData.receiver?.address?.coordinates?.coordinates || [-0.1278, 51.5074];
+    const currentCoords = packageData.trackingData?.currentLocation?.coordinates || startCoords;
 
-  // Initialize Map
-  mapboxgl.accessToken = mapboxToken;
-  const map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/light-v11',
-    center: currentCoords,
-    zoom: 10
-  });
-
-  map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-  // Global variables
-  let routeCoordinates = [];
-  let vehicleMarker = null;
-  let checkpointsMarkers = [];
-  let animationId = null;
-
-  // Map load event
-  map.on('load', async () => {
-    try {
-      // Fetch route
-      const routeGeometry = await fetchRouteGeometry(startCoords, endCoords);
-      routeCoordinates = routeGeometry.coordinates;
-
-      // Draw route
-      drawRouteLine(routeGeometry);
-
-      // Add markers
-      addStaticMarkers(startCoords, endCoords);
-      addCheckpointMarkers();
-
-      // Create vehicle marker
-      vehicleMarker = createVehicleMarker(currentCoords);
-
-      // Start animation
-      startVehicleAnimation();
-      fitMapToRoute(routeCoordinates);
-
-    } catch (error) {
-      console.error('Map initialization error:', error);
-      drawFallbackRoute(startCoords, endCoords);
-    }
-  });
-
-  // Fetch route geometry
-  async function fetchRouteGeometry(start, end) {
-    const profile = 'mapbox/driving';
-    const coordinates = `${start[0]},${start[1]};${end[0]},${end[1]}`;
-    const url = `https://api.mapbox.com/directions/v5/${profile}/${coordinates}?geometries=geojson&overview=full&access_token=${mapboxToken}`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-    return data.routes[0].geometry;
-  }
-
-  // Draw route line
-  function drawRouteLine(geometry) {
-    map.addSource('route', {
-      type: 'geojson',
-      data: { type: 'Feature', geometry }
+    // Initialize Map (original light style)
+    mapboxgl.accessToken = mapboxToken;
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/light-v11',
+      center: currentCoords,
+      zoom: 10
     });
 
-    map.addLayer({
-      id: 'route-line',
-      type: 'line',
-      source: 'route',
-      layout: { 'line-join': 'round', 'line-cap': 'round' },
-      paint: {
-        'line-color': '#667eea',
-        'line-width': 4,
-        'line-opacity': 0.7
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+    // Global variables
+    let routeCoordinates = [];
+    let vehicleMarker = null;
+    let checkpointsSource = null;
+    let animationId = null;
+
+    // Map load event
+    map.on('load', async () => {
+      try {
+        // Add traffic layers
+        addTrafficLayers();
+
+        // Fetch route
+        const routeGeometry = await fetchRouteGeometry(startCoords, endCoords);
+        routeCoordinates = routeGeometry.coordinates;
+
+        // Draw route
+        drawRouteLine(routeGeometry);
+
+        // Add markers
+        addStaticMarkers(startCoords, endCoords);
+        addCheckpointsAsLayers();
+
+        // Create vehicle marker
+        vehicleMarker = createVehicleMarker(currentCoords);
+
+        // Start animation
+        startVehicleAnimation();
+        fitMapToRoute(routeCoordinates);
+
+      } catch (error) {
+        console.error('Map initialization error:', error);
+        drawFallbackRoute(startCoords, endCoords);
       }
     });
-  }
 
-  // Add static markers
-  function addStaticMarkers(start, end) {
-    // Start marker
-    const startEl = document.createElement('div');
-    startEl.className = 'checkpoint-marker';
-    startEl.innerHTML = '<i class="fas fa-play-circle" style="color: #10b981; font-size: 24px;"></i>';
+    // Fetch route geometry
+    async function fetchRouteGeometry(start, end) {
+      const profile = 'mapbox/driving-traffic'; // Traffic-aware routing
+      const coordinates = `${start[0]},${start[1]};${end[0]},${end[1]}`;
+      const url = `https://api.mapbox.com/directions/v5/${profile}/${coordinates}?geometries=geojson&overview=full&access_token=${mapboxToken}`;
 
-    new mapboxgl.Marker(startEl)
-      .setLngLat(start)
-      .setPopup(new mapboxgl.Popup().setHTML(`
-          <h6>Pickup Location</h6>
-          <p>${packageData.pickupAddress}</p>
-        `))
-      .addTo(map);
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.routes[0].geometry;
+    }
 
-    // End marker
-    const endEl = document.createElement('div');
-    endEl.className = 'checkpoint-marker';
-    endEl.innerHTML = '<i class="fas fa-flag-checkered" style="color: #ef4444; font-size: 24px;"></i>';
+    // Add traffic layers
+    function addTrafficLayers() {
+      // Add real-time traffic source
+      map.addSource('mapbox-traffic', {
+        'type': 'vector',
+        'url': 'mapbox://mapbox.mapbox-traffic-v1'
+      });
 
-    new mapboxgl.Marker(endEl)
-      .setLngLat(end)
-      .setPopup(new mapboxgl.Popup().setHTML(`
-          <h6>Delivery Destination</h6>
-          <p>${packageData.deliveryAddress}</p>
-        `))
-      .addTo(map);
-  }
+      // Traffic flow layer
+      map.addLayer({
+        'id': 'traffic-flow',
+        'type': 'line',
+        'source': 'mapbox-traffic',
+        'source-layer': 'traffic',
+        'paint': {
+          'line-color': [
+            'case',
+            ['==', ['get', 'congestion'], 'low'], '#10b981',    // Green
+            ['==', ['get', 'congestion'], 'moderate'], '#f59e0b', // Yellow
+            ['==', ['get', 'congestion'], 'heavy'], '#ef4444',   // Red
+            ['==', ['get', 'congestion'], 'severe'], '#dc2626',  // Dark red
+            '#64748b' // Default grey
+          ],
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            10, 2,
+            16, 5
+          ],
+          'line-opacity': 0.7
+        }
+      });
 
-  // Add checkpoint markers
-  function addCheckpointMarkers() {
-    const waypoints = packageData.trackingData?.waypoints || [];
-    waypoints.forEach((wp, idx) => {
-      const coords = wp.coordinates || calculatePointAlongRoute(routeCoordinates, (idx + 1) / (waypoints.length + 1));
+      // Traffic incidents layer
+      map.addLayer({
+        'id': 'traffic-incidents',
+        'type': 'circle',
+        'source': 'mapbox-traffic',
+        'source-layer': 'traffic',
+        'paint': {
+          'circle-radius': 5,
+          'circle-color': '#ef4444',
+          'circle-opacity': 0.8,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+    }
 
-      const markerEl = document.createElement('div');
-      markerEl.className = 'checkpoint-marker';
-      markerEl.innerHTML = `<i class="fas fa-map-marker-alt" style="color: ${wp.arrived ? '#10b981' : '#f59e0b'}; font-size: 20px;"></i>`;
+    // Draw route line
+    function drawRouteLine(geometry) {
+      map.addSource('route', {
+        type: 'geojson',
+        data: { type: 'Feature', geometry }
+      });
 
-      const marker = new mapboxgl.Marker(markerEl)
-        .setLngLat(coords)
+      map.addLayer({
+        id: 'route-line',
+        type: 'line',
+        source: 'route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': '#667eea',
+          'line-width': 5,
+          'line-opacity': 0.9
+        }
+      });
+
+      // Add route outline for better visibility
+      map.addLayer({
+        id: 'route-line-outline',
+        type: 'line',
+        source: 'route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': '#1e293b',
+          'line-width': 7,
+          'line-opacity': 0.3
+        }
+      }, 'route-line');
+    }
+
+    // Add static markers
+    function addStaticMarkers(start, end) {
+      // Start marker
+      const startEl = document.createElement('div');
+      startEl.className = 'checkpoint-marker';
+      startEl.innerHTML = '<i class="fas fa-play-circle" style="color: #10b981; font-size: 24px;"></i>';
+
+      new mapboxgl.Marker(startEl)
+        .setLngLat(start)
         .setPopup(new mapboxgl.Popup().setHTML(`
-            <h6>${wp.name}</h6>
-            <p>${wp.type.toUpperCase()}</p>
+            <h6 class="fw-bold text-dark">Pickup Location</h6>
+            <p>${packageData.pickupAddress}</p>
           `))
         .addTo(map);
 
-      checkpointsMarkers.push(marker);
-    });
-  }
+      // End marker
+      const endEl = document.createElement('div');
+      endEl.className = 'checkpoint-marker';
+      endEl.innerHTML = '<i class="fas fa-flag-checkered" style="color: #ef4444; font-size: 24px;"></i>';
 
-  // Create vehicle marker
-  function createVehicleMarker(coords) {
-    const vehicleEl = document.createElement('div');
-    vehicleEl.className = 'vehicle-marker';
-    vehicleEl.innerHTML = '<i class="fas fa-truck text-white"></i>';
+      new mapboxgl.Marker(endEl)
+        .setLngLat(end)
+        .setPopup(new mapboxgl.Popup().setHTML(`
+            <h6  class="fw-bold text-dark">Delivery Destination</h6>
+            <p>${packageData.deliveryAddress}</p>
+          `))
+        .addTo(map);
+    }
 
-    return new mapboxgl.Marker(vehicleEl)
-      .setLngLat(coords)
-      .setPopup(new mapboxgl.Popup().setHTML(`
-          <h6>Delivery Vehicle</h6>
-          <p>Status: ${packageData.status.replace('_', ' ').toUpperCase()}</p>
-          <p>Progress: ${packageData.trackingData?.routeProgress || 0}%</p>
-          <p>Speed: ${packageData.trackingData?.speed || 0} km/h</p>
-        `))
-      .addTo(map);
-  }
+    // Add checkpoints as Mapbox layers
+    function addCheckpointsAsLayers() {
+      const waypoints = packageData.trackingData?.waypoints || [];
+      
+      // Create GeoJSON features for checkpoints
+      const checkpointFeatures = waypoints.map((wp, idx) => {
+        const coords = wp.coordinates || calculatePointAlongRoute(routeCoordinates, (idx + 1) / (waypoints.length + 1));
+        return {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: coords
+          },
+          properties: {
+            name: wp.name,
+            type: wp.type,
+            arrived: wp.arrived,
+            index: idx
+          }
+        };
+      });
 
-  // Start vehicle animation
-  function startVehicleAnimation() {
-    if (!routeCoordinates.length) return;
-
-    const progress = packageData.trackingData?.routeProgress || 0;
-    const totalSteps = routeCoordinates.length;
-    let currentStep = Math.floor((progress / 100) * (totalSteps - 1));
-
-    vehicleMarker.setLngLat(routeCoordinates[currentStep]);
-
-    if (currentStep < totalSteps - 1) {
-      animationId = setInterval(() => {
-        if (currentStep >= totalSteps - 1) {
-          clearInterval(animationId);
-          return;
+      // Add checkpoint source
+      map.addSource('checkpoints', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: checkpointFeatures
         }
+      });
 
-        currentStep = Math.min(currentStep + 1, totalSteps - 1);
-        vehicleMarker.setLngLat(routeCoordinates[currentStep]);
+      // Add checkpoint circles
+      map.addLayer({
+        id: 'checkpoints-layer',
+        type: 'circle',
+        source: 'checkpoints',
+        paint: {
+          'circle-radius': 8,
+          'circle-color': [
+            'case',
+            ['==', ['get', 'arrived'], true], '#10b981', // Green for arrived
+            '#f59e0b' // Yellow for pending
+          ],
+          'circle-stroke-width': 3,
+          'circle-stroke-color': '#ffffff',
+          'circle-opacity': 0.9
+        }
+      });
 
-        const currentProgress = Math.min((currentStep / (totalSteps - 1)) * 100, 100);
-        document.querySelector('.progress-fill').style.width = `${currentProgress}%`;
+      // Add checkpoint labels
+      map.addLayer({
+        id: 'checkpoints-labels',
+        type: 'symbol',
+        source: 'checkpoints',
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-size': 12,
+          'text-offset': [0, 1.5],
+          'text-anchor': 'top'
+        },
+        paint: {
+          'text-color': '#1e293b',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2
+        }
+      });
 
-      }, 3000);
+      checkpointsSource = 'checkpoints';
     }
-  }
 
-  // Fit map to route
-  function fitMapToRoute(coords) {
-    const bounds = new mapboxgl.LngLatBounds();
-    coords.forEach(coord => bounds.extend(coord));
-    map.fitBounds(bounds, { padding: 50, duration: 2000 });
-  }
+    // Create vehicle marker
+    function createVehicleMarker(coords) {
+      const vehicleEl = document.createElement('div');
+      vehicleEl.className = 'vehicle-marker';
+      vehicleEl.innerHTML = '<i class="fas fa-truck text-white"></i>';
 
-  // Fallback route
-  function drawFallbackRoute(start, end) {
-    map.addSource('fallback-route', {
-      type: 'geojson',
-      data: {
-        type: 'Feature',
-        geometry: { type: 'LineString', coordinates: [start, end] }
-      }
-    });
-
-    map.addLayer({
-      id: 'fallback-route-line',
-      type: 'line',
-      source: 'fallback-route',
-      layout: { 'line-join': 'round', 'line-cap': 'round' },
-      paint: { 'line-color': '#667eea', 'line-width': 4, 'line-opacity': 0.7 }
-    });
-
-    addStaticMarkers(start, end);
-    fitMapToRoute([start, end]);
-  }
-
-  // Calculate point along route
-  function calculatePointAlongRoute(routeCoords, percentage) {
-    if (!routeCoords || routeCoords.length < 2) return startCoords;
-
-    const totalDistance = turf.length(turf.lineString(routeCoords));
-    const targetDistance = totalDistance * Math.min(percentage, 0.99);
-
-    let accumulated = 0;
-    for (let i = 0; i < routeCoords.length - 1; i++) {
-      const segment = turf.length(turf.lineString([routeCoords[i], routeCoords[i + 1]]));
-      if (accumulated + segment >= targetDistance) {
-        const segmentPercentage = (targetDistance - accumulated) / segment;
-        return [
-          routeCoords[i][0] + (routeCoords[i + 1][0] - routeCoords[i][0]) * segmentPercentage,
-          routeCoords[i][1] + (routeCoords[i + 1][1] - routeCoords[i][1]) * segmentPercentage
-        ];
-      }
-      accumulated += segment;
+      return new mapboxgl.Marker(vehicleEl)
+        .setLngLat(coords)
+        .setPopup(new mapboxgl.Popup().setHTML(`
+            <h6>Delivery Vehicle</h6>
+            <p>Status: ${packageData.status.replace('_', ' ').toUpperCase()}</p>
+            <p>Progress: ${packageData.trackingData?.vehicleProgress || 0}%</p>
+       
+          `))
+        .addTo(map);
     }
-    return routeCoords[routeCoords.length - 1];
-  }
 
-  // UI Functions
-  function toggleCheckpoints() {
-    checkpointsMarkers.forEach(marker => {
-      const isVisible = marker._map !== null;
-      isVisible ? marker.remove() : marker.addTo(map);
-    });
-  }
+    // Start vehicle animation
+    function startVehicleAnimation() {
+      if (!routeCoordinates.length) return;
 
-  function centerMap() {
-    if (routeCoordinates.length > 0) {
-      fitMapToRoute(routeCoordinates);
-    } else {
+      const progress = packageData.trackingData?.vehicleProgress || 0;
+      const totalSteps = routeCoordinates.length;
+      let currentStep = Math.floor((progress / 100) * (totalSteps - 1));
+
+      vehicleMarker.setLngLat(routeCoordinates[currentStep]);
+
+      if (currentStep < totalSteps - 1) {
+        animationId = setInterval(() => {
+          if (currentStep >= totalSteps - 1) {
+            clearInterval(animationId);
+            vehicleMarker.getElement().querySelector('i').className = 'fas fa-check-circle';
+            return;
+          }
+
+          currentStep = Math.min(currentStep + 1, totalSteps - 1);
+          vehicleMarker.setLngLat(routeCoordinates[currentStep]);
+
+          const currentProgress = Math.min((currentStep / (totalSteps - 1)) * 100, 100);
+          document.querySelector('.progress-fill').style.width = `${currentProgress}%`;
+
+        }, 3000);
+      }
+    }
+
+    // Fit map to route
+    function fitMapToRoute(coords) {
       const bounds = new mapboxgl.LngLatBounds();
-      bounds.extend(startCoords);
-      bounds.extend(endCoords);
-      map.fitBounds(bounds, { padding: 50, duration: 1000 });
+      coords.forEach(coord => bounds.extend(coord));
+      map.fitBounds(bounds, { padding: 80, duration: 2000 });
     }
-  }
 
-  function toggleCollapse(element) {
-    const content = element.nextElementSibling;
-    const icon = element.querySelector('i');
+    // Fallback route
+    function drawFallbackRoute(start, end) {
+      map.addSource('fallback-route', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: [start, end] }
+        }
+      });
 
-    content.classList.toggle('show');
-    icon.classList.toggle('fa-chevron-down');
-    icon.classList.toggle('fa-chevron-up');
-  }
+      map.addLayer({
+        id: 'fallback-route-line',
+        type: 'line',
+        source: 'fallback-route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#667eea', 'line-width': 4, 'line-opacity': 0.7 }
+      });
 
-  // Expose functions
-  window.toggleCheckpoints = toggleCheckpoints;
-  window.centerMap = centerMap;
-  window.toggleCollapse = toggleCollapse;
+      addStaticMarkers(start, end);
+      fitMapToRoute([start, end]);
+    }
 
-  // Clean up
-  window.addEventListener('beforeunload', () => {
-    if (animationId) clearInterval(animationId);
-  });
-</script>
+    // Calculate point along route
+    function calculatePointAlongRoute(routeCoords, percentage) {
+      if (!routeCoords || routeCoords.length < 2) return startCoords;
+
+      const totalDistance = turf.length(turf.lineString(routeCoords));
+      const targetDistance = totalDistance * Math.min(percentage, 0.99);
+
+      let accumulated = 0;
+      for (let i = 0; i < routeCoords.length - 1; i++) {
+        const segment = turf.length(turf.lineString([routeCoords[i], routeCoords[i + 1]]));
+        if (accumulated + segment >= targetDistance) {
+          const segmentPercentage = (targetDistance - accumulated) / segment;
+          return [
+            routeCoords[i][0] + (routeCoords[i + 1][0] - routeCoords[i][0]) * segmentPercentage,
+            routeCoords[i][1] + (routeCoords[i + 1][1] - routeCoords[i][1]) * segmentPercentage
+          ];
+        }
+        accumulated += segment;
+      }
+      return routeCoords[routeCoords.length - 1];
+    }
+
+    // UI Functions
+    function toggleCheckpoints() {
+      const visibility = map.getLayoutProperty('checkpoints-layer', 'visibility');
+      const newVisibility = visibility === 'visible' ? 'none' : 'visible';
+      map.setLayoutProperty('checkpoints-layer', 'visibility', newVisibility);
+      map.setLayoutProperty('checkpoints-labels', 'visibility', newVisibility);
+    }
+
+    function toggleTraffic() {
+      const trafficVisibility = map.getLayoutProperty('traffic-flow', 'visibility');
+      const newVisibility = trafficVisibility === 'visible' ? 'none' : 'visible';
+      map.setLayoutProperty('traffic-flow', 'visibility', newVisibility);
+      map.setLayoutProperty('traffic-incidents', 'visibility', newVisibility);
+    }
+
+    function centerMap() {
+      if (routeCoordinates.length > 0) {
+        fitMapToRoute(routeCoordinates);
+      } else {
+        const bounds = new mapboxgl.LngLatBounds();
+        bounds.extend(startCoords);
+        bounds.extend(endCoords);
+        map.fitBounds(bounds, { padding: 80, duration: 1000 });
+      }
+    }
+
+    function toggleCollapse(element) {
+      const content = element.nextElementSibling;
+      const icon = element.querySelector('i');
+
+      content.classList.toggle('show');
+      icon.classList.toggle('fa-chevron-down');
+      icon.classList.toggle('fa-chevron-up');
+    }
+
+    // Add traffic toggle button to existing controls
+    setTimeout(() => {
+      const mapControls = document.querySelector('.map-container-modern .d-flex.gap-2');
+      if (mapControls) {
+        const trafficBtn = document.createElement('button');
+        trafficBtn.className = 'btn btn-modern btn-modern-outline btn-sm';
+        trafficBtn.onclick = toggleTraffic;
+        trafficBtn.innerHTML = '<i class="fas fa-traffic-light me-1"></i>Traffic';
+        mapControls.appendChild(trafficBtn);
+      }
+    }, 1000);
+
+    // Expose functions
+    window.toggleCheckpoints = toggleCheckpoints;
+    window.centerMap = centerMap;
+    window.toggleCollapse = toggleCollapse;
+    window.toggleTraffic = toggleTraffic;
+
+    // Clean up
+    window.addEventListener('beforeunload', () => {
+      if (animationId) clearInterval(animationId);
+    });
+  </script>

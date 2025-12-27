@@ -1,3 +1,4 @@
+<!-- Location Update Modal with Dual Progress System -->
 <div
   class="modal fade"
   id="locationModal"
@@ -9,7 +10,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="locationModalLabel">
-          Update Current Location
+          Update Vehicle & Delivery Progress
         </h5>
         <button
           type="button"
@@ -22,149 +23,75 @@
         <div class="modal-body">
           <div class="mb-4">
             <div class="alert alert-info">
-              <i class="fas fa-map-marker-alt me-2"></i>
-              Current location:
+              <i class="fas fa-truck me-2"></i>
+              <strong>Dual Progress System:</strong> <br />
+              • <strong>Vehicle Progress</strong> = Actual position along route
+              (controls map location)<br />
+              • <strong>Route Progress</strong> = Independent display
+              percentage<br />
+              <hr class="my-2" />
+              Current vehicle position:
               <span class="coordinates fw-bold">
-                <% let currentLat =
-                delivery.trackingData?.currentLocation?.coordinates?.[1] || 0;
-                let currentLon =
-                delivery.trackingData?.currentLocation?.coordinates?.[0] || 0;
-                let latFixed = currentLat.toFixed ? currentLat.toFixed(6) :
-                parseFloat(currentLat).toFixed(6); let lonFixed =
-                currentLon.toFixed ? currentLon.toFixed(6) :
-                parseFloat(currentLon).toFixed(6); %> <%= lonFixed %>, <%=
-                latFixed %>
+                <!-- Calculate coordinates directly without declaring variables -->
+                <%= (delivery.trackingData?.currentLocation?.coordinates?.[0] ||
+                0).toFixed(6) %>, <%=
+                (delivery.trackingData?.currentLocation?.coordinates?.[1] ||
+                0).toFixed(6) %>
               </span>
               <% if (delivery.trackingData?.lastUpdated) { %>
               <br />
               <small class="text-muted">
-                Last updated: <%= formatDate(delivery.trackingData.lastUpdated)
-                %>
+                Last updated: <%= new
+                Date(delivery.trackingData.lastUpdated).toLocaleString() %>
               </small>
               <% } %>
             </div>
           </div>
 
           <div class="row g-3">
-            <!-- NEW: Custom Mapbox Search with Text Input -->
+            <!-- VEHICLE PROGRESS - Controls actual map position -->
             <div class="col-12">
-              <label class="form-label">Search for Location</label>
-              <div class="input-group mb-1">
-                <span class="input-group-text"
-                  ><i class="fas fa-search"></i
-                ></span>
+              <label class="form-label fw-bold">
+                <i class="fas fa-map-marker-alt me-2"></i>Vehicle Progress (Map
+                Position):
+                <span id="vehicleProgressValue"
+                  ><%= delivery.trackingData?.vehicleProgress || 0 %>%</span
+                >
+              </label>
+              <div class="d-flex align-items-center">
                 <input
-                  type="text"
-                  class="form-control"
-                  id="locationSearch"
-                  placeholder="Type address, city, or place..."
-                  autocomplete="off"
+                  type="range"
+                  class="form-range flex-grow-1 me-3"
+                  name="vehicleProgress"
+                  id="vehicleProgressSlider"
+                  min="0"
+                  max="100"
+                  value="<%= delivery.trackingData?.vehicleProgress || 0 %>"
+                  oninput="updateVehicleProgressValue(this.value)"
                 />
-                <button
-                  class="btn btn-outline-secondary"
-                  type="button"
-                  onclick="searchLocation()"
-                  id="searchBtn"
-                >
-                  <i class="fas fa-search"></i> Search
-                </button>
+                <input
+                  type="number"
+                  class="form-control w-25"
+                  name="vehicleProgressNumber"
+                  id="vehicleProgressNumber"
+                  min="0"
+                  max="100"
+                  value="<%= delivery.trackingData?.vehicleProgress || 0 %>"
+                  onchange="syncVehicleProgressInput(this.value)"
+                />
               </div>
-              <small class="form-text text-muted"
-                >Press Enter or click Search to find locations</small
-              >
-
-              <!-- Search Results Dropdown -->
-              <div
-                class="dropdown-menu w-100"
-                id="searchResults"
-                style="
-                  display: none;
-                  max-height: 250px;
-                  overflow-y: auto;
-                  z-index: 1050;
-                "
-              >
-                <!-- Results will be dynamically inserted here -->
-              </div>
+              <small class="form-text text-muted">
+                Controls actual vehicle position on the map. This determines
+                coordinates, waypoints, and remaining distance.
+              </small>
             </div>
 
-            <!-- Hidden fields to store the coordinates from search -->
-            <input
-              type="hidden"
-              name="selectedLongitude"
-              id="selectedLongitude"
-              value="<%= currentLon %>"
-            />
-            <input
-              type="hidden"
-              name="selectedLatitude"
-              id="selectedLatitude"
-              value="<%= currentLat %>"
-            />
-
-            <div class="col-md-6">
-              <label class="form-label">Latitude *</label>
-              <input
-                type="number"
-                step="0.000001"
-                class="form-control"
-                name="latitude"
-                id="latitudeInput"
-                value="<%= currentLat %>"
-                min="-90"
-                max="90"
-                required
-              />
-              <div class="form-text">Range: -90 to 90</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Longitude *</label>
-              <input
-                type="number"
-                step="0.000001"
-                class="form-control"
-                name="longitude"
-                id="longitudeInput"
-                value="<%= currentLon %>"
-                min="-180"
-                max="180"
-                required
-              />
-              <div class="form-text">Range: -180 to 180</div>
-            </div>
-
+            <!-- ROUTE PROGRESS - Completely independent display -->
             <div class="col-12">
-              <div class="d-flex gap-2 mb-2">
-                <button
-                  type="button"
-                  class="btn btn-outline-primary btn-sm"
-                  onclick="useCurrentLocation()"
-                  id="currentLocationBtn"
-                >
-                  <i class="fas fa-crosshairs me-2"></i>Use My Current Location
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary btn-sm"
-                  onclick="useSenderLocation()"
-                >
-                  <i class="fas fa-home me-2"></i>Use Sender Location
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-success btn-sm"
-                  onclick="useReceiverLocation()"
-                >
-                  <i class="fas fa-flag me-2"></i>Use Receiver Location
-                </button>
-              </div>
-            </div>
-
-            <div class="col-12">
-              <label class="form-label">
-                Route Progress:
-                <span id="progressValue"
+              <label class="form-label fw-bold">
+                <i class="fas fa-percentage me-2"></i>Route Progress (Display
+                Only):
+                <span id="routeProgressValue"
                   ><%= delivery.trackingData?.routeProgress || 0 %>%</span
                 >
               </label>
@@ -172,23 +99,117 @@
                 <input
                   type="range"
                   class="form-range flex-grow-1 me-3"
-                  name="progress"
-                  id="progressSlider"
+                  name="routeProgress"
+                  id="routeProgressSlider"
                   min="0"
                   max="100"
                   value="<%= delivery.trackingData?.routeProgress || 0 %>"
-                  oninput="updateProgressValue(this.value)"
+                  oninput="updateRouteProgressValue(this.value)"
                 />
-                <span
-                  class="badge bg-secondary"
-                  onclick="setProgressToValue()"
-                  style="cursor: pointer"
+                <input
+                  type="number"
+                  class="form-control w-25"
+                  name="routeProgressNumber"
+                  id="routeProgressNumber"
+                  min="0"
+                  max="100"
+                  value="<%= delivery.trackingData?.routeProgress || 0 %>"
+                  onchange="syncRouteProgressInput(this.value)"
+                />
+              </div>
+              <small class="form-text text-muted">
+                Independent progress percentage for customer display. Does not
+                affect vehicle position.
+              </small>
+            </div>
+
+            <!-- COORDINATES (Calculated from VEHICLE PROGRESS only) -->
+            <div class="col-md-6">
+              <label class="form-label"
+                >Latitude (Based on Vehicle Progress)</label
+              >
+              <input
+                type="number"
+                step="0.000001"
+                class="form-control"
+                name="latitude"
+                id="latitudeInput"
+                value="<%= (delivery.trackingData?.currentLocation?.coordinates?.[1] || 0).toFixed(6) %>"
+                min="-90"
+                max="90"
+                readonly
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label"
+                >Longitude (Based on Vehicle Progress)</label
+              >
+              <input
+                type="number"
+                step="0.000001"
+                class="form-control"
+                name="longitude"
+                id="longitudeInput"
+                value="<%= (delivery.trackingData?.currentLocation?.coordinates?.[0] || 0).toFixed(6) %>"
+                min="-180"
+                max="180"
+                readonly
+              />
+            </div>
+
+            <!-- Quick Set Buttons for VEHICLE PROGRESS only -->
+            <div class="col-12">
+              <label class="form-label fw-bold mb-2"
+                >Quick Set Vehicle Position:</label
+              >
+              <div class="d-flex flex-wrap gap-2 mb-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="setVehicleProgress(0)"
                 >
-                  <i class="fas fa-edit"></i>
-                </span>
+                  <i class="fas fa-play me-2"></i>Start (0%)
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-info btn-sm"
+                  onclick="setVehicleProgress(25)"
+                >
+                  Quarter Route (25%)
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-info btn-sm"
+                  onclick="setVehicleProgress(50)"
+                >
+                  Halfway (50%)
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-info btn-sm"
+                  onclick="setVehicleProgress(75)"
+                >
+                  Near Delivery (75%)
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-success btn-sm"
+                  onclick="setVehicleProgress(95)"
+                >
+                  At Destination (95%)
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm"
+                  onclick="setVehicleProgress(100)"
+                >
+                  <i class="fas fa-flag-checkered me-2"></i>Completed (100%)
+                </button>
               </div>
             </div>
 
+            <!-- Vehicle Tracking Data -->
             <div class="col-md-6">
               <label class="form-label">Speed (km/h)</label>
               <div class="input-group">
@@ -204,9 +225,6 @@
                 />
                 <span class="input-group-text">km/h</span>
               </div>
-              <small class="form-text text-muted"
-                >0-60: Slow, 60-100: Normal, 100+: Fast</small
-              >
             </div>
 
             <div class="col-md-6">
@@ -223,38 +241,16 @@
                 />
                 <span class="input-group-text">°</span>
               </div>
-              <div class="form-text">
-                <small>
-                  0° = North, 90° = East, 180° = South, 270° = West
-                  <button
-                    type="button"
-                    class="btn btn-link btn-sm p-0"
-                    onclick="calculateBearing()"
-                  >
-                    <i class="fas fa-calculator me-1"></i>Calculate
-                  </button>
-                </small>
-              </div>
             </div>
 
-            <div class="col-12">
-              <label class="form-label">Location Accuracy (Optional)</label>
-              <select class="form-select" name="accuracy">
-                <option value="high">High Accuracy (±10 meters)</option>
-                <option value="medium" selected>
-                  Medium Accuracy (±100 meters)
-                </option>
-                <option value="low">Low Accuracy (±1000 meters)</option>
-              </select>
-            </div>
-
+            <!-- Additional Options -->
             <div class="col-12">
               <label class="form-label">Location Source</label>
-              <select class="form-select" name="source">
-                <option value="gps">GPS Device</option>
+              <select class="form-select" name="source" id="sourceSelect">
+                <option value="vehicle_gps">Vehicle GPS</option>
                 <option value="driver_app" selected>Driver App</option>
-                <option value="manual">Manual Entry</option>
-                <option value="api">API Update</option>
+                <option value="manual">Manual Update</option>
+                <option value="warehouse">Warehouse System</option>
               </select>
             </div>
 
@@ -284,9 +280,42 @@
                   value="true"
                 />
                 <label class="form-check-label" for="notifyCustomer">
-                  <i class="fas fa-bell me-2"></i>Notify customer of location
+                  <i class="fas fa-bell me-2"></i>Notify customer of progress
                   update
                 </label>
+              </div>
+            </div>
+
+            <!-- Calculated Data Display (Based on VEHICLE PROGRESS only) -->
+            <div class="col-12 mt-3">
+              <div class="card">
+                <div class="card-header">
+                  <h6 class="mb-0">
+                    Calculated Data (Based on Vehicle Progress)
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="row small">
+                    <div class="col-6">
+                      <div class="text-muted">Remaining Distance</div>
+                      <div id="calculatedDistance" class="fw-bold">
+                        <% if (delivery.trackingData?.remainingDistance) { %>
+                        <%= (delivery.trackingData.remainingDistance /
+                        1000).toFixed(1) %> km <% } else { %> Calculating... <%
+                        } %>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted">Estimated Arrival</div>
+                      <div id="calculatedETA" class="fw-bold">
+                        <% if (delivery.trackingData?.estimatedArrival) { %> <%=
+                        new
+                        Date(delivery.trackingData.estimatedArrival).toLocaleString()
+                        %> <% } else { %> Not calculated <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -302,33 +331,6 @@
                 class="alert alert-success"
                 style="display: none"
               ></div>
-              <div
-                id="searchMessage"
-                class="alert alert-info"
-                style="display: none"
-              ></div>
-            </div>
-
-            <!-- Map Preview -->
-            <div class="col-12" id="mapPreview" style="display: none">
-              <div class="card">
-                <div class="card-header">
-                  <h6 class="mb-0">Location Preview</h6>
-                </div>
-                <div class="card-body">
-                  <div
-                    id="miniMap"
-                    style="
-                      height: 200px;
-                      background-color: #f8f9fa;
-                      border-radius: 4px;
-                    "
-                  ></div>
-                  <small class="text-muted mt-2 d-block"
-                    >Preview of the entered coordinates</small
-                  >
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -341,7 +343,7 @@
             Cancel
           </button>
           <button type="submit" class="btn btn-primary" id="submitLocationBtn">
-            <i class="fas fa-map-marker-alt me-2"></i>Update Location
+            <i class="fas fa-sync-alt me-2"></i>Update Progress
           </button>
         </div>
       </form>
@@ -350,829 +352,275 @@
 </div>
 
 <script>
-    // Global variables
-    let miniMap = null;
-    let searchTimeout = null;
-    let mapboxAccessToken = '<%= mapboxToken || "" %>'; // Use EJS variable or empty string
-
-    // Initialize when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      initializeLocationModal();
-      initializeSearchFunctionality();
-      initializeFormSubmission();
-
-      // Initialize progress slider if exists
-      const progressSlider = document.getElementById('progressSlider');
-      if (progressSlider) {
-        progressSlider.addEventListener('input', function() {
-          updateProgressValue(this.value);
-        });
-      }
-    });
-
-    // Initialize location modal
-    function initializeLocationModal() {
-      const locationModal = document.getElementById('locationModal');
-      if (locationModal) {
-        locationModal.addEventListener('shown.bs.modal', function() {
-          const searchInput = document.getElementById('locationSearch');
-          if (searchInput) {
-            searchInput.focus();
-          }
-
-          // Initialize mini map if coordinates exist
-          const lat = document.getElementById('selectedLatitude')?.value;
-          const lon = document.getElementById('selectedLongitude')?.value;
-          if (lat && lon && !isNaN(lat) && !isNaN(lon)) {
-            showMapPreview(lon, lat);
-          }
-        });
-
-        // Clean up map when modal closes
-        locationModal.addEventListener('hidden.bs.modal', function() {
-          if (miniMap) {
-            miniMap.remove();
-            miniMap = null;
-          }
-        });
-      }
-    }
-
-    // Initialize search functionality
-    function initializeSearchFunctionality() {
-      const searchInput = document.getElementById('locationSearch');
-      const searchBtn = document.getElementById('searchBtn');
-      const searchResults = document.getElementById('searchResults');
-
-      if (!searchInput) return;
-
-      // Search on Enter key
-      searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          searchLocation();
-        }
-      });
-
-      // Search on button click
-      if (searchBtn) {
-        searchBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          searchLocation();
-        });
-      }
-
-      // Real-time search as you type (optional)
-      // searchInput.addEventListener('input', function() {
-      //   clearTimeout(searchTimeout);
-      //   searchTimeout = setTimeout(function() {
-      //     if (searchInput.value.length > 2) {
-      //       searchLocation();
-      //     }
-      //   }, 500);
-      // });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function(event) {
-        if (!event.target.closest('#locationSearch') &&
-            !event.target.closest('#searchResults') &&
-            !event.target.closest('#searchBtn')) {
-          if (searchResults) {
-            searchResults.style.display = 'none';
-          }
-        }
-      });
-    }
-
-    // Initialize form submission
-    function initializeFormSubmission() {
-      const locationForm = document.getElementById('locationForm');
-      const submitBtn = document.getElementById('submitLocationBtn');
-
-      if (!locationForm) return;
-
-      // Add input validation for latitude/longitude
-      const latInput = document.getElementById('latitudeInput');
-      const lonInput = document.getElementById('longitudeInput');
-
-      if (latInput) {
-        latInput.addEventListener('change', function() {
-          validateCoordinateInput(this, -90, 90, 'selectedLatitude');
-        });
-      }
-
-      if (lonInput) {
-        lonInput.addEventListener('change', function() {
-          validateCoordinateInput(this, -180, 180, 'selectedLongitude');
-        });
-      }
-
-      if (submitBtn) {
-        submitBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          submitLocationForm();
-        });
-      }
-    }
-
-    // Validate coordinate input
-    function validateCoordinateInput(input, min, max, hiddenFieldId) {
-      const value = parseFloat(input.value);
-      const hiddenField = document.getElementById(hiddenFieldId);
-
-      if (isNaN(value) || value < min || value > max) {
-        input.classList.add('is-invalid');
-        return false;
+  // Store delivery data for calculations - FIXED: Use the delivery object directly
+  let deliveryData = {
+    startLon: <%
+      if (delivery.sender?.address?.coordinates?.coordinates?.[0]) {
+        %><%= delivery.sender.address.coordinates.coordinates[0] %><%
       } else {
-        input.classList.remove('is-invalid');
-        if (hiddenField) {
-          hiddenField.value = value;
-        }
-        return true;
+        %>0<%
       }
-    }
-
-    // Function to search for locations using Mapbox API
-    async function searchLocation() {
-      const searchInput = document.getElementById('locationSearch');
-      const searchResults = document.getElementById('searchResults');
-      const searchMessage = document.getElementById('searchMessage');
-      const searchBtn = document.getElementById('searchBtn');
-
-      if (!searchInput || !searchResults || !searchBtn) {
-        console.error('Required search elements not found');
-        return;
-      }
-
-      const query = searchInput.value.trim();
-
-      if (!query || query.length < 2) {
-        showMessage('Please enter at least 2 characters to search.', 'warning');
-        return;
-      }
-
-      // Check if Mapbox token is set
-      if (!mapboxAccessToken || mapboxAccessToken === '') {
-        showMessage('Mapbox access token is not configured. Please contact administrator.', 'error');
-        return;
-      }
-
-      // Show loading state
-      const originalBtnText = searchBtn.innerHTML;
-      searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
-      searchBtn.disabled = true;
-
-      // Clear previous results
-      searchResults.innerHTML = '';
-      searchResults.style.display = 'none';
-
-      showMessage('Searching for locations...', 'info');
-
-      try {
-        // Encode the query for URL
-        const encodedQuery = encodeURIComponent(query);
-
-        // Mapbox Geocoding API URL (GLOBAL)
-  const apiUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedQuery}.json?access_token=${mapboxAccessToken}&limit=5&types=address,place,poi`;
-
-
-        const response = await fetch(apiUrl);
-
-        if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // Reset button
-        searchBtn.innerHTML = '<i class="fas fa-search"></i> Search';
-        searchBtn.disabled = false;
-
-        if (!data.features || data.features.length === 0) {
-          showMessage('No locations found. Try a different search term.', 'warning');
-          return;
-        }
-
-        // Clear message
-        if (searchMessage) {
-          searchMessage.style.display = 'none';
-        }
-
-        // Display results
-        data.features.forEach((feature, index) => {
-          const resultItem = document.createElement('a');
-          resultItem.className = 'dropdown-item';
-          resultItem.href = '#';
-          resultItem.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <strong>${feature.text}</strong>
-                <div class="text-muted small">${feature.place_name || 'Location'}</div>
-              </div>
-              <i class="fas fa-map-marker-alt text-primary"></i>
-            </div>
-          `;
-
-          resultItem.addEventListener('click', function(e) {
-            e.preventDefault();
-            selectLocation(feature);
-            searchResults.style.display = 'none';
-          });
-
-          searchResults.appendChild(resultItem);
-        });
-
-        // Show results dropdown
-        searchResults.style.display = 'block';
-
-      } catch (error) {
-        console.error('Search error:', error);
-        showMessage('Error searching for locations. Please try again.', 'error');
-
-        // Reset button
-        searchBtn.innerHTML = '<i class="fas fa-search"></i> Search';
-        searchBtn.disabled = false;
-      }
-    }
-
-    // Function to select a location from search results
-    function selectLocation(feature) {
-      const coordinates = feature.geometry.coordinates; // [longitude, latitude]
-      const placeName = feature.place_name || feature.text;
-
-      console.log('Selected location:', placeName, 'Coordinates:', coordinates);
-
-      // Update the visible coordinate inputs
-      const lonInput = document.getElementById('longitudeInput');
-      const latInput = document.getElementById('latitudeInput');
-
-      if (lonInput) lonInput.value = coordinates[0];
-      if (latInput) latInput.value = coordinates[1];
-
-      // Update hidden fields
-      const selectedLon = document.getElementById('selectedLongitude');
-      const selectedLat = document.getElementById('selectedLatitude');
-
-      if (selectedLon) selectedLon.value = coordinates[0];
-      if (selectedLat) selectedLat.value = coordinates[1];
-
-      // Update the search input with selected location name
-      const locationSearch = document.getElementById('locationSearch');
-      if (locationSearch) {
-        locationSearch.value = placeName;
-      }
-
-      // Update the displayed coordinates
-      const coordsElement = document.querySelector('.coordinates');
-      if (coordsElement) {
-        coordsElement.textContent = `${coordinates[0].toFixed(6)}, ${coordinates[1].toFixed(6)}`;
-      }
-
-      // Update progress slider (optional: increase progress when location changes)
-      const progressSlider = document.getElementById('progressSlider');
-      if (progressSlider) {
-        const currentProgress = parseInt(progressSlider.value) || 0;
-        if (currentProgress < 95) {
-          progressSlider.value = Math.min(95, currentProgress + 5);
-          updateProgressValue(progressSlider.value);
-        }
-      }
-
-      // Show map preview
-      showMapPreview(coordinates[0], coordinates[1]);
-
-      // Show success message
-      const successDiv = document.getElementById('locationFormSuccess');
-      if (successDiv) {
-        successDiv.textContent = `Location set to: ${placeName}`;
-        successDiv.className = 'alert alert-success mt-3';
-        successDiv.style.display = 'block';
-        setTimeout(() => successDiv.style.display = 'none', 3000);
-      }
-    }
-
-    // Helper function to show messages
-    function showMessage(message, type = 'info') {
-      const searchMessage = document.getElementById('searchMessage');
-      if (searchMessage) {
-        searchMessage.textContent = message;
-        searchMessage.className = `alert alert-${type === 'error' ? 'danger' : type} mt-2`;
-        searchMessage.style.display = 'block';
-
-        // Auto-hide info messages after 5 seconds
-        if (type === 'info') {
-          setTimeout(() => {
-            searchMessage.style.display = 'none';
-          }, 5000);
-        }
-      }
-    }
-
-    // Update progress value display
-    function updateProgressValue(value) {
-      const progressValue = document.getElementById('progressValue');
-      if (progressValue) {
-        progressValue.textContent = value + '%';
-      }
-    }
-
-    // Set progress to specific value
-    function setProgressToValue() {
-      const progressSlider = document.getElementById('progressSlider');
-      if (!progressSlider) return;
-
-      const newValue = prompt('Enter progress value (0-100):', progressSlider.value);
-      if (newValue !== null) {
-        const progressValue = Math.min(100, Math.max(0, parseInt(newValue) || 0));
-        progressSlider.value = progressValue;
-        updateProgressValue(progressValue);
-      }
-    }
-
-    // Calculate bearing to destination
-    function calculateBearing() {
-      const currentLat = parseFloat(document.getElementById('latitudeInput')?.value) || 0;
-      const currentLon = parseFloat(document.getElementById('longitudeInput')?.value) || 0;
-
-      // Get destination coordinates from EJS template
-      const destLat = <%= typeof delivery !== 'undefined' && delivery.receiver && delivery.receiver.address && delivery.receiver.address.coordinates && delivery.receiver.address.coordinates.coordinates ? delivery.receiver.address.coordinates.coordinates[1] : 0 %>;
-      const destLon = <%= typeof delivery !== 'undefined' && delivery.receiver && delivery.receiver.address && delivery.receiver.address.coordinates && delivery.receiver.address.coordinates.coordinates ? delivery.receiver.address.coordinates.coordinates[0] : 0 %>;
-
-      if (currentLat === 0 && currentLon === 0) {
-        alert('Please set current location first');
-        return;
-      }
-
-      if (destLat === 0 && destLon === 0) {
-        alert('Receiver location not set');
-        return;
-      }
-
-      // Convert to radians
-      const currentLatRad = currentLat * Math.PI / 180;
-      const currentLonRad = currentLon * Math.PI / 180;
-      const destLatRad = destLat * Math.PI / 180;
-      const destLonRad = destLon * Math.PI / 180;
-
-      // Calculate bearing using haversine formula
-      const y = Math.sin(destLonRad - currentLonRad) * Math.cos(destLatRad);
-      const x = Math.cos(currentLatRad) * Math.sin(destLatRad) -
-                Math.sin(currentLatRad) * Math.cos(destLatRad) * Math.cos(destLonRad - currentLonRad);
-      const bearingRad = Math.atan2(y, x);
-      const bearing = (bearingRad * 180 / Math.PI + 360) % 360;
-
-      const bearingInput = document.getElementById('bearingInput');
-      if (bearingInput) {
-        bearingInput.value = Math.round(bearing);
-      }
-
-      alert(`Calculated bearing to destination: ${Math.round(bearing)}°`);
-    }
-
-    // Use current location from browser
-    function useCurrentLocation() {
-      if (!navigator.geolocation) {
-        alert('Geolocation is not supported by your browser');
-        return;
-      }
-
-      const latitudeInput = document.getElementById('latitudeInput');
-      const longitudeInput = document.getElementById('longitudeInput');
-      const button = document.getElementById('currentLocationBtn');
-
-      if (!button) return;
-
-      // Show loading state
-      const originalText = button.innerHTML;
-      button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Getting location...';
-      button.disabled = true;
-
-      navigator.geolocation.getCurrentPosition(
-        function (position) {
-          const lat = position.coords.latitude.toFixed(6);
-          const lon = position.coords.longitude.toFixed(6);
-
-          if (latitudeInput) latitudeInput.value = lat;
-          if (longitudeInput) longitudeInput.value = lon;
-
-          // Update hidden fields
-          const selectedLon = document.getElementById('selectedLongitude');
-          const selectedLat = document.getElementById('selectedLatitude');
-          if (selectedLon) selectedLon.value = lon;
-          if (selectedLat) selectedLat.value = lat;
-
-          // Update search input with approximate address
-          updateSearchInputWithCoords(lon, lat);
-
-          // Update progress based on location
-          const progressSlider = document.getElementById('progressSlider');
-          if (progressSlider) {
-            const currentProgress = parseInt(progressSlider.value) || 0;
-            if (currentProgress < 95) {
-              progressSlider.value = Math.min(95, currentProgress + 5);
-              updateProgressValue(progressSlider.value);
-            }
-          }
-
-          // Update speed based on accuracy
-          const speedInput = document.getElementById('speedInput');
-          if (speedInput && position.coords.speed && position.coords.speed > 0) {
-            speedInput.value = (position.coords.speed * 3.6).toFixed(1);
-          }
-
-          // Update bearing if available
-          const bearingInput = document.getElementById('bearingInput');
-          if (bearingInput && position.coords.heading !== null && position.coords.heading !== undefined) {
-            bearingInput.value = Math.round(position.coords.heading);
-          }
-
-          // Reset button
-          button.innerHTML = originalText;
-          button.disabled = false;
-
-          // Show map preview
-          showMapPreview(lon, lat);
-        },
-        function (error) {
-          let errorMessage = 'Unable to retrieve your location: ';
-          switch(error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage += 'Permission denied. Please allow location access.';
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage += 'Location information unavailable.';
-              break;
-            case error.TIMEOUT:
-              errorMessage += 'Location request timed out.';
-              break;
-            default:
-              errorMessage += 'Unknown error.';
-          }
-
-          alert(errorMessage);
-
-          // Reset button
-          button.innerHTML = originalText;
-          button.disabled = false;
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
-      );
-    }
-
-    // Helper function to get address from coordinates
-    async function updateSearchInputWithCoords(lon, lat) {
-      if (!mapboxAccessToken || mapboxAccessToken === '') return;
-
-      try {
-        const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${lon},${lat}.json?access_token=${mapboxAccessToken}&types=address,place`
-        );
-
-        if (!response.ok) return;
-
-        const data = await response.json();
-
-        if (data.features && data.features.length > 0) {
-          const address = data.features[0].place_name;
-          const searchInput = document.getElementById('locationSearch');
-          if (searchInput) {
-            searchInput.value = address;
-          }
-        }
-      } catch (error) {
-        console.error('Reverse geocoding error:', error);
-      }
-    }
-
-    // Use sender location
-    function useSenderLocation() {
-      const senderLat = <%= typeof delivery !== 'undefined' && delivery.sender && delivery.sender.address && delivery.sender.address.coordinates && delivery.sender.address.coordinates.coordinates ? delivery.sender.address.coordinates.coordinates[1] : 0 %>;
-      const senderLon = <%= typeof delivery !== 'undefined' && delivery.sender && delivery.sender.address && delivery.sender.address.coordinates && delivery.sender.address.coordinates.coordinates ? delivery.sender.address.coordinates.coordinates[0] : 0 %>;
-
-      if (senderLat === 0 && senderLon === 0) {
-        alert('Sender location not set or is at coordinates (0,0). Please geocode the sender address first.');
-        return;
-      }
-
-      const latInput = document.getElementById('latitudeInput');
-      const lonInput = document.getElementById('longitudeInput');
-
-      if (latInput) latInput.value = senderLat;
-      if (lonInput) lonInput.value = senderLon;
-
-      const selectedLon = document.getElementById('selectedLongitude');
-      const selectedLat = document.getElementById('selectedLatitude');
-
-      if (selectedLon) selectedLon.value = senderLon;
-      if (selectedLat) selectedLat.value = senderLat;
-
-      const progressSlider = document.getElementById('progressSlider');
-      if (progressSlider) {
-        progressSlider.value = 0;
-        updateProgressValue(0);
-      }
-
-      // Update search input
-      const searchInput = document.getElementById('locationSearch');
-      if (searchInput) {
-        searchInput.value = 'Sender Location';
-      }
-
-      showMapPreview(senderLon, senderLat);
-    }
-
-    // Use receiver location
-    function useReceiverLocation() {
-      const receiverLat = <%= typeof delivery !== 'undefined' && delivery.receiver && delivery.receiver.address && delivery.receiver.address.coordinates && delivery.receiver.address.coordinates.coordinates ? delivery.receiver.address.coordinates.coordinates[1] : 0 %>;
-      const receiverLon = <%= typeof delivery !== 'undefined' && delivery.receiver && delivery.receiver.address && delivery.receiver.address.coordinates && delivery.receiver.address.coordinates.coordinates ? delivery.receiver.address.coordinates.coordinates[0] : 0 %>;
-
-      if (receiverLat === 0 && receiverLon === 0) {
-        alert('Receiver location not set or is at coordinates (0,0). Please geocode the receiver address first.');
-        return;
-      }
-
-      const latInput = document.getElementById('latitudeInput');
-      const lonInput = document.getElementById('longitudeInput');
-
-      if (latInput) latInput.value = receiverLat;
-      if (lonInput) lonInput.value = receiverLon;
-
-      const selectedLon = document.getElementById('selectedLongitude');
-      const selectedLat = document.getElementById('selectedLatitude');
-
-      if (selectedLon) selectedLon.value = receiverLon;
-      if (selectedLat) selectedLat.value = receiverLat;
-
-      const progressSlider = document.getElementById('progressSlider');
-      if (progressSlider) {
-        progressSlider.value = 100;
-        updateProgressValue(100);
-      }
-
-      // Update search input
-      const searchInput = document.getElementById('locationSearch');
-      if (searchInput) {
-        searchInput.value = 'Receiver Location';
-      }
-
-      showMapPreview(receiverLon, receiverLat);
-    }
-
-    // Show map preview
-    function showMapPreview(lon, lat) {
-      const mapPreview = document.getElementById('mapPreview');
-      if (!mapPreview) return;
-
-      mapPreview.style.display = 'block';
-
-      // Clear previous map if exists
-      const mapContainer = document.getElementById('miniMap');
-      if (!mapContainer) return;
-
-      mapContainer.innerHTML = '';
-
-      // Create a simple map preview using Leaflet.js
-      if (typeof L !== 'undefined') {
-        if (miniMap) {
-          miniMap.remove();
-        }
-
-        miniMap = L.map('miniMap').setView([lat, lon], 13);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-          maxZoom: 19
-        }).addTo(miniMap);
-
-        L.marker([lat, lon]).addTo(miniMap)
-          .bindPopup('Selected Location')
-          .openPopup();
+    %>,
+    startLat: <%
+      if (delivery.sender?.address?.coordinates?.coordinates?.[1]) {
+        %><%= delivery.sender.address.coordinates.coordinates[1] %><%
       } else {
-        // Fallback if Leaflet is not available
-        mapContainer.innerHTML = `
-          <div class="text-center py-5">
-            <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
-            <p class="text-muted">Coordinates: ${lon}, ${lat}</p>
-            <p class="small">(Map requires Leaflet.js library)</p>
-          </div>
-        `;
+        %>0<%
+      }
+    %>,
+    endLon: <%
+      if (delivery.receiver?.address?.coordinates?.coordinates?.[0]) {
+        %><%= delivery.receiver.address.coordinates.coordinates[0] %><%
+      } else {
+        %>0<%
+      }
+    %>,
+    endLat: <%
+      if (delivery.receiver?.address?.coordinates?.coordinates?.[1]) {
+        %><%= delivery.receiver.address.coordinates.coordinates[1] %><%
+      } else {
+        %>0<%
+      }
+    %>,
+    totalDistance: <%
+      if (delivery.route?.totalDistance) {
+        %><%= delivery.route.totalDistance %><%
+      } else {
+        %>0<%
+      }
+    %>
+  };
+
+  // Vehicle Progress Functions - Controls MAP POSITION
+  function updateVehicleProgressValue(value) {
+    document.getElementById('vehicleProgressValue').textContent = value + '%';
+    document.getElementById('vehicleProgressNumber').value = value;
+
+    // Recalculate coordinates based on vehicle progress (for Mapbox)
+    calculateCoordinatesFromProgress(value);
+  }
+
+  function syncVehicleProgressInput(value) {
+    value = Math.min(100, Math.max(0, parseInt(value) || 0));
+    document.getElementById('vehicleProgressSlider').value = value;
+    updateVehicleProgressValue(value);
+  }
+
+  // Route Progress Functions - INDEPENDENT DISPLAY ONLY
+  function updateRouteProgressValue(value) {
+    document.getElementById('routeProgressValue').textContent = value + '%';
+    document.getElementById('routeProgressNumber').value = value;
+    // Route progress DOES NOT affect coordinates
+  }
+
+  function syncRouteProgressInput(value) {
+    value = Math.min(100, Math.max(0, parseInt(value) || 0));
+    document.getElementById('routeProgressSlider').value = value;
+    updateRouteProgressValue(value);
+  }
+
+  // Quick Set Functions - VEHICLE PROGRESS ONLY
+  function setVehicleProgress(value) {
+    document.getElementById('vehicleProgressSlider').value = value;
+    updateVehicleProgressValue(value);
+
+    // Auto-update speed and bearing based on vehicle position
+    if (value >= 95) {
+      document.getElementById('speedInput').value = 0; // Stopped at destination
+      document.getElementById('bearingInput').value = 0;
+    } else if (value >= 75) {
+      document.getElementById('speedInput').value = 20; // Slower near destination
+      document.getElementById('bearingInput').value = getRandomBearing();
+    } else if (value >= 25) {
+      document.getElementById('speedInput').value = 60; // Normal speed
+      document.getElementById('bearingInput').value = getRandomBearing();
+    } else {
+      document.getElementById('speedInput').value = 40; // Starting speed
+      document.getElementById('bearingInput').value = getRandomBearing();
+    }
+
+    // DO NOT update route progress - it's independent
+  }
+
+  // Helper function for random bearing
+  function getRandomBearing() {
+    return Math.floor(Math.random() * 360);
+  }
+
+  // Calculate coordinates from vehicle progress (for Mapbox)
+  function calculateCoordinatesFromProgress(progress) {
+    const percentage = progress / 100;
+
+    // Simple linear interpolation for demo
+    // In production, use actual Mapbox route geometry
+    const calculatedLon = deliveryData.startLon + (deliveryData.endLon - deliveryData.startLon) * percentage;
+    const calculatedLat = deliveryData.startLat + (deliveryData.endLat - deliveryData.startLat) * percentage;
+
+    // Update coordinate inputs
+    document.getElementById('longitudeInput').value = calculatedLon.toFixed(6);
+    document.getElementById('latitudeInput').value = calculatedLat.toFixed(6);
+
+    // Update displayed coordinates
+    const coordsElement = document.querySelector('.coordinates');
+    if (coordsElement) {
+      coordsElement.textContent = `${calculatedLon.toFixed(6)}, ${calculatedLat.toFixed(6)}`;
+    }
+
+    // Update calculated distance based on VEHICLE PROGRESS
+    if (deliveryData.totalDistance > 0) {
+      const remainingPercentage = (100 - progress) / 100;
+      const remainingDistance = deliveryData.totalDistance * remainingPercentage;
+      const distanceElement = document.getElementById('calculatedDistance');
+      if (distanceElement) {
+        distanceElement.textContent = `${(remainingDistance / 1000).toFixed(1)} km`;
       }
     }
 
-    // Submit location form
-    async function submitLocationForm() {
-      const locationForm = document.getElementById('locationForm');
-      const submitBtn = document.getElementById('submitLocationBtn');
-      const errorDiv = document.getElementById('locationFormError');
-      const successDiv = document.getElementById('locationFormSuccess');
-
-      if (!locationForm || !submitBtn) return;
-
-      // Reset messages
-      if (errorDiv) {
-        errorDiv.style.display = 'none';
+    // Update ETA based on VEHICLE PROGRESS and speed
+    const speed = parseFloat(document.getElementById('speedInput').value) || 0;
+    if (speed > 0 && deliveryData.totalDistance > 0) {
+      const remainingDistance = deliveryData.totalDistance * (100 - progress) / 100;
+      const remainingHours = remainingDistance / 1000 / speed;
+      const eta = new Date(Date.now() + remainingHours * 60 * 60 * 1000);
+      const etaElement = document.getElementById('calculatedETA');
+      if (etaElement) {
+        etaElement.textContent = eta.toLocaleString();
       }
-      if (successDiv) {
-        successDiv.style.display = 'none';
-      }
+    }
+  }
 
-      // Get values from hidden fields (which get updated by search)
-      const latitude = parseFloat(document.getElementById('selectedLatitude')?.value);
-      const longitude = parseFloat(document.getElementById('selectedLongitude')?.value);
+  // Form submission handler
+  async function submitLocationForm(event) {
+    event.preventDefault();
 
-      // Validate coordinates
-      if (isNaN(latitude) || isNaN(longitude)) {
-        if (errorDiv) {
-          errorDiv.textContent = 'Please enter valid latitude and longitude values';
-          errorDiv.style.display = 'block';
-        }
-        return;
-      }
+    const form = event.target;
+    const submitBtn = document.getElementById('submitLocationBtn');
+    const errorDiv = document.getElementById('locationFormError');
+    const successDiv = document.getElementById('locationFormSuccess');
+    const deliveryId = form.getAttribute('data-delivery-id');
 
-      if (latitude < -90 || latitude > 90) {
-        if (errorDiv) {
-          errorDiv.textContent = 'Latitude must be between -90 and 90';
-          errorDiv.style.display = 'block';
-        }
-        return;
-      }
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
 
-      if (longitude < -180 || longitude > 180) {
-        if (errorDiv) {
-          errorDiv.textContent = 'Longitude must be between -180 and 180';
-          errorDiv.style.display = 'block';
-        }
-        return;
-      }
+    // Disable submit button
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
 
-      // Get form data
-      const formData = new FormData(locationForm);
-      const data = {};
-      formData.forEach((value, key) => {
-        // Handle checkboxes
-        if (key === 'updateMap' || key === 'notifyCustomer') {
-          data[key] = value === 'on' || value === 'true';
-        } else if (key !== 'selectedLongitude' && key !== 'selectedLatitude') {
-          data[key] = value;
-        }
+    try {
+      // Collect form data
+      const formData = {
+        vehicleProgress: document.getElementById('vehicleProgressSlider').value,
+        routeProgress: document.getElementById('routeProgressSlider').value,
+        latitude: document.getElementById('latitudeInput').value,
+        longitude: document.getElementById('longitudeInput').value,
+        speed: document.getElementById('speedInput').value,
+        bearing: document.getElementById('bearingInput').value,
+        source: document.getElementById('sourceSelect').value,
+        updateMap: document.getElementById('updateMap').checked ? 'true' : 'false',
+        notifyCustomer: document.getElementById('notifyCustomer').checked ? 'true' : 'false',
+      };
+
+      console.log('Sending data:', formData);
+
+      // Use your actual route
+      const endpoint = `/admin/deliveries/${deliveryId}/update-location`;
+
+      // Make the API call
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData),
       });
 
-      // Add the coordinates
-      data.longitude = longitude;
-      data.latitude = latitude;
+      // Read the response as text FIRST
+      const responseText = await response.text();
 
-      // Get delivery ID from data attribute
-      const deliveryId = locationForm.dataset.deliveryId;
-      if (!deliveryId) {
-        if (errorDiv) {
-          errorDiv.textContent = 'Delivery ID not found';
-          errorDiv.style.display = 'block';
-        }
-        return;
-      }
-
-      // Show loading state
-      const originalBtnText = submitBtn.innerHTML;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
-      submitBtn.disabled = true;
-
+      // Now try to parse it as JSON
+      let result;
       try {
-        const response = await fetch(`/admin/deliveries/${deliveryId}/update-location`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-          },
-          body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          // Show success message
-          if (successDiv) {
-            successDiv.textContent = result.message || 'Location updated successfully!';
-            successDiv.className = 'alert alert-success mt-3';
-            successDiv.style.display = 'block';
-          }
-
-          // Update current location display in the modal
-          const coords = result.location?.coordinates || [];
-          if (coords.length === 2) {
-            const coordsElement = document.querySelector('.coordinates');
-            if (coordsElement) {
-              coordsElement.textContent = `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
-            }
-          }
-
-          // Close modal after 2 seconds
-          setTimeout(() => {
-            const modalElement = document.getElementById('locationModal');
-            if (modalElement) {
-              const modal = bootstrap.Modal.getInstance(modalElement);
-              if (modal) {
-                modal.hide();
-              }
-            }
-
-            // Show toast notification if available
-            if (typeof showToast === 'function') {
-              showToast('success', 'Location Updated', result.message || 'Location updated successfully!');
-            }
-
-            // Reload the page after a short delay to show updated data
-            setTimeout(() => {
-              window.location.reload();
-            }, 1000);
-          }, 2000);
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        // If it's not JSON, check if it's HTML
+        if (responseText.trim().startsWith('<!DOCTYPE') ||
+            responseText.trim().startsWith('<html') ||
+            responseText.includes('<!DOCTYPE html>')) {
+          throw new Error(`Server returned HTML instead of JSON. Status: ${response.status}. Check if the route exists.`);
         } else {
-          // Show error message
-          if (errorDiv) {
-            errorDiv.textContent = result.error || 'Failed to update location';
-            errorDiv.className = 'alert alert-danger mt-3';
-            errorDiv.style.display = 'block';
+          throw new Error(`Server returned invalid JSON: ${responseText.substring(0, 200)}`);
+        }
+      }
+
+      console.log('Server response:', result);
+
+      // Handle the response
+      if (result.success) {
+        successDiv.textContent = result.message || 'Progress updated successfully!';
+        successDiv.style.display = 'block';
+
+        // Close modal after 2 seconds
+        setTimeout(() => {
+          const modalElement = document.getElementById('locationModal');
+          if (modalElement) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+              modal.hide();
+            }
           }
 
-          // Reset button
-          submitBtn.innerHTML = originalBtnText;
-          submitBtn.disabled = false;
+          // Refresh the page to show updated data
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
+        }, 2000);
+      } else {
+        errorDiv.textContent = result.error || 'Failed to update progress';
+        if (result.details) {
+          errorDiv.textContent += ': ' + (Array.isArray(result.details) ? result.details.join(', ') : result.details);
         }
-      } catch (error) {
-        console.error('Error:', error);
-
-        if (errorDiv) {
-          errorDiv.textContent = 'Network error. Please try again.';
-          errorDiv.className = 'alert alert-danger mt-3';
-          errorDiv.style.display = 'block';
-        }
-
-        // Reset button
-        submitBtn.innerHTML = originalBtnText;
+        errorDiv.style.display = 'block';
         submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-sync-alt me-2"></i>Update Progress';
       }
+
+    } catch (error) {
+      console.error('Submission error:', error);
+      errorDiv.textContent = 'Error: ' + error.message;
+      errorDiv.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-sync-alt me-2"></i>Update Progress';
     }
+  }
+
+  // Initialize modal when shown
+  document.addEventListener('DOMContentLoaded', function() {
+    const modalElement = document.getElementById('locationModal');
+
+    if (modalElement) {
+      // Reset messages when modal is shown
+      modalElement.addEventListener('show.bs.modal', function() {
+        document.getElementById('locationFormError').style.display = 'none';
+        document.getElementById('locationFormSuccess').style.display = 'none';
+
+        const submitBtn = document.getElementById('submitLocationBtn');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-sync-alt me-2"></i>Update Progress';
+        }
+      });
+    }
+
+    // Attach form submit event
+    const locationForm = document.getElementById('locationForm');
+    if (locationForm) {
+      locationForm.addEventListener('submit', submitLocationForm);
+    }
+
+    // Initialize vehicle progress display
+    const initialProgress = document.getElementById('vehicleProgressSlider').value;
+    updateVehicleProgressValue(initialProgress);
+  });
 </script>
-<!-- Include Leaflet for map preview (optional) -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-  crossorigin=""
-/>
-<script
-  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-  crossorigin=""
-></script>
-
-<style>
-  /* Custom styling for search results */
-  #searchResults {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-top: 2px;
-  }
-
-  #searchResults .dropdown-item {
-    padding: 10px 15px;
-    border-bottom: 1px solid #f0f0f0;
-    cursor: pointer;
-  }
-
-  #searchResults .dropdown-item:hover {
-    background-color: #f8f9fa;
-  }
-
-  #searchResults .dropdown-item:last-child {
-    border-bottom: none;
-  }
-
-  /* Map styling */
-  #miniMap {
-    z-index: 1;
-  }
-
-  .coordinates {
-    font-family: "Courier New", monospace;
-  }
-
-  .form-range::-webkit-slider-thumb {
-    background: var(--bs-primary);
-  }
-
-  .form-range::-moz-range-thumb {
-    background: var(--bs-primary);
-  }
-
-  /* Make search results dropdown look like Bootstrap dropdown */
-  .dropdown-menu {
-    position: absolute !important;
-    inset: 0 auto auto 0 !important;
-    margin: 0 !important;
-    transform: translate3d(0px, 40px, 0px) !important;
-  }
-</style>

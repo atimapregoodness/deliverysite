@@ -3,46 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Express Delivery - Advanced Header</title>
+    <title><%= title || 'Secure Logistics Solutions' %></title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                50: "#eff6ff",
-                100: "#dbeafe",
-                500: "#3b82f6",
-                600: "#2563eb",
-                700: "#1d4ed8",
-                800: "#1e40af",
-                900: "#1e3a8a",
-              },
-              accent: {
-                500: "#f59e0b",
-                600: "#d97706",
-              },
-            },
-            fontFamily: {
-              sans: ["Inter", "ui-sans-serif", "system-ui"],
-            },
-          },
-        },
-      };
-    </script>
     <style>
+      /* Ultra-Compact Professional Header */
       :root {
-        --primary-color: #2563eb;
-        --primary-dark: #1d4ed8;
-        --accent-color: #f59e0b;
-        --text-dark: #1f2937;
-        --text-light: #6b7280;
-        --transition-speed: 0.3s;
+        --primary-dark: #1a365d;
+        --primary-blue: #2d5aa0;
+        --accent-gold: #d4af37;
+        --accent-blue-light: #3b82f6;
+        --neutral-white: #ffffff;
+        --neutral-light: #f8fafc;
+        --neutral-gray: #94a3b8;
+        --neutral-dark: #1e293b;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.08);
+        --border-radius: 10px;
       }
 
       * {
@@ -51,144 +31,552 @@
         box-sizing: border-box;
       }
 
-      body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        background-color: #f9fafb;
-        color: var(--text-dark);
-      }
-
-      .header {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+      .main-header {
+        background: var(--neutral-white);
+        color: var(--neutral-dark);
+        box-shadow: var(--shadow-md);
         position: sticky;
         top: 0;
-        z-index: 100;
-        transition: all var(--transition-speed) ease;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.98);
       }
 
-      .header.scrolled {
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      .header-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 65px;
+        position: relative;
+      }
+
+      /* Logo Section */
+      .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        position: relative;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .logo-icon-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .logo-icon-bg {
+        position: absolute;
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-dark),
+          var(--primary-blue)
+        );
+        border-radius: 8px;
+        transform: rotate(45deg);
+        opacity: 0.9;
+        transition: var(--transition);
+      }
+
+      .logo-icon {
+        font-size: 1.2rem;
+        color: var(--neutral-white);
+        position: relative;
+        z-index: 2;
+      }
+
+      .logo-text {
+        font-size: 1.3rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-dark) 0%,
+          var(--primary-blue) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        line-height: 1;
+        position: relative;
+      }
+
+      .logo-subtext {
+        font-size: 0.6rem;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--neutral-gray);
+        margin-top: 3px;
+        font-weight: 500;
+      }
+
+      .nav-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .nav-main {
+        display: flex;
+        list-style: none;
+        gap: 0.2rem;
+      }
+
+      .nav-item {
+        position: relative;
       }
 
       .nav-link {
+        color: var(--neutral-dark);
+        text-decoration: none;
+        padding: 0.6rem 0.9rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--transition);
         position: relative;
-        transition: color var(--transition-speed) ease;
-        font-weight: 500;
+        letter-spacing: -0.1px;
       }
 
       .nav-link::after {
         content: "";
         position: absolute;
-        width: 0;
-        height: 2px;
         bottom: 0;
         left: 50%;
-        background-color: var(--primary-color);
-        transition: all var(--transition-speed) ease;
         transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background: linear-gradient(
+          to right,
+          var(--accent-gold),
+          var(--accent-blue-light)
+        );
+        border-radius: 2px;
+        transition: width 0.3s ease;
       }
 
       .nav-link:hover::after {
-        width: 80%;
+        width: 70%;
       }
 
-      .dropdown-menu {
+      .nav-link:hover {
+        color: var(--primary-blue);
+        background: rgba(59, 130, 246, 0.05);
+      }
+
+      .nav-link.active {
+        color: var(--primary-blue);
+        background: linear-gradient(
+          135deg,
+          rgba(59, 130, 246, 0.08) 0%,
+          rgba(212, 175, 55, 0.04) 100%
+        );
+      }
+
+      .nav-link.active::after {
+        width: 80%;
+        background: linear-gradient(
+          to right,
+          var(--primary-blue),
+          var(--accent-gold)
+        );
+      }
+
+      .nav-link i {
+        font-size: 0.85rem;
+      }
+
+      .dropdown-arrow {
+        font-size: 0.6rem;
+        transition: transform 0.3s ease;
+        margin-left: 0.2rem;
+        color: var(--neutral-gray);
+      }
+
+      .nav-item:hover .dropdown-arrow {
+        transform: rotate(180deg);
+        color: var(--primary-blue);
+      }
+
+      /* Dropdown for desktop - no href on parent */
+      .dropdown-trigger {
+        cursor: pointer;
+        background: none;
+        border: none;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
+      }
+
+      /* Ultra Compact Mega Dropdown */
+      .dropdown-mega {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        width: 260px;
+        background: var(--neutral-white);
+        border-radius: var(--border-radius);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        padding: 0;
         opacity: 0;
         visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border-radius: 12px;
-        border: 1px solid rgba(229, 231, 235, 0.8);
+        transform: translateY(-5px);
+        transition: var(--transition);
+        z-index: 1000;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        overflow: hidden;
       }
 
-      .dropdown-menu.active {
+      .dropdown-mega::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(
+          to right,
+          var(--primary-blue),
+          var(--accent-gold)
+        );
+      }
+
+      .nav-item:hover .dropdown-mega {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
       }
 
-      .mobile-menu {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .mobile-menu.active {
-        max-height: 500px;
-      }
-
-      .logo-container {
-        transition: transform 0.3s ease;
-      }
-
-      .logo-container:hover {
-        transform: scale(1.05);
-      }
-
-      .notification-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background-color: #ef4444;
-        color: white;
-        border-radius: 50%;
-        width: 18px;
-        height: 18px;
+      .dropdown-header {
+        color: var(--primary-dark);
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin: 0;
+        padding: 1rem 1rem 0.8rem;
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 0.7rem;
-        font-weight: bold;
+        gap: 0.6rem;
+        background: var(--neutral-light);
       }
 
-      .btn-primary {
+      .dropdown-icon {
+        color: var(--accent-gold);
+        font-size: 1rem;
+        background: var(--neutral-white);
+        padding: 0.4rem;
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .dropdown-list {
+        list-style: none;
+        padding: 0.8rem 0.5rem;
+      }
+
+      .dropdown-item {
+        margin: 0.2rem 0.5rem;
+        position: relative;
+      }
+
+      .dropdown-link {
+        color: var(--neutral-dark);
+        text-decoration: none;
+        padding: 0.6rem 0.8rem;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: var(--transition);
+        font-size: 0.82rem;
+        font-weight: 500;
+        position: relative;
+      }
+
+      .dropdown-link::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 0;
+        width: 2px;
+        background: var(--primary-blue);
+        transition: height 0.2s ease;
+        border-radius: 2px;
+      }
+
+      .dropdown-link:hover {
+        background: rgba(59, 130, 246, 0.08);
+        color: var(--primary-blue);
+        padding-left: 1rem;
+      }
+
+      .dropdown-link:hover::before {
+        height: 60%;
+      }
+
+      .dropdown-link i {
+        color: var(--primary-blue);
+        width: 18px;
+        text-align: center;
+        font-size: 0.8rem;
+      }
+
+      /* Professional Badge - Compact */
+      .professional-badge {
         background: linear-gradient(
           135deg,
-          var(--primary-color) 0%,
-          var(--primary-dark) 100%
+          rgba(212, 175, 55, 0.08) 0%,
+          rgba(59, 130, 246, 0.08) 100%
         );
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        transition: all 0.3s ease;
+        color: var(--primary-dark);
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.65rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        font-weight: 600;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-left: 0.5rem;
       }
 
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+      .professional-badge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        border-color: var(--accent-gold);
       }
 
-      .search-container {
-        transition: all 0.3s ease;
-        max-width: 40px;
+      .professional-badge i {
+        color: var(--accent-gold);
+        font-size: 0.7rem;
       }
 
-      .search-container.active {
-        max-width: 250px;
+      /* Mobile Menu Toggle */
+      .mobile-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--neutral-dark);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.4rem;
+        transition: var(--transition);
+        position: relative;
+        z-index: 1001;
       }
 
-      .search-input {
-        width: 0;
-        opacity: 0;
-        transition: all 0.3s ease;
+      .mobile-toggle:hover {
+        color: var(--primary-blue);
       }
 
-      .search-container.active .search-input {
-        width: 100%;
-        opacity: 1;
+      /* Responsive Design */
+      @media (max-width: 1200px) {
+        .header-container {
+          padding: 0 1.2rem;
+        }
+
+        .nav-link {
+          padding: 0.5rem 0.7rem;
+          font-size: 0.82rem;
+        }
+
+        .logo-text {
+          font-size: 1.2rem;
+        }
+
+        .logo-icon-bg {
+          width: 32px;
+          height: 32px;
+        }
+
+        .logo-icon {
+          font-size: 1rem;
+        }
       }
 
-      .fade-in {
-        animation: fadeIn 0.5s ease forwards;
+      @media (max-width: 1100px) {
+        .header-container {
+          padding: 0 1rem;
+          height: 60px;
+        }
+
+        .mobile-toggle {
+          display: block;
+        }
+
+        .nav-container {
+          position: fixed;
+          top: 60px;
+          left: 0;
+          width: 100%;
+          height: calc(100vh - 60px);
+          background: var(--neutral-white);
+          backdrop-filter: blur(10px);
+          flex-direction: column;
+          padding: 1.5rem;
+          transform: translateX(-100%);
+          opacity: 0;
+          visibility: hidden;
+          transition: var(--transition);
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+          overflow-y: auto;
+          justify-content: flex-start;
+          gap: 0;
+          border-top: 1px solid rgba(226, 232, 240, 0.8);
+          z-index: 999;
+        }
+
+        .nav-container.active {
+          transform: translateX(0);
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .nav-main {
+          flex-direction: column;
+          width: 100%;
+          gap: 0;
+          margin-bottom: 1rem;
+        }
+
+        .nav-item {
+          width: 100%;
+          border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+        }
+
+        .nav-item:last-child {
+          border-bottom: none;
+        }
+
+        .nav-link {
+          padding: 1rem;
+          font-size: 0.95rem;
+          justify-content: space-between;
+          width: 100%;
+          border-radius: 0;
+          background: none;
+          text-align: left;
+        }
+
+        .nav-link.active {
+          background: rgba(59, 130, 246, 0.08);
+          border-left: 3px solid var(--primary-blue);
+        }
+
+        .nav-link::after {
+          display: none;
+        }
+
+        .dropdown-mega {
+          position: static;
+          width: 100%;
+          opacity: 1;
+          visibility: visible;
+          transform: none;
+          box-shadow: none;
+          background: var(--neutral-light);
+          margin-top: 0;
+          display: none;
+          border: none;
+          border-radius: 0;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.4s ease-out, padding 0.3s ease;
+          padding: 0;
+        }
+
+        .dropdown-mega::before {
+          display: none;
+        }
+
+        .dropdown-mega.active {
+          display: block;
+          max-height: 1000px;
+          padding: 0.5rem 0;
+          border-top: 1px solid rgba(226, 232, 240, 0.5);
+          border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+        }
+
+        .dropdown-header {
+          display: none;
+        }
+
+        .dropdown-list {
+          padding: 0.5rem 0;
+        }
+
+        .dropdown-item {
+          margin: 0;
+        }
+
+        .dropdown-link {
+          padding: 0.8rem 1.5rem;
+          font-size: 0.9rem;
+          border-radius: 0;
+          position: relative;
+        }
+
+        .dropdown-link::before {
+          content: "";
+          position: absolute;
+          left: 0.5rem;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4px;
+          height: 4px;
+          background: var(--primary-blue);
+          border-radius: 50%;
+          opacity: 0.5;
+        }
+
+        .dropdown-link:hover::before {
+          height: 4px;
+          width: 4px;
+        }
+
+        .dropdown-link i {
+          font-size: 0.85rem;
+          margin-right: 0.5rem;
+        }
+
+        .nav-item:hover .dropdown-mega {
+          transform: none;
+        }
+
+        .professional-badge {
+          justify-content: center;
+          margin: 1rem auto 0;
+          width: auto;
+          display: inline-flex;
+          padding: 0.6rem 1.2rem;
+          font-size: 0.75rem;
+        }
       }
 
-      @keyframes fadeIn {
+      /* Animation for mobile dropdown */
+      @keyframes slideDown {
         from {
           opacity: 0;
-          transform: translateY(10px);
+          transform: translateY(-10px);
         }
         to {
           opacity: 1;
@@ -196,318 +584,443 @@
         }
       }
 
-      /* Advanced features */
-      .status-indicator {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: #10b981;
-        margin-right: 8px;
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          transform: scale(0.95);
-          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      /* Extra small devices */
+      @media (max-width: 480px) {
+        .header-container {
+          padding: 0 0.8rem;
         }
-        70% {
-          transform: scale(1);
-          box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+
+        .logo-text {
+          font-size: 1.1rem;
         }
-        100% {
-          transform: scale(0.95);
-          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+
+        .logo-subtext {
+          font-size: 0.55rem;
+          letter-spacing: 1px;
+        }
+
+        .logo-icon-bg {
+          width: 28px;
+          height: 28px;
+        }
+
+        .nav-container {
+          padding: 1rem;
+        }
+
+        .nav-link {
+          padding: 0.9rem;
+          font-size: 0.9rem;
+        }
+
+        .dropdown-link {
+          padding: 0.7rem 1.2rem;
+          font-size: 0.85rem;
         }
       }
 
-      .notification-panel {
-        width: 360px;
-        max-height: 400px;
-        overflow-y: auto;
+      /* Small tablets */
+      @media (max-width: 768px) and (min-width: 481px) {
+        .nav-container {
+          padding: 1.5rem 2rem;
+        }
       }
 
-      .notification-item {
-        transition: background-color 0.2s ease;
-      }
-
-      .notification-item:hover {
-        background-color: #f8fafc;
-      }
-
-      .progress-bar {
-        height: 4px;
-        background-color: #e5e7eb;
-        border-radius: 2px;
+      /* Prevent body scroll when mobile menu is open */
+      body.menu-open {
         overflow: hidden;
+        position: fixed;
+        width: 100%;
       }
 
-      .progress-fill {
-        height: 100%;
-        background-color: var(--primary-color);
-        border-radius: 2px;
-        transition: width 0.5s ease;
-      }
+      /* Hover effects for touch devices */
+      @media (hover: hover) and (pointer: fine) {
+        .dropdown-mega {
+          transition-delay: 0.1s;
+        }
 
-      .quick-actions {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-      }
-
-      .quick-action-btn {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 12px;
-        border-radius: 8px;
-        background-color: #f8fafc;
-        transition: all 0.2s ease;
-      }
-
-      .quick-action-btn:hover {
-        background-color: #eff6ff;
-        transform: translateY(-2px);
-      }
-
-      /* Dark mode support */
-      .dark-mode-switch {
-        position: relative;
-        width: 44px;
-        height: 24px;
-        background-color: #e5e7eb;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-
-      .dark-mode-switch.active {
-        background-color: var(--primary-color);
-      }
-
-      .dark-mode-toggle {
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 20px;
-        height: 20px;
-        background-color: white;
-        border-radius: 50%;
-        transition: transform 0.3s ease;
-      }
-
-      .dark-mode-switch.active .dark-mode-toggle {
-        transform: translateX(20px);
-      }
-
-      /* Ensure proper stacking context */
-      .z-50 {
-        z-index: 50;
-      }
-
-      /* Smooth transitions for all interactive elements */
-      .transition-all {
-        transition: all 0.3s ease;
+        .nav-item:hover .dropdown-mega {
+          transition-delay: 0s;
+        }
       }
     </style>
   </head>
   <body>
-    <!-- Advanced Header -->
-    <header class="header">
-      <!-- Top Bar -->
-      <div class="bg-primary-800 text-white py-2 px-4">
-        <div
-          class="max-w-7xl mx-auto flex justify-between items-center text-sm"
-        >
-          <div class="flex items-center space-x-4">
-            <div class="flex items-center">
-              <span class="status-indicator"></span>
-              <span>All systems operational</span>
-            </div>
-            <span class="hidden md:inline">•</span>
-            <a
-              href="#"
-              class="hidden md:inline hover:text-primary-100 transition-colors"
-              >Support Center</a
-            >
+    <header class="main-header">
+      <div class="header-container">
+        <!-- Logo Section -->
+        <a href="/" class="logo-container">
+          <div class="logo-icon-wrapper">
+            <div class="logo-icon-bg"></div>
+            <i class="fas fa-shield-alt logo-icon"></i>
           </div>
-          <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2">
-              <i class="fas fa-phone-alt text-xs"></i>
-              <span>1-800-EXPRESS</span>
-            </div>
+          <div>
+            <div class="logo-text">SHIELD LOGISTICS</div>
+            <div class="logo-subtext">Secure • Swift • Reliable</div>
           </div>
-        </div>
-      </div>
+        </a>
 
-      <!-- Main Navigation -->
-      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16 md:h-20">
-          <!-- Logo and Brand -->
-          <div class="flex items-center">
-            <a href="/" class="flex-shrink-0 flex items-center">
-              <div class="relative">
-                <div
-                  class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center"
-                >
-                  <i class="fas fa-shipping-fast text-white text-lg"></i>
-                </div>
-              </div>
-              <span class="ml-3 text-xl md:text-2xl font-bold text-gray-900"
-                >Express<span class="text-primary-600">Delivery</span></span
+        <!-- Navigation -->
+        <nav class="nav-container" id="mainNav">
+          <ul class="nav-main">
+            <li class="nav-item">
+              <a
+                href="/"
+                class="nav-link <%= currentPage === 'home' ? 'active' : '' %>"
               >
-            </a>
-          </div>
+                <i class="fas fa-home"></i>
+                Home
+              </a>
+            </li>
 
-          <!-- Desktop Navigation -->
-          <div class="hidden md:flex items-center space-x-1">
-            <a
-              href="/"
-              class="nav-link text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-            >
-              <i class="fas fa-home mr-2"></i>Home
-            </a>
-            <a
-              href="/track"
-              class="nav-link text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-            >
-              <i class="fas fa-search mr-2"></i>Track Package
-            </a>
+            <!-- Track Delivery Link -->
+            <li class="nav-item">
+              <a
+                href="/track"
+                class="nav-link <%= (currentPage === 'track' || currentPage === 'delivery/track') ? 'active' : '' %>"
+              >
+                <i class="fas fa-location-dot"></i>
+                Track Delivery
+              </a>
+            </li>
 
-            <a
-              href="/services"
-              class="nav-link text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-            >
-              <i class="fas fa-concierge-bell mr-2"></i>Services
-            </a>
-
-            <a
-              href="/pricing"
-              class="nav-link text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-            >
-              <i class="fas fa-tag mr-2"></i>Pricing
-            </a>
-
-            <!-- Search Bar -->
-            <div
-              class="search-container relative flex items-center ml-2 bg-gray-100 rounded-lg"
-            >
-              <div class="search-input">
-                <input
-                  type="text"
-                  placeholder="Track by ID..."
-                  class="w-full py-2 px-4 rounded-lg border-0 bg-transparent focus:outline-none focus:ring-0"
-                />
+            <!-- Security Services Dropdown -->
+            <li class="nav-item">
+              <button
+                class="nav-link dropdown-trigger <%= currentPage === 'security' ? 'active' : '' %>"
+                type="button"
+                aria-expanded="false"
+              >
+                <i class="fas fa-user-shield"></i>
+                Security
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+              </button>
+              <div class="dropdown-mega">
+                <div class="dropdown-header">
+                  <i class="fas fa-shield-alt dropdown-icon"></i>
+                  Security Solutions
+                </div>
+                <ul class="dropdown-list">
+                  <li class="dropdown-item">
+                    <a href="/security/static-guards" class="dropdown-link">
+                      <i class="fas fa-user-check"></i>
+                      Static Security Guards
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/security/mobile-patrols" class="dropdown-link">
+                      <i class="fas fa-car-alt"></i>
+                      Mobile Patrols
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/security/alarm-monitoring" class="dropdown-link">
+                      <i class="fas fa-bell"></i>
+                      Alarm Monitoring
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/security/cctv" class="dropdown-link">
+                      <i class="fas fa-video"></i>
+                      CCTV Systems
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/security/cyber" class="dropdown-link">
+                      <i class="fas fa-lock"></i>
+                      Cybersecurity
+                    </a>
+                  </li>
+                </ul>
               </div>
-            </div>
+            </li>
+
+            <!-- Logistics Services Dropdown -->
+            <li class="nav-item">
+              <button
+                class="nav-link dropdown-trigger <%= currentPage === 'logistics' ? 'active' : '' %>"
+                type="button"
+                aria-expanded="false"
+              >
+                <i class="fas fa-shipping-fast"></i>
+                Logistics
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+              </button>
+              <div class="dropdown-mega">
+                <div class="dropdown-header">
+                  <i class="fas fa-truck-loading dropdown-icon"></i>
+                  Logistics Solutions
+                </div>
+                <ul class="dropdown-list">
+                  <li class="dropdown-item">
+                    <a
+                      href="/logistics/freight-forwarding"
+                      class="dropdown-link"
+                    >
+                      <i class="fas fa-plane-departure"></i>
+                      Freight Forwarding
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/logistics/warehousing" class="dropdown-link">
+                      <i class="fas fa-warehouse"></i>
+                      Warehousing
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/logistics/distribution" class="dropdown-link">
+                      <i class="fas fa-route"></i>
+                      Last-Mile Delivery
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/logistics/cold-chain" class="dropdown-link">
+                      <i class="fas fa-snowflake"></i>
+                      Cold Chain
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/logistics/supply-chain" class="dropdown-link">
+                      <i class="fas fa-project-diagram"></i>
+                      Supply Chain
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+
+            <!-- Company Dropdown -->
+            <li class="nav-item">
+              <button
+                class="nav-link dropdown-trigger <%= currentPage === 'company' ? 'active' : '' %>"
+                type="button"
+                aria-expanded="false"
+              >
+                <i class="fas fa-landmark"></i>
+                Company
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+              </button>
+              <div class="dropdown-mega">
+                <div class="dropdown-header">
+                  <i class="fas fa-info-circle dropdown-icon"></i>
+                  Company Information
+                </div>
+                <ul class="dropdown-list">
+                  <li class="dropdown-item">
+                    <a href="/about" class="dropdown-link">
+                      <i class="fas fa-building"></i>
+                      About Us
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/contact" class="dropdown-link">
+                      <i class="fas fa-phone-alt"></i>
+                      Contact Us
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/company/leadership" class="dropdown-link">
+                      <i class="fas fa-users"></i>
+                      Leadership
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/company/careers" class="dropdown-link">
+                      <i class="fas fa-briefcase"></i>
+                      Careers
+                    </a>
+                  </li>
+                  <li class="dropdown-item">
+                    <a href="/company/certifications" class="dropdown-link">
+                      <i class="fas fa-award"></i>
+                      Certifications
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+
+          <!-- Professional Badge -->
+          <div class="professional-badge">
+            <i class="fas fa-certificate"></i>
+            ISO 9001:2023
           </div>
-        </div>
-      </nav>
+        </nav>
+
+        <!-- Mobile Toggle -->
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
     </header>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // User dropdown functionality
-        const userDropdownToggle = document.querySelector(
-          ".user-dropdown-toggle"
-        );
-        const userDropdown = document.querySelector(".dropdown-menu");
-        const dropdownIcon =
-          userDropdownToggle.querySelector(".fa-chevron-down");
+      // Mobile Navigation Toggle
+      const mobileToggle = document.getElementById("mobileToggle");
+      const navContainer = document.getElementById("mainNav");
+      const body = document.body;
 
-        userDropdownToggle.addEventListener("click", function (e) {
-          e.stopPropagation();
-          userDropdown.classList.toggle("active");
-          dropdownIcon.style.transform = userDropdown.classList.contains(
-            "active"
-          )
-            ? "rotate(180deg)"
-            : "rotate(0)";
-        });
+      mobileToggle.addEventListener("click", function () {
+        const isActive = navContainer.classList.toggle("active");
+        this.innerHTML = isActive
+          ? '<i class="fas fa-times"></i>'
+          : '<i class="fas fa-bars"></i>';
 
-        // Close dropdown when clicking outside
-        document.addEventListener("click", function () {
-          userDropdown.classList.remove("active");
-          dropdownIcon.style.transform = "rotate(0)";
+        // Toggle body scroll lock
+        if (isActive) {
+          body.classList.add("menu-open");
+          // Set body position to prevent scroll jump
+          body.style.top = `-${window.scrollY}px`;
+        } else {
+          const scrollY = body.style.top;
+          body.classList.remove("menu-open");
+          body.style.top = "";
+          if (scrollY) {
+            window.scrollTo(0, parseInt(scrollY || "0") * -1);
+          }
+        }
+      });
 
-          // Also close notification dropdown
-          notificationDropdown.classList.remove("active");
-        });
+      // Mobile Dropdown Toggle
+      const dropdownTriggers = document.querySelectorAll(".dropdown-trigger");
 
-        // Mobile menu functionality
-        const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
-        const mobileMenu = document.querySelector(".mobile-menu");
-        const mobileMenuIcon = mobileMenuToggle.querySelector("i");
+      dropdownTriggers.forEach((trigger) => {
+        trigger.addEventListener("click", function (e) {
+          if (window.innerWidth <= 1100) {
+            e.stopPropagation();
+            const dropdown = this.nextElementSibling;
+            const isActive = dropdown.classList.contains("active");
+            const arrow = this.querySelector(".dropdown-arrow");
 
-        mobileMenuToggle.addEventListener("click", function () {
-          mobileMenu.classList.toggle("active");
-          if (mobileMenu.classList.contains("active")) {
-            mobileMenuIcon.classList.remove("fa-bars");
-            mobileMenuIcon.classList.add("fa-times");
-          } else {
-            mobileMenuIcon.classList.remove("fa-times");
-            mobileMenuIcon.classList.add("fa-bars");
+            // Close all other dropdowns
+            document.querySelectorAll(".dropdown-mega.active").forEach((dd) => {
+              if (dd !== dropdown) {
+                dd.classList.remove("active");
+                const otherArrow =
+                  dd.previousElementSibling.querySelector(".dropdown-arrow");
+                if (otherArrow) {
+                  otherArrow.style.transform = "rotate(0deg)";
+                }
+              }
+            });
+
+            // Toggle current dropdown
+            dropdown.classList.toggle("active");
+
+            // Rotate arrow
+            if (arrow) {
+              if (isActive) {
+                arrow.style.transform = "rotate(0deg)";
+              } else {
+                arrow.style.transform = "rotate(180deg)";
+              }
+            }
           }
         });
+      });
 
-        // Search toggle functionality
-        const searchToggle = document.querySelector(".search-toggle");
-        const searchContainer = document.querySelector(".search-container");
-
-        searchToggle.addEventListener("click", function () {
-          searchContainer.classList.toggle("active");
-          // Focus on input when expanded
-          if (searchContainer.classList.contains("active")) {
-            setTimeout(() => {
-              searchContainer.querySelector("input").focus();
-            }, 300);
+      // Close dropdowns when clicking outside on mobile
+      document.addEventListener("click", function (e) {
+        if (window.innerWidth <= 1100) {
+          // Check if click is outside nav items and dropdowns
+          if (
+            !e.target.closest(".nav-item") &&
+            !e.target.closest(".mobile-toggle")
+          ) {
+            document
+              .querySelectorAll(".dropdown-mega.active")
+              .forEach((dropdown) => {
+                dropdown.classList.remove("active");
+                const arrow =
+                  dropdown.previousElementSibling.querySelector(
+                    ".dropdown-arrow"
+                  );
+                if (arrow) {
+                  arrow.style.transform = "rotate(0deg)";
+                }
+              });
           }
-        });
+        }
+      });
 
-        // Header scroll effect
-        const header = document.querySelector(".header");
-
-        window.addEventListener("scroll", function () {
-          if (window.scrollY > 50) {
-            header.classList.add("scrolled");
-          } else {
-            header.classList.remove("scrolled");
-          }
-        });
-
-        // Close mobile menu when clicking on a link
-        const mobileLinks = document.querySelectorAll(".mobile-menu a");
-        mobileLinks.forEach((link) => {
+      // Close mobile menu when clicking on a link
+      document
+        .querySelectorAll(".nav-link[href], .dropdown-link")
+        .forEach((link) => {
           link.addEventListener("click", function () {
-            mobileMenu.classList.remove("active");
-            mobileMenuIcon.classList.remove("fa-times");
-            mobileMenuIcon.classList.add("fa-bars");
+            if (window.innerWidth <= 1100) {
+              navContainer.classList.remove("active");
+              mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+              body.classList.remove("menu-open");
+              body.style.top = "";
+
+              // Close all dropdowns
+              document
+                .querySelectorAll(".dropdown-mega.active")
+                .forEach((dropdown) => {
+                  dropdown.classList.remove("active");
+                  const arrow =
+                    dropdown.previousElementSibling.querySelector(
+                      ".dropdown-arrow"
+                    );
+                  if (arrow) {
+                    arrow.style.transform = "rotate(0deg)";
+                  }
+                });
+            }
           });
         });
 
-        // Notification dropdown functionality
-        const notificationToggle = document.querySelector(
-          ".notification-toggle"
-        );
-        const notificationDropdown = document.querySelector(
-          ".notification-toggle + .dropdown-menu"
-        );
+      // Hide header on scroll down, show on scroll up (only on desktop)
+      if (window.innerWidth > 1100) {
+        let lastScroll = 0;
+        const header = document.querySelector(".main-header");
 
-        notificationToggle.addEventListener("click", function (e) {
-          e.stopPropagation();
-          notificationDropdown.classList.toggle("active");
+        window.addEventListener("scroll", function () {
+          const currentScroll = window.pageYOffset;
+
+          if (currentScroll > 100) {
+            if (currentScroll > lastScroll && currentScroll > 200) {
+              header.style.transform = "translateY(-100%)";
+            } else {
+              header.style.transform = "translateY(0)";
+            }
+          } else {
+            header.style.transform = "translateY(0)";
+          }
+
+          lastScroll = currentScroll;
+        });
+      }
+
+      // Logo hover effect
+      const logoContainer = document.querySelector(".logo-container");
+      const logoIconBg = document.querySelector(".logo-icon-bg");
+
+      if (logoContainer && logoIconBg) {
+        logoContainer.addEventListener("mouseenter", () => {
+          logoIconBg.style.transform = "rotate(45deg) scale(1.1)";
         });
 
-        // Dark mode toggle functionality
-        const darkModeSwitch = document.querySelector(".dark-mode-switch");
-
-        darkModeSwitch.addEventListener("click", function () {
-          darkModeSwitch.classList.toggle("active");
-          // Here you would typically toggle a dark mode class on the body
-          // document.body.classList.toggle('dark');
+        logoContainer.addEventListener("mouseleave", () => {
+          logoIconBg.style.transform = "rotate(45deg) scale(1)";
         });
+      }
+
+      // Close mobile menu on window resize to desktop
+      window.addEventListener("resize", function () {
+        if (window.innerWidth > 1100) {
+          navContainer.classList.remove("active");
+          mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+          body.classList.remove("menu-open");
+          body.style.top = "";
+
+          // Reset all dropdown arrows
+          document.querySelectorAll(".dropdown-arrow").forEach((arrow) => {
+            arrow.style.transform = "rotate(0deg)";
+          });
+        }
       });
     </script>
   </body>

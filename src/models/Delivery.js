@@ -124,6 +124,7 @@ const deliverySchema = new mongoose.Schema(
         coordinates: { type: [Number], default: [0, 0] }, // [lng, lat]
       },
       routeProgress: { type: Number, default: 0, min: 0, max: 100 },
+      vehicleProgress: { type: Number, default: 0, min: 0, max: 100 },
       lastUpdated: { type: Date, default: Date.now },
       // For real-time updates
       speed: { type: Number, default: 0 }, // km/h

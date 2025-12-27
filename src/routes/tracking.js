@@ -59,6 +59,9 @@ router.post(
 // Invoice
 router.get("/track/invoice/:trackingId", trackingController.getInvoice);
 
+// Print delivery receipt
+router.get("/track/print/:trackingId", trackingController.getPrintReceipt);
+
 /* ===============================
    DRIVER
 ================================ */

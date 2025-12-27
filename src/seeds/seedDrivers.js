@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const Driver = require("../models/Driver");
-const Vehicle = require("../models/Vehicle");
 
 const connectDB = async () => {
   try {

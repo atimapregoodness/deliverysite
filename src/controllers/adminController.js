@@ -8,6 +8,105 @@ const {
   getSeverityColor,
 } = require("../utils/helpers");
 
+// Helper function to calculate coordinates by progress percentage for Mapbox
+const calculateCoordinatesByProgress = async (delivery, progress) => {
+  try {
+    // Priority 1: Use Mapbox route geometry if available
+    if (delivery.route?.geometry?.coordinates?.length > 0) {
+      const coords = delivery.route.geometry.coordinates;
+      const totalPoints = coords.length;
+      const pointIndex = Math.floor((progress / 100) * (totalPoints - 1));
+      return coords[Math.min(pointIndex, totalPoints - 1)];
+    }
+
+    // Priority 2: Use waypoints if available
+    if (delivery.trackingData?.waypoints?.length > 0) {
+      const totalWaypoints = delivery.trackingData.waypoints.length;
+      const waypointIndex = Math.floor((progress / 100) * (totalWaypoints - 1));
+      const waypoint =
+        delivery.trackingData.waypoints[
+          Math.min(waypointIndex, totalWaypoints - 1)
+        ];
+      if (waypoint?.coordinates) {
+        return waypoint.coordinates;
+      }
+    }
+
+    // Fallback: Linear interpolation between start and end
+    const startCoords = delivery.sender?.address?.coordinates?.coordinates || [
+      0, 0,
+    ];
+    const endCoords = delivery.receiver?.address?.coordinates?.coordinates || [
+      0, 0,
+    ];
+
+    if (startCoords[0] === 0 && startCoords[1] === 0) {
+      return null; // Can't calculate
+    }
+    if (endCoords[0] === 0 && endCoords[1] === 0) {
+      return null; // Can't calculate
+    }
+
+    const percentage = progress / 100;
+    const lon = startCoords[0] + (endCoords[0] - startCoords[0]) * percentage;
+    const lat = startCoords[1] + (endCoords[1] - startCoords[1]) * percentage;
+
+    return [lon, lat];
+  } catch (error) {
+    console.error("Error calculating coordinates by progress:", error);
+    return null;
+  }
+};
+
+// Optional: Calculate progress from coordinates (for reverse calculation)
+const calculateProgressFromCoordinates = async (delivery, coordinates) => {
+  try {
+    const startCoords = delivery.sender?.address?.coordinates?.coordinates || [
+      0, 0,
+    ];
+    const endCoords = delivery.receiver?.address?.coordinates?.coordinates || [
+      0, 0,
+    ];
+
+    if (startCoords[0] === 0 && startCoords[1] === 0) {
+      throw new Error("Sender coordinates not available");
+    }
+    if (endCoords[0] === 0 && endCoords[1] === 0) {
+      throw new Error("Receiver coordinates not available");
+    }
+
+    // Calculate distance from start to current point
+    const startToCurrent = haversineDistance(startCoords, coordinates);
+    const startToEnd = haversineDistance(startCoords, endCoords);
+
+    if (startToEnd === 0) return 0;
+
+    const progress = (startToCurrent / startToEnd) * 100;
+    return Math.min(100, Math.max(0, progress));
+  } catch (error) {
+    console.error("Error calculating progress from coordinates:", error);
+    return delivery.trackingData?.vehicleProgress || 0;
+  }
+};
+
+// Haversine distance calculation for Mapbox
+const haversineDistance = (coord1, coord2) => {
+  const toRad = (x) => (x * Math.PI) / 180;
+
+  const R = 6371000; // Earth's radius in meters
+  const φ1 = toRad(coord1[1]);
+  const φ2 = toRad(coord2[1]);
+  const Δφ = toRad(coord2[1] - coord1[1]);
+  const Δλ = toRad(coord2[0] - coord1[0]);
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+};
+
 class AdminController {
   // Dashboard - Updated to use warehouses
   getDashboard = async (req, res) => {
@@ -1077,15 +1176,15 @@ class AdminController {
       res.redirect(`/admin/deliveries/${id}`);
     }
   };
-
-  // Update location - Updated for warehouses
+  // Update location - Dual progress system for Mapbox integration
   updateLocation = async (req, res) => {
     try {
       const { id } = req.params;
       const {
         longitude,
         latitude,
-        progress,
+        vehicleProgress, // Controls actual map position
+        routeProgress, // Independent display percentage
         speed,
         bearing,
         source,
@@ -1095,12 +1194,22 @@ class AdminController {
       } = req.body;
 
       console.log("Location Update Data:", {
+        id,
         longitude,
         latitude,
-        progress,
+        vehicleProgress,
+        routeProgress,
         source,
         accuracy,
       });
+
+      // Validate required fields
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          error: "Delivery ID is required",
+        });
+      }
 
       const delivery = await Delivery.findById(id);
       if (!delivery) {
@@ -1118,73 +1227,88 @@ class AdminController {
         });
       }
 
-      // Validate and parse coordinates
-      let lon, lat;
-
-      // Parse longitude
-      if (typeof longitude === "string") {
-        lon = parseFloat(longitude.replace(/[^\d.-]/g, ""));
-      } else if (typeof longitude === "number") {
-        lon = longitude;
-      } else {
-        return res.status(400).json({
-          success: false,
-          error: "Longitude must be a valid number",
-        });
+      // Initialize trackingData if not exists
+      if (!delivery.trackingData) {
+        delivery.trackingData = {
+          active: false,
+          currentLocation: {
+            type: "Point",
+            coordinates: [0, 0],
+          },
+          routeProgress: 0,
+          vehicleProgress: 0,
+          lastUpdated: new Date(),
+          speed: 0,
+          bearing: 0,
+          waypoints: [],
+        };
       }
 
-      // Parse latitude
-      if (typeof latitude === "string") {
-        lat = parseFloat(latitude.replace(/[^\d.-]/g, ""));
-      } else if (typeof latitude === "number") {
-        lat = latitude;
-      } else {
-        return res.status(400).json({
-          success: false,
-          error: "Latitude must be a valid number",
-        });
-      }
+      // ===== VEHICLE PROGRESS LOGIC =====
+      // This controls the actual map position for Mapbox
+      let calculatedVehicleProgress =
+        delivery.trackingData.vehicleProgress || 0;
+      let calculatedCoordinates = delivery.trackingData.currentLocation
+        .coordinates || [0, 0];
 
-      console.log("Parsed coordinates:", { lon, lat });
-
-      // Check if coordinates are valid numbers
-      if (isNaN(lon) || isNaN(lat)) {
-        return res.status(400).json({
-          success: false,
-          error:
-            "Invalid coordinates. Longitude and latitude must be valid numbers.",
-        });
-      }
-
-      // Validate coordinate ranges
-      if (lat < -90 || lat > 90) {
-        return res.status(400).json({
-          success: false,
-          error: "Latitude must be between -90 and 90 degrees.",
-        });
-      }
-
-      if (lon < -180 || lon > 180) {
-        return res.status(400).json({
-          success: false,
-          error: "Longitude must be between -180 and 180 degrees.",
-        });
-      }
-
-      // Update tracking data
-      delivery.trackingData.currentLocation.coordinates = [lon, lat];
-      delivery.trackingData.lastUpdated = new Date();
-
-      // Update progress if provided
-      if (progress !== undefined && progress !== null && progress !== "") {
-        const progressNum = parseInt(progress);
-        if (!isNaN(progressNum)) {
-          delivery.trackingData.routeProgress = Math.min(
+      // Parse vehicleProgress if provided
+      if (
+        vehicleProgress !== undefined &&
+        vehicleProgress !== null &&
+        vehicleProgress !== ""
+      ) {
+        const vehicleProgressNum = parseInt(vehicleProgress);
+        if (!isNaN(vehicleProgressNum)) {
+          calculatedVehicleProgress = Math.min(
             100,
-            Math.max(0, progressNum)
+            Math.max(0, vehicleProgressNum)
+          );
+
+          // Calculate coordinates based on vehicleProgress for Mapbox
+          // This is what moves the vehicle on the map
+          const coords = await calculateCoordinatesByProgress(
+            delivery,
+            calculatedVehicleProgress
+          );
+          if (coords && coords[0] !== 0 && coords[1] !== 0) {
+            calculatedCoordinates = coords;
+          }
+        }
+      } else if (longitude && latitude) {
+        // If coordinates provided directly (for manual updates)
+        calculatedCoordinates = [parseFloat(longitude), parseFloat(latitude)];
+        // Optionally calculate vehicleProgress from these coordinates
+        // calculatedVehicleProgress = await calculateProgressFromCoordinates(delivery, calculatedCoordinates);
+      }
+
+      // ===== ROUTE PROGRESS LOGIC =====
+      // This is completely independent - just for display
+      let calculatedRouteProgress = delivery.trackingData.routeProgress || 0;
+
+      if (
+        routeProgress !== undefined &&
+        routeProgress !== null &&
+        routeProgress !== ""
+      ) {
+        const routeProgressNum = parseInt(routeProgress);
+        if (!isNaN(routeProgressNum)) {
+          calculatedRouteProgress = Math.min(
+            100,
+            Math.max(0, routeProgressNum)
           );
         }
       }
+
+      // ===== UPDATE DELIVERY TRACKING DATA =====
+      // Vehicle progress controls map position
+      delivery.trackingData.vehicleProgress = calculatedVehicleProgress;
+
+      // Route progress is independent display
+      delivery.trackingData.routeProgress = calculatedRouteProgress;
+
+      // Current location is determined by VEHICLE PROGRESS only
+      delivery.trackingData.currentLocation.coordinates = calculatedCoordinates;
+      delivery.trackingData.lastUpdated = new Date();
 
       // Update speed if provided
       if (speed !== undefined && speed !== null && speed !== "") {
@@ -1208,7 +1332,7 @@ class AdminController {
         delivery.trackingData.source = source;
       }
 
-      // Update accuracy if provided (store in tracking data)
+      // Update accuracy if provided
       if (accuracy) {
         if (!delivery.trackingData.metadata) {
           delivery.trackingData.metadata = {};
@@ -1216,75 +1340,71 @@ class AdminController {
         delivery.trackingData.metadata.accuracy = accuracy;
       }
 
-      // Calculate distance to destination and update progress if near
-      const receiverCoords =
-        delivery.receiver.address?.coordinates?.coordinates;
+      // ===== WAYPOINT UPDATES BASED ON VEHICLE PROGRESS =====
+      // Only vehicle progress affects waypoints (map position)
       if (
-        receiverCoords &&
-        receiverCoords[0] !== 0 &&
-        receiverCoords[1] !== 0
+        delivery.trackingData.waypoints &&
+        delivery.trackingData.waypoints.length > 0
       ) {
-        const distance = this.calculateDistance([lon, lat], receiverCoords);
+        const totalWaypoints = delivery.trackingData.waypoints.length;
+        const waypointsPerPercent = 100 / totalWaypoints;
+        const completedWaypoints = Math.floor(
+          calculatedVehicleProgress / waypointsPerPercent
+        );
 
-        // Store distance for tracking
-        delivery.trackingData.remainingDistance = Math.round(distance);
-
-        // Update progress based on distance to destination
-        if (delivery.route?.totalDistance && delivery.route.totalDistance > 0) {
-          const distanceTravelled = delivery.route.totalDistance - distance;
-          const calculatedProgress = Math.min(
-            100,
-            Math.max(
-              0,
-              (distanceTravelled / delivery.route.totalDistance) * 100
-            )
-          );
-
-          // If calculated progress is higher than current, update it
-          if (calculatedProgress > delivery.trackingData.routeProgress) {
-            delivery.trackingData.routeProgress =
-              Math.round(calculatedProgress);
+        delivery.trackingData.waypoints.forEach((waypoint, index) => {
+          if (index <= completedWaypoints - 1 && !waypoint.arrived) {
+            waypoint.arrived = true;
+            waypoint.timestamp = new Date();
           }
-        }
-
-        // If within 100 meters, mark as near destination
-        if (distance < 100) {
-          delivery.trackingData.routeProgress = Math.max(
-            delivery.trackingData.routeProgress,
-            95
-          );
-
-          // Update delivery status to "in_transit" if it's pending
-          if (delivery.status === "pending") {
-            delivery.status = "in_transit";
-            delivery.trackingData.active = true;
-          }
-        }
+        });
       }
 
-      // Update delivery status to "in_transit" if coordinates are set and it was pending
-      if (delivery.status === "pending" && lon !== 0 && lat !== 0) {
+      // Calculate remaining distance based on VEHICLE PROGRESS only
+      if (delivery.route?.totalDistance) {
+        const remainingPercentage = (100 - calculatedVehicleProgress) / 100;
+        delivery.trackingData.remainingDistance = Math.round(
+          delivery.route.totalDistance * remainingPercentage
+        );
+      }
+
+      // Calculate ETA based on speed and remaining distance (vehicle progress)
+      if (
+        delivery.trackingData.speed > 0 &&
+        delivery.trackingData.remainingDistance > 0
+      ) {
+        const remainingHours =
+          delivery.trackingData.remainingDistance /
+          1000 /
+          delivery.trackingData.speed;
+        delivery.trackingData.estimatedArrival = new Date(
+          Date.now() + remainingHours * 60 * 60 * 1000
+        );
+      }
+
+      // Update delivery status based on VEHICLE PROGRESS only (actual position)
+      if (delivery.status === "pending" && calculatedVehicleProgress > 0) {
         delivery.status = "in_transit";
         delivery.trackingData.active = true;
+      }
 
-        // Add status history entry
-        if (!delivery.statusHistory) {
-          delivery.statusHistory = [];
-        }
+      // If vehicle is near destination (95%+), update status
+      if (calculatedVehicleProgress >= 95 && delivery.status !== "delivered") {
+        delivery.status = "out_for_delivery";
+      }
 
-        delivery.statusHistory.push({
-          status: "in_transit",
-          timestamp: new Date(),
-          notes: "Location updated, delivery started",
-          changedBy: req.user._id,
-        });
+      // If at 100%, mark as delivered
+      if (calculatedVehicleProgress >= 100 && delivery.status !== "delivered") {
+        delivery.status = "delivered";
+        delivery.actualDelivery = new Date();
+        delivery.trackingData.active = false;
       }
 
       // Update timestamps and user info
       delivery.updatedAt = new Date();
-      delivery.updatedBy = req.user._id;
+      delivery.updatedBy = req.user ? req.user._id : null;
 
-      // Add to update log if exists
+      // Add to update log
       if (!delivery.updateLog) {
         delivery.updateLog = [];
       }
@@ -1292,21 +1412,22 @@ class AdminController {
       delivery.updateLog.push({
         action: "location_update",
         timestamp: new Date(),
-        coordinates: [lon, lat],
-        updatedBy: req.user._id,
+        coordinates: delivery.trackingData.currentLocation.coordinates,
+        vehicleProgress: calculatedVehicleProgress,
+        routeProgress: calculatedRouteProgress,
+        updatedBy: req.user ? req.user._id : null,
         source: source || "manual",
       });
 
       // Save the delivery
       await delivery.save();
 
-      // If notifyCustomer is true, send notification (optional)
+      // If notifyCustomer is true, send notification
       if (notifyCustomer === "true" || notifyCustomer === true) {
         console.log(
           `Notification sent to customer for delivery ${delivery.trackingId}`
         );
 
-        // Example notification log
         if (!delivery.notifications) {
           delivery.notifications = [];
         }
@@ -1316,6 +1437,8 @@ class AdminController {
           sentAt: new Date(),
           recipient: delivery.receiver.email,
           status: "sent",
+          vehicleProgress: calculatedVehicleProgress,
+          routeProgress: calculatedRouteProgress,
         });
 
         await delivery.save();
@@ -1325,35 +1448,33 @@ class AdminController {
       const responseData = {
         success: true,
         message: "Location updated successfully",
-        location: delivery.trackingData.currentLocation,
-        progress: delivery.trackingData.routeProgress,
+        tracking: {
+          vehicleProgress: delivery.trackingData.vehicleProgress,
+          routeProgress: delivery.trackingData.routeProgress,
+          currentLocation: delivery.trackingData.currentLocation,
+          speed: delivery.trackingData.speed,
+          bearing: delivery.trackingData.bearing,
+          remainingDistance: delivery.trackingData.remainingDistance,
+          estimatedArrival: delivery.trackingData.estimatedArrival,
+          lastUpdated: delivery.trackingData.lastUpdated,
+        },
         delivery: {
           _id: delivery._id,
           trackingId: delivery.trackingId,
           status: delivery.status,
-          receiver: {
-            name: delivery.receiver.name,
-            address: delivery.receiver.address,
-          },
-          trackingData: {
-            active: delivery.trackingData.active,
-            routeProgress: delivery.trackingData.routeProgress,
-            speed: delivery.trackingData.speed,
-            bearing: delivery.trackingData.bearing,
-            lastUpdated: delivery.trackingData.lastUpdated,
-          },
         },
       };
 
-      // If updateMap is true, trigger map update (optional)
+      // If updateMap is true, trigger map update for Mapbox
       if (updateMap === "true" || updateMap === true) {
-        console.log(`Map update triggered for delivery ${delivery.trackingId}`);
-
-        // Add to response if you want to notify frontend
+        console.log(
+          `Mapbox update triggered for delivery ${delivery.trackingId}`
+        );
         responseData.mapUpdate = {
           triggered: true,
           timestamp: new Date(),
-          coordinates: [lon, lat],
+          coordinates: delivery.trackingData.currentLocation.coordinates,
+          vehicleProgress: delivery.trackingData.vehicleProgress,
         };
       }
 
@@ -1361,20 +1482,12 @@ class AdminController {
     } catch (error) {
       console.error("Error updating location:", error);
 
-      // More specific error messages
       if (error.name === "ValidationError") {
         const errors = Object.values(error.errors).map((err) => err.message);
         return res.status(400).json({
           success: false,
           error: "Validation error",
           details: errors,
-        });
-      }
-
-      if (error.code === 11000) {
-        return res.status(400).json({
-          success: false,
-          error: "Duplicate tracking data detected",
         });
       }
 

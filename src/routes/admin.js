@@ -67,39 +67,6 @@ router.post(
 // Delete delivery (AJAX)
 router.delete("/deliveries/:id", adminController.deleteDelivery);
 
-// Print delivery details
-router.get("/deliveries/:id/print", async (req, res) => {
-  try {
-    const Delivery = require("../models/Delivery");
-    const delivery = await Delivery.findById(req.params.id)
-      .populate("driver", "name phone")
-      .populate("warehouse", "plateNumber model")
-      .lean();
-
-    if (!delivery) {
-      req.flash("error", "Delivery not found");
-      return res.redirect("/admin/deliveries");
-    }
-
-    res.render("admin/print-delivery", {
-      delivery,
-      formatDate: (date) => {
-        return new Date(date).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-      },
-    });
-  } catch (error) {
-    console.error("Error generating print view:", error);
-    req.flash("error", "Error generating print view");
-    res.redirect("/admin/deliveries");
-  }
-});
-
 // ============================================
 // warehouse MANAGEMENT ROUTES
 // ============================================

@@ -1116,6 +1116,157 @@ class TrackingController {
       return this.getDemoDriver();
     }
   }
+
+  // GET /track/print/:trackingId - Print delivery receipt
+  async getPrintReceipt(req, res) {
+    try {
+      const { trackingId } = req.params;
+
+      const delivery = await Delivery.findOne({
+        trackingId: trackingId.toUpperCase(),
+      })
+        .populate("driver", "name phone licenseNumber")
+        .populate("warehouse", "name code address city state phone")
+        .lean();
+
+      if (!delivery) {
+        req.flash("error", "Delivery not found");
+        return res.redirect(`/delivery/track/results?trackingId=${trackingId}`);
+      }
+
+      // Calculate delivery cost
+      const baseRate = 12.99;
+      const weightMultiplier = delivery.package.weight > 5 ? 1.5 : 1;
+      const valueMultiplier = delivery.package.value > 100 ? 1.2 : 1;
+      const distanceMultiplier = 1.1;
+
+      const subtotal =
+        baseRate * weightMultiplier * valueMultiplier * distanceMultiplier;
+      const tax = subtotal * 0.08;
+      const total = subtotal + tax;
+
+      // Format dates
+      const formatDate = (date) => {
+        if (!date) return "N/A";
+        return new Date(date).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      };
+
+      // Generate invoice number
+      const invoiceNumber = `INV-${delivery.trackingId}-${Date.now()
+        .toString()
+        .slice(-6)}`;
+
+      // Format warehouse address
+      let warehouseAddress = "";
+      if (delivery.warehouse) {
+        const parts = [
+          delivery.warehouse.address,
+          delivery.warehouse.city,
+          delivery.warehouse.state,
+        ].filter(Boolean);
+        warehouseAddress = parts.join(", ");
+      }
+
+      // Format sender address
+      const senderAddress = delivery.sender.address
+        ? [
+            delivery.sender.address.street,
+            delivery.sender.address.city,
+            delivery.sender.address.state,
+            delivery.sender.address.postalCode,
+          ]
+            .filter(Boolean)
+            .join(", ")
+        : "N/A";
+
+      // Format receiver address
+      const receiverAddress = delivery.receiver.address
+        ? [
+            delivery.receiver.address.street,
+            delivery.receiver.address.city,
+            delivery.receiver.address.state,
+            delivery.receiver.address.postalCode,
+          ]
+            .filter(Boolean)
+            .join(", ")
+        : "N/A";
+
+      // Get status text
+      const statusText =
+        {
+          pending: "Pending",
+          in_transit: "In Transit",
+          delayed: "Delayed",
+          delivered: "Delivered",
+          cancelled: "Cancelled",
+        }[delivery.status] || delivery.status;
+
+      // Get the base URL for QR code
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+
+      res.render("pages/print-receipt", {
+        title: `Receipt #${delivery.trackingId}`,
+        page: "print-receipt",
+        delivery: {
+          ...delivery,
+          formattedSenderAddress: senderAddress,
+          formattedReceiverAddress: receiverAddress,
+          formattedWarehouseAddress: warehouseAddress,
+          statusText: statusText,
+        },
+        invoice: {
+          invoiceNumber,
+          date: formatDate(new Date()),
+          subtotal: subtotal.toFixed(2),
+          tax: tax.toFixed(2),
+          total: total.toFixed(2),
+          breakdown: [
+            { description: "Base Delivery Fee", amount: baseRate.toFixed(2) },
+            {
+              description: "Weight Surcharge",
+              amount: (baseRate * (weightMultiplier - 1)).toFixed(2),
+            },
+            {
+              description: "Value Insurance",
+              amount: (baseRate * (valueMultiplier - 1)).toFixed(2),
+            },
+            {
+              description: "Distance Charge",
+              amount: (baseRate * (distanceMultiplier - 1)).toFixed(2),
+            },
+          ],
+        },
+        formatDate,
+        company: {
+          name: "ExpressLog Delivery Services",
+          address: "123 Logistics Street, Suite 100",
+          city: "New York, NY 10001",
+          phone: "1-800-EXPRESS",
+          email: "billing@expresslog.com",
+          website: "www.expresslog.com",
+        },
+        currentDate: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+        baseUrl: baseUrl, // Pass base URL to template
+        fullTrackingUrl: `${baseUrl}/delivery/track/results?trackingId=${delivery.trackingId}`, // Pass full tracking URL
+      });
+    } catch (error) {
+      console.error("Print receipt error:", error);
+      req.flash("error", "Error generating print receipt");
+      res.redirect(
+        `/delivery/track/results?trackingId=${req.params.trackingId}`
+      );
+    }
+  }
 }
 
 module.exports = new TrackingController();
