@@ -567,51 +567,77 @@
         </div>
 
         <!-- Invoice -->
+        <!-- Invoice -->
         <div class="section">
           <h3 class="section-title">
             <i class="bi bi-receipt"></i>Invoice #<%= invoice.invoiceNumber %>
           </h3>
-          <table class="table-compact">
+          <table class="table table-compact">
             <thead>
               <tr>
                 <th>Description</th>
+                <th>Method</th>
+                <th>Status</th>
                 <th class="text-right">Amount</th>
               </tr>
             </thead>
             <tbody>
-              <% invoice.breakdown.forEach(function(item) { %>
+              <!-- Base package item -->
               <tr>
-                <td><%= item.description %></td>
-                <td class="text-right">$<%= item.amount %></td>
+                <td>
+                  <%= delivery.package?.description || "Standard Package" %>
+                </td>
+                <td>—</td>
+                <td>—</td>
+                <td class="text-right">
+                  $<%= (delivery.package?.value || 0).toFixed(2) %>
+                </td>
+              </tr>
+
+              <!-- Payments -->
+              <% let paidTotal = 0; const payments = delivery.package?.payments
+              || []; payments.forEach(payment => { if(payment.status === "paid")
+              paidTotal += payment.amount; %>
+              <tr>
+                <td>
+                  Payment <% if (payment.reference) { %>
+                  <small class="text-muted">(#<%= payment.reference %>)</small>
+                  <% } %>
+                </td>
+                <td><%= payment.method.replace("_", " ") %></td>
+                <td>
+                  <span
+                    class="badge <%= payment.status === 'paid' ? 'bg-success' : payment.status === 'pending' ? 'bg-warning' : 'bg-danger' %>"
+                  >
+                    <%= payment.status.toUpperCase() %>
+                  </span>
+                </td>
+                <td class="text-right">$<%= payment.amount.toFixed(2) %></td>
               </tr>
               <% }); %>
-              <tr>
-                <td>Subtotal</td>
-                <td class="text-right">$<%= invoice.subtotal %></td>
-              </tr>
-              <tr>
-                <td>Tax (8%)</td>
-                <td class="text-right">$<%= invoice.tax %></td>
-              </tr>
+
+              <!-- Totals -->
               <tr style="background: #f7fafc">
-                <td class="text-bold">TOTAL</td>
-                <td
-                  class="text-right text-bold"
-                  style="color: var(--accent); font-size: 16px"
-                >
-                  $<%= invoice.total %>
+                <td colspan="3" class="text-bold">TOTAL PACKAGE VALUE</td>
+                <td class="text-right text-bold">
+                  $<%= (delivery.package?.value || 0).toFixed(2) %>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-bold">TOTAL PAID</td>
+                <td class="text-right text-bold text-success">
+                  $<%= paidTotal.toFixed(2) %>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-bold">BALANCE</td>
+                <td class="text-right text-bold text-danger">
+                  $<%= ((delivery.package?.value || 0) - paidTotal).toFixed(2)
+                  %>
                 </td>
               </tr>
             </tbody>
           </table>
-          <div class="info-row" style="margin-top: 12px">
-            <span class="info-label">Payment Method</span>
-            <span class="info-value">Credit Card •••• 4242</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Payment Status</span>
-            <span class="info-value" style="color: var(--success)">Paid</span>
-          </div>
         </div>
 
         <!-- QR Code -->

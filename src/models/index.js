@@ -6,5 +6,4 @@ module.exports = {
   Delivery: require("./Delivery"),
   Driver: require("./Driver"),
   Warehouse: require("./Warehouse"),
-  Route: require("./Route"),
 };

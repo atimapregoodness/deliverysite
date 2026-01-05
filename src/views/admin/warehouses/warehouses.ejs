@@ -1,0 +1,316 @@
+<%- layout('layouts/admin') %>
+<style>
+  .coordinates-badge {
+    background: #f3f4f6;
+    color: #4b5563;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.75rem;
+  }
+  
+  .action-buttons .btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .warehouse-card {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .warehouse-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+</style>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <!-- Header with Flash Messages -->
+      <% if (messages.error) { %>
+        <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-400">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-exclamation-circle text-red-400"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-red-700"><%= messages.error %></p>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      
+      <% if (messages.success) { %>
+        <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-400">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-check-circle text-green-400"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-green-700"><%= messages.success %></p>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Manage Warehouses</h1>
+          <p class="mt-2 text-gray-600">View and manage all warehouse locations</p>
+        </div>
+        <a href="/admin/warehouses/new" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out">
+          <i class="fas fa-plus mr-2"></i>Add Warehouse
+        </a>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="p-2 bg-blue-100 rounded-lg">
+              <i class="fas fa-warehouse text-blue-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Total Warehouses</p>
+              <p class="text-2xl font-bold text-gray-900"><%= warehouses.length %></p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <i class="fas fa-map-marker-alt text-green-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Geolocated</p>
+              <p class="text-2xl font-bold text-gray-900">
+                <%= warehouses.filter(w => w.location && w.location.coordinates[0] !== 0 && w.location.coordinates[1] !== 0).length %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="p-2 bg-purple-100 rounded-lg">
+              <i class="fas fa-clock text-purple-600"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Recently Added</p>
+              <p class="text-2xl font-bold text-gray-900">
+                <%= warehouses.filter(w => {
+                  const oneWeekAgo = new Date();
+                  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                  return new Date(w.createdAt) > oneWeekAgo;
+                }).length %>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="bg-white shadow rounded-lg p-4 mb-6">
+        <form method="GET" class="flex">
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search Warehouses</label>
+            <div class="mt-1 flex rounded-md shadow-sm">
+              <input type="text" name="search" id="search" value="<%= query.search || '' %>" 
+                  class="flex-1 min-w-0 block w-full border border-gray-300 rounded-l-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Search by warehouse name...">
+              <button type="submit" class="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+          <% if (query.search) { %>
+            <div class="ml-3 flex items-end">
+              <a href="/admin/warehouses" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-150 ease-in-out">
+                Clear Filter
+              </a>
+            </div>
+          <% } %>
+        </form>
+      </div>
+
+      <!-- Warehouses Grid -->
+      <% if (warehouses && warehouses.length > 0) { %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% warehouses.forEach(warehouse => { %>
+            <div class="bg-white rounded-lg shadow warehouse-card">
+              <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900"><%= warehouse.name %></h3>
+                    <p class="text-sm text-gray-500 mt-1">Warehouse</p>
+                  </div>
+                  <div class="flex space-x-2">
+                    <a href="/admin/warehouses/<%= warehouse._id %>/edit" 
+                       class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-50"
+                       title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="/admin/warehouses/<%= warehouse._id %>?_method=DELETE" 
+                          method="POST" 
+                          class="delete-warehouse-form inline"
+                          data-id="<%= warehouse._id %>">
+                      <button type="submit" 
+                              class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50"
+                              title="Delete"
+                              onclick="return confirm('Are you sure you want to delete this warehouse?')">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+                
+                <div class="space-y-3">
+                  <div class="flex items-start">
+                    <i class="fas fa-map-marker-alt text-gray-400 mt-0.5 mr-3"></i>
+                    <div>
+                      <p class="text-sm font-medium text-gray-700">Location</p>
+                      <p class="text-sm text-gray-600 mt-1">
+                        <% if (warehouse.location.coordinates[0] !== 0 && warehouse.location.coordinates[1] !== 0) { %>
+                          <span class="coordinates-badge">
+                            <%= warehouse.location.coordinates[1].toFixed(6) %>, <%= warehouse.location.coordinates[0].toFixed(6) %>
+                          </span>
+                        <% } else { %>
+                          <span class="text-yellow-600">Coordinates not set</span>
+                        <% } %>
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start">
+                    <i class="fas fa-calendar-alt text-gray-400 mt-0.5 mr-3"></i>
+                    <div>
+                      <p class="text-sm font-medium text-gray-700">Created</p>
+                      <p class="text-sm text-gray-600 mt-1">
+                        <%= new Date(warehouse.createdAt).toLocaleDateString() %>
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start">
+                    <i class="fas fa-sync-alt text-gray-400 mt-0.5 mr-3"></i>
+                    <div>
+                      <p class="text-sm font-medium text-gray-700">Last Updated</p>
+                      <p class="text-sm text-gray-600 mt-1">
+                        <%= new Date(warehouse.updatedAt).toLocaleDateString() %>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                  <a href="/admin/warehouses/<%= warehouse._id %>" 
+                     class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-eye mr-2"></i>
+                    View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="text-center py-12">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+            <i class="fas fa-warehouse text-3xl text-gray-400"></i>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900">No warehouses found</h3>
+          <p class="mt-2 text-sm text-gray-500">
+            <% if (query.search) { %>
+              No warehouses match your search. Try a different term.
+            <% } else { %>
+              Get started by creating your first warehouse.
+            <% } %>
+          </p>
+          <div class="mt-6">
+            <a href="/admin/warehouses/new" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <i class="fas fa-plus mr-2"></i>Create Warehouse
+            </a>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle delete forms
+  document.querySelectorAll('.delete-warehouse-form').forEach(form => {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const warehouseId = this.dataset.id;
+      const warehouseName = this.closest('.warehouse-card').querySelector('h3').textContent;
+      
+      if (!confirm(`Are you sure you want to delete warehouse "${warehouseName}"? This action cannot be undone.`)) {
+        return;
+      }
+      
+      const button = this.querySelector('button');
+      const originalHTML = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      button.disabled = true;
+      
+      try {
+        const response = await fetch(this.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Show success message and remove the card
+          this.closest('.warehouse-card').remove();
+          
+          // Show toast notification
+          showToast('success', data.message || 'Warehouse deleted successfully');
+          
+          // Update total count
+          updateWarehouseCount();
+        } else {
+          throw new Error(data.error || 'Failed to delete warehouse');
+        }
+      } catch (error) {
+        showToast('error', error.message);
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+      }
+    });
+  });
+  
+  function showToast(type, message) {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-md shadow-lg ${
+      type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+  
+  function updateWarehouseCount() {
+    const totalCount = document.querySelectorAll('.warehouse-card').length;
+    const totalElement = document.querySelector('.text-2xl.font-bold.text-gray-900:first-child');
+    if (totalElement) {
+      totalElement.textContent = totalCount;
+    }
+  }
+});
+</script>

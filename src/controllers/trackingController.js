@@ -215,44 +215,6 @@ function getTrafficConditions() {
   };
 }
 
-// Standalone generateInvoiceData function
-function generateInvoiceData(delivery) {
-  const baseRate = 12.99;
-  const weightMultiplier = delivery.package.weight > 5 ? 1.5 : 1;
-  const valueMultiplier = delivery.package.value > 100 ? 1.2 : 1;
-  const distanceMultiplier = 1.1; // Based on route distance
-
-  const subtotal =
-    baseRate * weightMultiplier * valueMultiplier * distanceMultiplier;
-  const tax = subtotal * 0.08; // 8% tax
-  const total = subtotal + tax;
-
-  return {
-    invoiceNumber: `INV-${delivery.trackingId}-${Date.now()
-      .toString()
-      .slice(-6)}`,
-    date: new Date(),
-    subtotal: subtotal.toFixed(2),
-    tax: tax.toFixed(2),
-    total: total.toFixed(2),
-    breakdown: [
-      { description: "Base Delivery Fee", amount: baseRate.toFixed(2) },
-      {
-        description: "Weight Surcharge",
-        amount: (baseRate * (weightMultiplier - 1)).toFixed(2),
-      },
-      {
-        description: "Value Insurance",
-        amount: (baseRate * (valueMultiplier - 1)).toFixed(2),
-      },
-      {
-        description: "Distance Charge",
-        amount: (baseRate * (distanceMultiplier - 1)).toFixed(2),
-      },
-    ],
-  };
-}
-
 /* ============================
    CONTROLLER CLASS
 ============================ */
@@ -747,14 +709,11 @@ class TrackingController {
         });
       }
 
-      // Generate invoice data using standalone function
-      const invoiceData = generateInvoiceData(delivery);
-
       res.render("pages/invoice", {
         title: `Invoice #${trackingId} - ExpressLog`,
         page: "invoice",
         delivery: delivery.toObject(),
-        invoice: invoiceData,
+
         company: {
           name: "ExpressLog Delivery Services",
           address: "123 Logistics Street, Suite 100",

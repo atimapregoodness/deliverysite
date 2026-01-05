@@ -562,7 +562,7 @@
             <li>
               <a
                 class="dropdown-item"
-                href="/admin/deliveries/<%= delivery._id %>/print"
+                href="/delivery/track/print/<%= delivery.trackingId %>"
                 target="_blank"
               >
                 <i class="fas fa-print me-2"></i>Print Details
@@ -630,6 +630,23 @@
         <i class="fas fa-times-circle me-2 text-danger"></i>Cancel Delivery
       </button>
       <% } %>
+      <button
+        class="action-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#paymentModal"
+      >
+        <i class="fas fa-credit-card me-2 text-primary"></i>Manage Payments
+      </button>
+<a
+  href="/delivery/track/results?trackingId=<%= encodeURIComponent(delivery.trackingId) %>"
+  class="action-btn btn view-btn-sm"
+  title="View Tracking"
+>
+  <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+  Visit Link
+</a>
+
+           
     </div>
   </div>
 
@@ -1136,8 +1153,8 @@
                 </span>
                 <% if (incident.emergencyServices) { %>
                 <span class="badge bg-danger ms-1"
-                  >EMERGENCY SERVICES CALLED</span
-                >
+                  >EMERGENCY SERVICES CALLED
+                </span>
                 <% } %>
               </div>
             </div>
@@ -1224,86 +1241,81 @@
         </div>
       </div>
     </div>
-
-    <!-- Resolve Incident Modal -->
-    <% if (!incident.resolved) { %>
-    <div
-      class="modal fade"
-      id="resolveIncidentModal<%= index %>"
-      tabindex="-1"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Resolve Incident</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <form
-            action="/admin/deliveries/<%= delivery._id %>/incidents/<%= incident._id %>/resolve"
-            method="POST"
-            data-ajax="true"
-          >
-            <div class="modal-body">
-              <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>
-                Marking this incident as resolved will update the delivery
-                status and notify involved parties.
-              </div>
-
-              <div class="mb-3">
-                <label for="resolutionNotes<%= index %>" class="form-label"
-                  >Resolution Notes</label
-                >
-                <textarea
-                  class="form-control"
-                  id="resolutionNotes<%= index %>"
-                  name="resolutionNotes"
-                  rows="3"
-                  placeholder="Enter any notes about how the incident was resolved..."
-                ></textarea>
-              </div>
-
-              <div class="mb-3">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="notifyParties<%= index %>"
-                    name="notifyParties"
-                    checked
-                  />
-                  <label
-                    class="form-check-label"
-                    for="notifyParties<%= index %>"
-                  >
-                    Notify sender and receiver about resolution
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancel
-              </button>
-              <button type="submit" class="btn btn-success">
-                <i class="fas fa-check-circle me-2"></i>Mark as Resolved
-              </button>
-            </div>
-          </form>
-        </div>
+<!-- Resolve Incident Modal -->
+<% if (!incident.resolved) { %>
+<div
+  class="modal fade"
+  id="resolveIncidentModal<%= index %>"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Resolve Incident</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
-    </div>
-    <% } %>
+      <!-- AJAX Form for Resolve -->
+      <!-- ADD data-incident-index ATTRIBUTE HERE -->
+      <form id="resolveIncidentForm<%= index %>" data-incident-index="<%= index %>">
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Marking this incident as resolved will update the delivery status and notify involved parties.
+          </div>
 
+          <div class="mb-3">
+            <label for="resolutionNotes<%= index %>" class="form-label"
+              >Resolution Notes</label
+            >
+            <textarea
+              class="form-control"
+              id="resolutionNotes<%= index %>"
+              name="resolutionNotes"
+              rows="3"
+              placeholder="Enter any notes about how the incident was resolved..."
+            ></textarea>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="notifyParties<%= index %>"
+                name="notifyParties"
+                checked
+              />
+              <label
+                class="form-check-label"
+                for="notifyParties<%= index %>"
+              >
+                Notify sender and receiver about resolution
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-check-circle me-2"></i>Mark as Resolved
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
     <!-- Delete Incident Modal -->
     <div
       class="modal fade"
@@ -1321,12 +1333,8 @@
               data-bs-dismiss="modal"
             ></button>
           </div>
-          <form
-            action="/admin/deliveries/<%= delivery._id %>/incidents/<%= incident._id %>"
-            method="POST"
-            data-ajax="true"
-          >
-            <input type="hidden" name="_method" value="DELETE" />
+          <!-- AJAX Form for Delete -->
+          <form id="deleteIncidentForm<%= index %>">
             <div class="modal-body">
               <div class="alert alert-danger">
                 <i class="fas fa-exclamation-triangle me-2"></i>
@@ -1378,28 +1386,276 @@
   <!-- Modals -->
   <%- include('modals/edit-modal') %> <%- include('modals/status-modal') %> <%-
   include('modals/incident-modal') %> <%- include('modals/location-modal') %>
-  <%- include('modals/driver-modal') %>
+  <%- include('modals/driver-modal') %> <%- include('modals/payment-modal') %>
 </div>
-
 <script>
+    const DELIVERY_ID = '<%= delivery._id %>';
+  
   document.addEventListener("DOMContentLoaded", () => {
-    // Bootstrap handles z-index correctly — DO NOT override
-    // Removed manual zIndex manipulation
-
-    // Attach AJAX handler ONLY to forms that explicitly request it
+    // Attach AJAX handler to all forms with data-ajax attribute
     document.querySelectorAll("form[data-ajax='true']").forEach((form) => {
       form.addEventListener("submit", handleAjaxForm);
     });
+
+    // Attach event listeners for incident forms
+    attachIncidentFormHandlers();
   });
 
   /* ============================
-   AJAX FORM HANDLER
-============================ */
+   ATTACH INCIDENT FORM HANDLERS
+  ============================ */
+  function attachIncidentFormHandlers() {
+    console.log("Attaching incident form handlers...");
+    
+    // Attach resolve incident form handlers
+    document.querySelectorAll("form[id^='resolveIncidentForm']").forEach((form) => {
+      console.log("Found resolve form:", form.id, "with data:", form.dataset);
+      form.addEventListener("submit", handleResolveIncident);
+    });
+
+    // Attach delete incident form handlers
+    document.querySelectorAll("form[id^='deleteIncidentForm']").forEach((form) => {
+      console.log("Found delete form:", form.id, "with data:", form.dataset);
+      form.addEventListener("submit", handleDeleteIncident);
+    });
+  }
+
+  /* ============================
+   HELPER: GET INCIDENT INDEX
+  ============================ */
+  function getIncidentIndex(form) {
+    // Try multiple ways to get the incident index
+    let incidentIndex = null;
+    
+    // 1. Try from data-incident-index attribute
+    if (form.dataset.incidentIndex !== undefined) {
+      incidentIndex = form.dataset.incidentIndex;
+    }
+    // 2. Try from form id (extract the number)
+    else if (form.id) {
+      const match = form.id.match(/\d+/);
+      if (match) {
+        incidentIndex = match[0];
+      }
+    }
+    // 3. Try from action URL
+    else if (form.action) {
+      const match = form.action.match(/incidents\/(\d+)/);
+      if (match) {
+        incidentIndex = match[1];
+      }
+    }
+    
+    console.log("Extracted incident index:", incidentIndex, "from form:", form.id);
+    return incidentIndex;
+  }
+
+  /* ============================
+   DELETE INCIDENT HANDLER - FIXED
+  ============================ */
+  async function handleDeleteIncident(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    
+    // Use helper function to get incident index
+    const incidentIndex = getIncidentIndex(form);
+    const deliveryId = DELIVERY_ID;
+    
+    console.log("Delete incident - deliveryId:", deliveryId, "incidentIndex:", incidentIndex);
+    
+    if (!deliveryId || incidentIndex === null || incidentIndex === undefined) {
+      console.error("Missing identifiers:", { deliveryId, incidentIndex, formId: form.id });
+      toast("danger", "Missing delivery or incident identifier. Please refresh the page and try again.");
+      return;
+    }
+
+    // Show confirmation dialog
+    if (!confirm("Are you sure you want to delete this incident? This action cannot be undone.")) {
+      return;   
+    }   
+
+    const submitBtn = form.querySelector("button[type='submit']");
+    const modalEl = form.closest(".modal");
+    const modalInstance = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+
+    // Store original button state
+    const originalHTML = submitBtn?.innerHTML || "";
+    const originalDisabled = submitBtn?.disabled || false;
+    
+    if (submitBtn) {
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+      submitBtn.disabled = true;
+    }
+
+    try {
+      console.log('Sending delete request:', {
+        deliveryId,
+        incidentIndex
+      });
+
+      const res = await fetch(`/admin/deliveries/${deliveryId}/incidents/${incidentIndex}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: "same-origin"
+      });
+
+      // Check if response is JSON
+      const contentType = res.headers.get("content-type") || "";
+      
+      let response;
+      if (contentType.includes("application/json")) {
+        response = await res.json();
+      } else {
+        const text = await res.text();
+        console.error("Non-JSON response from server:", text.substring(0, 500));
+        throw new Error(`Server returned unexpected response. Status: ${res.status}`);
+      }
+
+      if (!res.ok || !response.success) {
+        throw new Error(response.error || `Failed to delete incident. Status: ${res.status}`);
+      }
+
+      // Close modal if exists
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+
+      toast("success", response.message || "Incident deleted successfully");
+
+      // Refresh page after a delay
+      setTimeout(() => {
+        location.reload();
+      }, 1500);
+    } catch (err) {
+      console.error("Delete incident error:", err);
+      toast("danger", err.message || "An error occurred while deleting incident");
+      
+      // Restore button state
+      if (submitBtn) {
+        submitBtn.innerHTML = originalHTML;
+        submitBtn.disabled = originalDisabled;
+      }
+    }
+  }
+
+  /* ============================
+   RESOLVE INCIDENT HANDLER - FIXED
+  ============================ */
+  async function handleResolveIncident(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    
+    // Use helper function to get incident index
+    const incidentIndex = getIncidentIndex(form);
+    const deliveryId = DELIVERY_ID;
+
+    console.log("Resolving incident:", {
+      deliveryId,
+      incidentIndex
+    });
+
+    if (!deliveryId || incidentIndex === null || incidentIndex === undefined) {
+      console.error("Missing identifiers:", { deliveryId, incidentIndex, formId: form.id });
+      toast("danger", "Missing delivery or incident identifier. Please refresh the page and try again.");
+      return;
+    }
+
+    const submitBtn = form.querySelector("button[type='submit']");
+    const modalEl = form.closest(".modal");
+    const modalInstance = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+
+    // Store original button state
+    const originalHTML = submitBtn?.innerHTML || "";
+    const originalDisabled = submitBtn?.disabled || false;
+    
+    if (submitBtn) {
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+      submitBtn.disabled = true;
+    }
+
+    try {
+      // Get form values safely
+      const resolutionNotes = document.getElementById(`resolutionNotes${incidentIndex}`)?.value || "";
+      const notifyParties = document.getElementById(`notifyParties${incidentIndex}`)?.checked || false;
+
+      console.log('Sending resolve request:', {
+        deliveryId,
+        incidentIndex,
+        resolutionNotes,
+        notifyParties
+      });
+
+      const res = await fetch(
+        `/admin/deliveries/${deliveryId}/incidents/${incidentIndex}/resolve-accident`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ 
+            resolutionNotes, 
+            notifyParties 
+          }),
+          credentials: "same-origin"
+        }
+      );
+
+      // Check response type
+      const contentType = res.headers.get("content-type") || "";
+      
+      let response;
+      if (contentType.includes("application/json")) {
+        response = await res.json();
+      } else {
+        const text = await res.text();
+        console.error("Non-JSON response from server:", text.substring(0, 500));
+        throw new Error(`Server returned unexpected response. Status: ${res.status}`);
+      }
+
+      if (!res.ok || !response.success) {
+        throw new Error(response.error || "Resolution failed");
+      }
+
+      // Close modal if exists
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+
+      toast("success", response.message || "Incident resolved successfully");
+
+      // Refresh page after a delay
+      setTimeout(() => {
+        location.reload();
+      }, 1200);
+
+    } catch (err) {
+      console.error("Resolve incident error:", err);
+      toast("danger", err.message || "An error occurred while resolving incident");
+      
+      // Restore button state
+      if (submitBtn) {
+        submitBtn.innerHTML = originalHTML;
+        submitBtn.disabled = originalDisabled;
+      }
+    }
+  }
+
+  /* ============================
+   AJAX FORM HANDLER (for non-incident forms only)
+  ============================ */
   async function handleAjaxForm(e) {
     e.preventDefault();
     const form = e.target;
     const submitBtn = form.querySelector("button[type='submit']");
     const originalHTML = submitBtn.innerHTML;
+    const modalEl = form.closest(".modal");
+    const modalInstance = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
 
     submitBtn.innerHTML =
       '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
@@ -1412,19 +1668,34 @@
         headers: { Accept: "application/json" },
       });
 
+      // Check if response is JSON
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON response:", text.substring(0, 500));
+        throw new Error("Server returned non-JSON response");
+      }
+
       const data = await res.json();
 
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Operation failed");
       }
 
-      const modalEl = form.closest(".modal");
-      if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
+      // Close modal if exists
+      if (modalInstance) {
+        modalInstance.hide();
+      }
 
       toast("success", data.message || "Operation successful");
-      setTimeout(() => location.reload(), 1200);
+
+      // Refresh page after a delay
+      setTimeout(() => {
+        location.reload();
+      }, 1200);
     } catch (err) {
-      toast("danger", err.message);
+      console.error("Form submission error:", err);
+      toast("danger", err.message || "An error occurred");
       submitBtn.innerHTML = originalHTML;
       submitBtn.disabled = false;
     }
@@ -1432,8 +1703,9 @@
 
   /* ============================
    TOAST NOTIFICATIONS
-============================ */
+  ============================ */
   function toast(type, message) {
+    // Remove existing toasts
     document.querySelectorAll(".alert-toast").forEach((a) => a.remove());
 
     const div = document.createElement("div");
@@ -1454,7 +1726,7 @@
 
   /* ============================
    ACTION HANDLERS
-============================ */
+  ============================ */
   async function postAction(url, confirmText, successMsg) {
     if (!confirm(confirmText)) return;
 
@@ -1499,21 +1771,34 @@
     );
   }
 
+  // Delete delivery function (for the main delivery delete)
   async function deleteDelivery() {
-    if (!confirm("Delete this delivery permanently?")) return;
+    if (
+      !confirm(
+        "Are you sure you want to delete this delivery? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
 
     try {
       const res = await fetch(`/admin/deliveries/<%= delivery._id %>`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+
       const data = await res.json();
 
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Delete failed");
       }
 
-      toast("success", "Delivery deleted");
-      setTimeout(() => (location.href = "/admin/deliveries"), 1200);
+      toast("success", "Delivery deleted successfully");
+      setTimeout(() => {
+        window.location.href = "/admin/deliveries";
+      }, 1500);
     } catch (err) {
       toast("danger", err.message);
     }

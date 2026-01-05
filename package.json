@@ -10,7 +10,8 @@
     "seed:admin": "node src/seeds/seedAdmin.js",
     "seed:drivers": "node src/seeds/seedDrivers.js",
     "seed:warehouse": "node src/seeds/seedWarehouses.js",
-    "seed:deliveries": "node src/seeds/seedDeliveries.js"
+    "seed:deliveries": "node src/seeds/seedDeliveries.js",
+    "seed:settings": "node src/seeds/seedSettings.js" 
   },
   "dependencies": {
     "@mapbox/mapbox-sdk": "^0.15.4",
@@ -34,6 +35,7 @@
     "ioredis": "^5.3.2",
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
+    "method-override": "^3.0.0",
     "mongoose": "^8.0.3",
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",

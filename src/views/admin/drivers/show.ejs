@@ -1,0 +1,191 @@
+<%- layout('layouts/admin') %>
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Back button -->
+    <a href="/admin/drivers" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-6">
+      <i class="fas fa-arrow-left mr-2"></i> Back to Drivers
+    </a>
+
+    <!-- Driver Profile Card -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-8">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <% if (driver.photo) { %>
+              <img src="<%= driver.photo %>" alt="<%= driver.name %>" class="h-24 w-24 rounded-full border-4 border-white shadow-lg">
+            <% } else { %>
+              <div class="h-24 w-24 rounded-full bg-white flex items-center justify-center border-4 border-white shadow-lg">
+                <span class="text-blue-600 text-3xl font-bold">
+                  <%= driver.name.charAt(0).toUpperCase() %>
+                </span>
+              </div>
+            <% } %>
+            <div class="ml-6">
+              <h1 class="text-3xl font-bold text-white"><%= driver.name %></h1>
+              <p class="text-blue-100 mt-1"><%= driver.email %></p>
+              <div class="flex items-center mt-2">
+                <span class="bg-white text-blue-600 px-3 py-1 rounded-full text-sm font-semibold">
+                  <%= driver.status.replace('_', ' ').toUpperCase() %>
+                </span>
+                <span class="ml-3 text-white">
+                  <i class="fas fa-star mr-1"></i>
+                  <%= driver.rating.toFixed(1) %> (<%= driver.stats.ratingCount %> ratings)
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="flex space-x-3">
+            <a href="/admin/drivers/<%= driver._id %>/edit" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition duration-150">
+              <i class="fas fa-edit mr-2"></i> Edit
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="px-6 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Personal Information -->
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Personal Information</h2>
+            <dl class="space-y-4">
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= driver.phone %></dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">License Number</dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= driver.licenseNumber %></dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Member Since</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                  <%= new Date(driver.createdAt).toLocaleDateString() %>
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Statistics -->
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Performance Statistics</h2>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600"><%= driver.stats.totalDeliveries %></div>
+                <div class="text-sm text-gray-600">Total Deliveries</div>
+              </div>
+              <div class="bg-green-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-green-600"><%= driver.stats.onTimeDeliveries %></div>
+                <div class="text-sm text-gray-600">On-Time Deliveries</div>
+              </div>
+              <div class="bg-yellow-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-yellow-600"><%= driver.stats.totalDistance.toFixed(1) %></div>
+                <div class="text-sm text-gray-600">Total Distance (km)</div>
+              </div>
+              <div class="bg-purple-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-purple-600"><%= driver.rating.toFixed(1) %></div>
+                <div class="text-sm text-gray-600">Average Rating</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Location -->
+          <% if (driver.currentLocation && driver.currentLocation.coordinates[0] !== 0 && driver.currentLocation.coordinates[1] !== 0) { %>
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900 mb-4">Current Location</h2>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="text-sm text-gray-600">
+                  <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>
+                  Latitude: <%= driver.currentLocation.coordinates[1].toFixed(6) %><br>
+                  Longitude: <%= driver.currentLocation.coordinates[0].toFixed(6) %>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  Last updated: <%= new Date(driver.currentLocation.lastUpdated).toLocaleString() %>
+                </p>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- Assigned Vehicle -->
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Assigned Vehicle</h2>
+            <% if (driver.assignedVehicle) { %>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="flex items-center">
+                  <i class="fas fa-truck text-gray-400 text-2xl mr-3"></i>
+                  <div>
+                    <div class="font-medium text-gray-900">
+                      <%= driver.assignedVehicle.plateNumber %>
+                    </div>
+                    <% if (driver.assignedVehicle.model) { %>
+                      <div class="text-sm text-gray-600">
+                        <%= driver.assignedVehicle.model %>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% } else { %>
+              <div class="bg-yellow-50 p-4 rounded-lg">
+                <div class="flex items-center">
+                  <i class="fas fa-exclamation-triangle text-yellow-500 mr-3"></i>
+                  <div class="text-yellow-700">
+                    No vehicle assigned
+                  </div>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Current Deliveries -->
+        <% if (driver.currentDeliveries && driver.currentDeliveries.length > 0) { %>
+          <div class="mt-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Current Deliveries</h2>
+            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Delivery ID
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Created
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% driver.currentDeliveries.forEach(delivery => { %>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <a href="/admin/deliveries/<%= delivery._id %>" class="text-blue-600 hover:text-blue-900">
+                          <%= delivery._id.toString().slice(-6) %>
+                        </a>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                          <%= delivery.status === 'delivered' ? 'bg-green-100 text-green-800' : 
+                             delivery.status === 'in_transit' ? 'bg-blue-100 text-blue-800' : 
+                             'bg-yellow-100 text-yellow-800' %>">
+                          <%= delivery.status %>
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <%= new Date(delivery.createdAt).toLocaleDateString() %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

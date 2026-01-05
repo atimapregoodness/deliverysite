@@ -1,0 +1,375 @@
+<%- layout('layouts/admin') %>
+
+<style>
+  .required:after {
+    content: " *";
+    color: #ef4444;
+  }
+  
+  .map-container {
+    height: 400px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .mapboxgl-ctrl-geocoder {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .quick-location {
+    transition: all 0.2s;
+  }
+  
+  .quick-location:hover {
+    transform: translateY(-2px);
+  }
+</style>
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Add New Warehouse</h1>
+            <p class="mt-1 text-sm text-gray-600">Create a new warehouse location</p>
+          </div>
+          <a href="/admin/warehouses" class="text-sm text-gray-500 hover:text-gray-700">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Warehouses
+          </a>
+        </div>
+      </div>
+
+      <form action="/admin/warehouses" method="POST" class="px-6 py-6">
+        <!-- Warehouse Information -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Warehouse Information</h3>
+          <div class="space-y-6">
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700 required">Warehouse Name</label>
+              <input type="text" name="name" id="name" 
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                     required
+                     placeholder="e.g., Main Distribution Center">
+            </div>
+            
+            <div>
+              <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+              <input type="text" name="address" id="address" 
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                     placeholder="Enter full address">
+            </div>
+            
+            <div>
+              <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity (sq ft)</label>
+              <input type="number" name="capacity" id="capacity" 
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                     placeholder="e.g., 50000">
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Selection -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Location Selection</h3>
+          <p class="text-sm text-gray-600 mb-4">Search for a location or click on the map to set coordinates.</p>
+          
+          <!-- Mapbox Search -->
+          <div class="mb-4">
+            <div id="geocoder" class="geocoder"></div>
+          </div>
+          
+          <!-- Interactive Map -->
+          <div class="mb-6">
+            <div id="map" class="map-container"></div>
+            <p class="mt-2 text-xs text-gray-500">Click on the map to set the exact location</p>
+          </div>
+          
+          <!-- Coordinates Display -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="latitude" class="block text-sm font-medium text-gray-700 required">Latitude</label>
+              <input type="number" step="any" name="latitude" id="latitude" 
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                     required
+                     readonly>
+              <p class="mt-1 text-xs text-gray-500">Latitude will be set from map selection</p>
+            </div>
+            
+            <div>
+              <label for="longitude" class="block text-sm font-medium text-gray-700 required">Longitude</label>
+              <input type="number" step="any" name="longitude" id="longitude" 
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                     required
+                     readonly>
+              <p class="mt-1 text-xs text-gray-500">Longitude will be set from map selection</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Location Buttons -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Locations</h3>
+          <p class="text-sm text-gray-600 mb-3">Select a common location:</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <button type="button" class="quick-location px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 hover:shadow"
+                    data-lat="40.7128" data-lng="-74.0060" data-name="New York City">
+              New York City
+            </button>
+            <button type="button" class="quick-location px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 hover:shadow"
+                    data-lat="34.0522" data-lng="-118.2437" data-name="Los Angeles">
+              Los Angeles
+            </button>
+            <button type="button" class="quick-location px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 hover:shadow"
+                    data-lat="41.8781" data-lng="-87.6298" data-name="Chicago">
+              Chicago
+            </button>
+            <button type="button" class="quick-location px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 hover:shadow"
+                    data-lat="29.7604" data-lng="-95.3698" data-name="Houston">
+              Houston
+            </button>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <a href="/admin/warehouses" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Cancel
+          </a>
+          <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="fas fa-save mr-2"></i>Create Warehouse
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Load Mapbox GL JS and Geocoder -->
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+
+<script>
+// Initialize with default coordinates (center of US)
+const DEFAULT_LAT = 39.8283;
+const DEFAULT_LNG = -98.5795;
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if Mapbox token is provided via data attribute or variable
+  let mapboxToken = '<%=mapboxToken%>';
+  
+  // Try to get token from data attribute on the map container
+  const mapContainer = document.getElementById('map');
+  if (mapContainer && mapContainer.dataset.token) {
+    mapboxToken = mapContainer.dataset.token;
+  }
+  // Or from a global variable set in the layout
+  else if (window.mapboxToken) {
+    mapboxToken = window.mapboxToken;
+  }
+  // Or from a meta tag
+  else {
+    const metaToken = document.querySelector('meta[name="mapbox-token"]');
+    if (metaToken) {
+      mapboxToken = metaToken.getAttribute('content');
+    }
+  }
+  
+  if (!mapboxToken) {
+    console.error('Mapbox token is not set.');
+    // Show a fallback input for manual coordinate entry
+    document.getElementById('map').innerHTML = `
+      <div class="h-full flex items-center justify-center bg-gray-100">
+        <div class="text-center p-6">
+          <i class="fas fa-map-marker-alt text-4xl text-gray-400 mb-3"></i>
+          <p class="text-gray-600 mb-4">Mapbox integration not configured</p>
+          <div class="space-y-3">
+            <div>
+              <input type="number" step="any" name="latitude" 
+                     class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                     placeholder="Enter latitude manually" required>
+            </div>
+            <div>
+              <input type="number" step="any" name="longitude" 
+                     class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                     placeholder="Enter longitude manually" required>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Remove readonly from coordinate inputs
+    document.getElementById('latitude').removeAttribute('readonly');
+    document.getElementById('longitude').removeAttribute('readonly');
+    return;
+  }
+  
+  // Set Mapbox access token
+  mapboxgl.accessToken = mapboxToken;
+  
+  // Initialize map
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [DEFAULT_LNG, DEFAULT_LAT],
+    zoom: 3
+  });
+  
+  // Add navigation controls
+  map.addControl(new mapboxgl.NavigationControl());
+  
+  // Initialize marker
+  let marker = new mapboxgl.Marker({
+    draggable: true,
+    color: '#3B82F6'
+  })
+    .setLngLat([DEFAULT_LNG, DEFAULT_LAT])
+    .addTo(map);
+  
+  // Update coordinates when marker is dragged
+  function updateCoordinates(lng, lat) {
+    document.getElementById('longitude').value = lng.toFixed(6);
+    document.getElementById('latitude').value = lat.toFixed(6);
+    
+    // Update address field if we have reverse geocoding data
+    reverseGeocode(lng, lat);
+  }
+  
+  // Get initial coordinates from marker
+  updateCoordinates(DEFAULT_LNG, DEFAULT_LAT);
+  
+  // Update coordinates on marker drag end
+  marker.on('dragend', function() {
+    const lngLat = marker.getLngLat();
+    updateCoordinates(lngLat.lng, lngLat.lat);
+    map.flyTo({
+      center: [lngLat.lng, lngLat.lat],
+      zoom: 12
+    });
+  });
+  
+  // Update marker when clicking on map
+  map.on('click', function(e) {
+    marker.setLngLat(e.lngLat);
+    updateCoordinates(e.lngLat.lng, e.lngLat.lat);
+    
+    // Zoom to clicked location
+    map.flyTo({
+      center: e.lngLat,
+      zoom: 12
+    });
+  });
+  
+  // Initialize geocoder
+  const geocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    mapboxgl: mapboxgl,
+    marker: false,
+    placeholder: 'Search for a location...',
+    countries: 'us',
+    types: 'address,place,postcode,locality,neighborhood'
+  });
+  
+  // Add geocoder to the map
+  document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+  
+  // Handle geocoder result
+  geocoder.on('result', function(e) {
+    const result = e.result;
+    const coordinates = result.geometry.coordinates;
+    const lng = coordinates[0];
+    const lat = coordinates[1];
+    
+    // Update marker position
+    marker.setLngLat([lng, lat]);
+    
+    // Update coordinates
+    updateCoordinates(lng, lat);
+    
+    // Update warehouse name with place name if empty
+    const nameInput = document.getElementById('name');
+    if (nameInput.value === '' && result.place_name) {
+      nameInput.value = result.place_name.split(',')[0];
+    }
+    
+    // Update address field
+    const addressInput = document.getElementById('address');
+    if (addressInput.value === '' && result.place_name) {
+      addressInput.value = result.place_name;
+    }
+    
+    // Fly to location
+    map.flyTo({
+      center: [lng, lat],
+      zoom: 14
+    });
+  });
+  
+  // Quick location buttons
+  document.querySelectorAll('.quick-location').forEach(button => {
+    button.addEventListener('click', function() {
+      const lat = parseFloat(this.dataset.lat);
+      const lng = parseFloat(this.dataset.lng);
+      const name = this.dataset.name;
+      
+      // Update marker
+      marker.setLngLat([lng, lat]);
+      
+      // Update coordinates
+      updateCoordinates(lng, lat);
+      
+      // Update warehouse name if empty
+      const nameInput = document.getElementById('name');
+      if (nameInput.value === '') {
+        nameInput.value = name + ' Warehouse';
+      }
+      
+      // Fly to location
+      map.flyTo({
+        center: [lng, lat],
+        zoom: 10
+      });
+    });
+  });
+  
+  // Reverse geocode function
+  function reverseGeocode(lng, lat) {
+    fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.features && data.features.length > 0) {
+          const addressInput = document.getElementById('address');
+          if (addressInput.value === '') {
+            addressInput.value = data.features[0].place_name;
+          }
+        }
+      })
+      .catch(error => console.error('Reverse geocoding error:', error));
+  }
+  
+  // Form validation
+  const form = document.querySelector('form');
+  form.addEventListener('submit', function(e) {
+    const lat = document.getElementById('latitude').value;
+    const lng = document.getElementById('longitude').value;
+    const name = document.getElementById('name').value;
+    
+    if (!name.trim()) {
+      e.preventDefault();
+      alert('Please enter a warehouse name.');
+      document.getElementById('name').focus();
+      return;
+    }
+    
+    if (!lat || !lng) {
+      e.preventDefault();
+      alert('Please select a location on the map.');
+      return;
+    }
+  });
+});
+</script>

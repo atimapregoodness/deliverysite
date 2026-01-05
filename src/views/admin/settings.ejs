@@ -1,0 +1,352 @@
+<%- layout('layouts/admin') %>
+<title>Company Settings - Admin</title>
+
+<style>
+  .settings-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .settings-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+
+  .settings-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+  }
+
+  .settings-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+  }
+
+  .settings-body {
+    padding: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .form-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+
+  .btn-primary {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.625rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: #2563eb;
+  }
+
+  .alert {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+  }
+
+  .alert-success {
+    background-color: #d1fae5;
+    border: 1px solid #10b981;
+    color: #065f46;
+  }
+
+  .alert-error {
+    background-color: #fee2e2;
+    border: 1px solid #ef4444;
+    color: #991b1b;
+  }
+
+  .address-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .email-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .basic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+</style>
+
+<div class="settings-container">
+  <!-- Page Header -->
+  <div class="settings-card">
+    <div class="settings-header">
+      <h1 class="settings-title">
+        <i class="fas fa-building mr-2 text-blue-500"></i>
+        Company Information
+      </h1>
+      <p class="text-sm text-gray-600 mt-1">
+        Update your business contact details and domain
+      </p>
+    </div>
+
+    <form action="/admin/settings/update" method="POST" class="settings-body">
+      <!-- Basic Company Info -->
+      <h3 class="font-medium text-gray-900 mb-4">Basic Information</h3>
+      <div class="basic-grid mb-6">
+        <div class="form-group">
+          <label class="form-label">Company Name</label>
+          <input
+            type="text"
+            name="companyName"
+            class="form-control"
+            value="<%= appSettings.companyName || '' %>"
+            placeholder="My Company"
+          />
+          <p class="form-text">Your company's official name</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Site Title</label>
+          <input
+            type="text"
+            name="siteTitle"
+            class="form-control"
+            value="<%= appSettings.siteTitle || '' %>"
+            placeholder="Delivery Management System"
+          />
+          <p class="form-text">Title displayed in browser tab</p>
+        </div>
+      </div>
+
+      <!-- Domain Name -->
+      <div class="form-group">
+        <label class="form-label">Domain Name</label>
+        <input
+          type="text"
+          name="domainName"
+          class="form-control"
+          value="<%= appSettings.domainName || '' %>"
+          placeholder="example.com"
+        />
+        <p class="form-text">Your website domain (without http://)</p>
+      </div>
+
+      <!-- Email Addresses -->
+      <h3 class="font-medium text-gray-900 mb-4">Email Addresses</h3>
+      <div class="email-grid mb-6">
+        <div class="form-group">
+          <label class="form-label">Support Email</label>
+          <input
+            type="email"
+            name="supportEmail"
+            class="form-control"
+            value="<%= appSettings.supportEmail || '' %>"
+            placeholder="support@example.com"
+            required
+          />
+          <p class="form-text">Customer support inquiries</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Info Email</label>
+          <input
+            type="email"
+            name="infoEmail"
+            class="form-control"
+            value="<%= appSettings.infoEmail || '' %>"
+            placeholder="info@example.com"
+          />
+          <p class="form-text">General information</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Admin Email</label>
+          <input
+            type="email"
+            name="adminEmail"
+            class="form-control"
+            value="<%= appSettings.adminEmail || '' %>"
+            placeholder="admin@example.com"
+            required
+          />
+          <p class="form-text">System notifications</p>
+        </div>
+      </div>
+
+      <!-- Phone Number -->
+      <div class="form-group">
+        <label class="form-label">Company Phone Number</label>
+        <input
+          type="tel"
+          name="phoneNumber"
+          class="form-control"
+          value="<%= appSettings.phoneNumber || '' %>"
+          placeholder="+1 (555) 123-4567"
+        />
+        <p class="form-text">Primary business contact number</p>
+      </div>
+
+      <!-- Company Address -->
+      <h3 class="font-medium text-gray-900 mb-4">Company Address</h3>
+      <input
+        type="hidden"
+        name="companyAddress"
+        id="companyAddress"
+        value="<%= JSON.stringify(appSettings.companyAddress || {}) %>"
+      />
+
+      <div class="address-grid">
+        <div class="form-group">
+          <label class="form-label">Street Address</label>
+          <input
+            type="text"
+            id="addressStreet"
+            class="form-control"
+            value="<%= appSettings.companyAddress && appSettings.companyAddress.street || '' %>"
+            onchange="updateAddressField()"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">City</label>
+          <input
+            type="text"
+            id="addressCity"
+            class="form-control"
+            value="<%= appSettings.companyAddress && appSettings.companyAddress.city || '' %>"
+            onchange="updateAddressField()"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">State/Province</label>
+          <input
+            type="text"
+            id="addressState"
+            class="form-control"
+            value="<%= appSettings.companyAddress && appSettings.companyAddress.state || '' %>"
+            onchange="updateAddressField()"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ZIP/Postal Code</label>
+          <input
+            type="text"
+            id="addressZip"
+            class="form-control"
+            value="<%= appSettings.companyAddress && appSettings.companyAddress.zipCode || '' %>"
+            onchange="updateAddressField()"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Country</label>
+          <input
+            type="text"
+            id="addressCountry"
+            class="form-control"
+            value="<%= appSettings.companyAddress && appSettings.companyAddress.country || '' %>"
+            onchange="updateAddressField()"
+          />
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-4 border-t border-gray-200">
+        <button type="submit" class="btn-primary">
+          <i class="fas fa-save mr-2"></i>Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Update the hidden address JSON field when any address input changes
+  function updateAddressField() {
+    const address = {
+      street: document.getElementById("addressStreet").value || "",
+      city: document.getElementById("addressCity").value || "",
+      state: document.getElementById("addressState").value || "",
+      zipCode: document.getElementById("addressZip").value || "",
+      country: document.getElementById("addressCountry").value || "USA",
+    };
+    document.getElementById("companyAddress").value = JSON.stringify(address);
+  }
+
+  // Initialize the address field on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    // Ensure we always have a valid JSON string for companyAddress
+    const addressField = document.getElementById("companyAddress");
+    try {
+      // Try to parse existing value to ensure it's valid JSON
+      JSON.parse(addressField.value);
+    } catch (e) {
+      // If invalid, set default empty address
+      addressField.value = JSON.stringify({
+        street: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        country: "USA",
+      });
+    }
+
+    // Initialize individual address fields from the hidden field
+    try {
+      const address = JSON.parse(addressField.value);
+      document.getElementById("addressStreet").value = address.street || "";
+      document.getElementById("addressCity").value = address.city || "";
+      document.getElementById("addressState").value = address.state || "";
+      document.getElementById("addressZip").value = address.zipCode || "";
+      document.getElementById("addressCountry").value =
+        address.country || "USA";
+    } catch (e) {
+      // If there's an error, leave fields as they are
+    }
+  });
+</script>

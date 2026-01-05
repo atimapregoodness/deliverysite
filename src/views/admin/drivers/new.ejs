@@ -1,0 +1,278 @@
+<%- layout('layouts/admin') %>
+
+<style>
+  .required:after {
+    content: " *";
+    color: #ef4444;
+  }
+  
+  .map-container {
+    height: 300px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+</style>
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Add New Driver</h1>
+            <p class="mt-1 text-sm text-gray-600">Fill in the driver details below</p>
+          </div>
+          <a href="/admin/drivers" class="text-sm text-gray-500 hover:text-gray-700">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Drivers
+          </a>
+        </div>
+      </div>
+
+      <form action="/admin/drivers" method="POST" class="px-6 py-6">
+
+
+        <!-- Personal Information -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700 required">Full Name</label>
+              <input type="text" name="name" id="name" 
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                     required>
+            </div>
+            
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 required">Email Address</label>
+              <input type="email" name="email" id="email" 
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                     required>
+            </div>
+            
+            <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700 required">Phone Number</label>
+              <input type="tel" name="phone" id="phone" 
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                     required>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Profile Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="photo" class="block text-sm font-medium text-gray-700">Profile Photo URL</label>
+              <input type="url" name="photo" id="photo" 
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                     placeholder="https://example.com/photo.jpg">
+              <p class="mt-1 text-xs text-gray-500">Optional. Provide a direct image URL</p>
+            </div>
+            
+            <div>
+              <label for="status" class="block text-sm font-medium text-gray-700 required">Initial Status</label>
+              <select name="status" id="status" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                <option value="available">Available</option>
+                <option value="on_delivery">On Delivery</option>
+                <option value="off_duty">Off Duty</option>
+                <option value="break">On Break</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Initial Rating -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Initial Rating (Optional)</h3>
+          <div>
+            <label for="rating" class="block text-sm font-medium text-gray-700">Rating (0-5)</label>
+            <input type="number" name="rating" id="rating" min="0" max="5" step="0.1"
+                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                   placeholder="4.5">
+            <p class="mt-1 text-xs text-gray-500">Leave blank to use default (4.5)</p>
+          </div>
+        </div>
+
+        
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <a href="/admin/drivers" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Cancel
+          </a>
+          <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="fas fa-save mr-2"></i>Save Driver
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const latitudeInput = document.getElementById('latitude');
+  const longitudeInput = document.getElementById('longitude');
+  const locationMap = document.getElementById('locationMap');
+  
+  // Quick location buttons
+  document.querySelectorAll('.quick-loc').forEach(button => {
+    button.addEventListener('click', function() {
+      const lat = this.dataset.lat;
+      const lng = this.dataset.lng;
+      
+      latitudeInput.value = lat;
+      longitudeInput.value = lng;
+      
+      updateMapPreview(lat, lng);
+    });
+  });
+  
+  // Create interactive map preview
+  function updateMapPreview(lat, lng) {
+    const latNum = parseFloat(lat);
+    const lngNum = parseFloat(lng);
+    
+    // Clear previous map
+    locationMap.innerHTML = '';
+    
+    // Create visual representation
+    const mapDiv = document.createElement('div');
+    mapDiv.className = 'h-full flex items-center justify-center';
+    
+    mapDiv.innerHTML = `
+      <div class="text-center">
+        <div class="relative inline-block">
+          <div class="w-40 h-40 bg-blue-50 rounded-full flex items-center justify-center border-4 border-blue-100">
+            <i class="fas fa-car text-4xl text-blue-500"></i>
+          </div>
+          <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-lg shadow-md border border-gray-200">
+            <span class="text-sm font-mono font-semibold">${latNum.toFixed(4)}, ${lngNum.toFixed(4)}</span>
+          </div>
+        </div>
+        <p class="mt-6 text-sm text-gray-600">
+          <span class="font-medium">Latitude:</span> ${latNum.toFixed(6)}<br>
+          <span class="font-medium">Longitude:</span> ${lngNum.toFixed(6)}
+        </p>
+        <button type="button" class="mt-4 px-4 py-2 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200" id="clearLocation">
+          <i class="fas fa-times mr-1"></i> Clear Location
+        </button>
+      </div>
+    `;
+    
+    locationMap.appendChild(mapDiv);
+    
+    // Add click handler to clear location
+    document.getElementById('clearLocation')?.addEventListener('click', function() {
+      latitudeInput.value = '';
+      longitudeInput.value = '';
+      resetMapPreview();
+    });
+    
+    // Make the map clickable to set location
+    mapDiv.addEventListener('click', function(e) {
+      if (e.target.closest('#clearLocation')) return;
+      
+      // Simulate map click - in a real implementation, this would use actual map coordinates
+      const newLat = latNum + (Math.random() - 0.5) * 0.01;
+      const newLng = lngNum + (Math.random() - 0.5) * 0.01;
+      
+      latitudeInput.value = newLat.toFixed(6);
+      longitudeInput.value = newLng.toFixed(6);
+      updateMapPreview(newLat, newLng);
+    });
+  }
+  
+  function resetMapPreview() {
+    locationMap.innerHTML = `
+      <div class="h-full flex items-center justify-center text-gray-500">
+        <div class="text-center">
+          <i class="fas fa-map-marked-alt text-4xl mb-2"></i>
+          <p>Click on the map to set location</p>
+          <p class="text-sm mt-1">Or enter coordinates below</p>
+        </div>
+      </div>
+    `;
+  }
+  
+  // Update map when coordinates change
+  [latitudeInput, longitudeInput].forEach(input => {
+    input.addEventListener('input', function() {
+      const lat = latitudeInput.value;
+      const lng = longitudeInput.value;
+      
+      if (lat && lng) {
+        updateMapPreview(lat, lng);
+      } else if (!lat && !lng) {
+        resetMapPreview();
+      }
+    });
+  });
+  
+  // Initialize with default values if provided
+  if (latitudeInput.value && longitudeInput.value) {
+    updateMapPreview(latitudeInput.value, longitudeInput.value);
+  }
+  
+  // Form validation
+  const form = document.querySelector('form');
+  form.addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const license = document.getElementById('licenseNumber').value;
+    
+    // Basic validation
+    if (!name.trim()) {
+      e.preventDefault();
+      alert('Please enter driver name.');
+      document.getElementById('name').focus();
+      return;
+    }
+    
+    if (!email.trim()) {
+      e.preventDefault();
+      alert('Please enter email address.');
+      document.getElementById('email').focus();
+      return;
+    }
+    
+    if (!phone.trim()) {
+      e.preventDefault();
+      alert('Please enter phone number.');
+      document.getElementById('phone').focus();
+      return;
+    }
+    
+    if (!license.trim()) {
+      e.preventDefault();
+      alert('Please enter license number.');
+      document.getElementById('licenseNumber').focus();
+      return;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      e.preventDefault();
+      alert('Please enter a valid email address.');
+      document.getElementById('email').focus();
+      return;
+    }
+    
+    // Validate rating if provided
+    const ratingInput = document.getElementById('rating');
+    if (ratingInput.value) {
+      const rating = parseFloat(ratingInput.value);
+      if (rating < 0 || rating > 5) {
+        e.preventDefault();
+        alert('Rating must be between 0 and 5.');
+        ratingInput.focus();
+        return;
+      }
+    }
+  });
+});
+</script>

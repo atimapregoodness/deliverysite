@@ -53,7 +53,7 @@ const deliverySchema = new mongoose.Schema(
           coordinates: { type: [Number], default: [0, 0] }, // [lng, lat]
         },
         // Original address string for geocoding reference
-        fullAddress: { type: String },
+        fullAddress: { type: String },   
         // Geocoding metadata
         geocoded: { type: Boolean, default: false },
         geocodingError: { type: String },
@@ -86,6 +86,43 @@ const deliverySchema = new mongoose.Schema(
         height: { type: Number },
       },
       value: { type: Number, default: 0 },
+
+      payments: {
+        type: [
+          {
+            description: { type: String, required: true },
+            amount: {
+              type: Number,
+              required: true,
+              min: 0,
+            },
+
+            status: {
+              type: String,
+              enum: ["pending", "paid", "failed", "reversed"],
+              default: "pending",
+              index: true,
+            },
+
+            method: {
+              type: String,
+              enum: ["cash", "card", "bank_transfer", "crypto", "other"],
+              required: true,
+            },
+
+            reference: {
+              type: String, // receipt / tx hash / bank ref
+              trim: true,
+            },
+
+            paidAt: {
+              type: Date,
+            },
+          },
+        ],
+
+        default: [], // 🔑 PREVENTS undefined.forEach() ERRORS
+      },
     },
 
     status: {
@@ -167,20 +204,17 @@ const deliverySchema = new mongoose.Schema(
     // Incidents/accidents with location
     incidents: [
       {
-        type: {
-          type: String,
-          enum: [
-            "accident",
-            "breakdown",
-            "traffic",
-            "weather",
-            "customer_issue",
-            "package_damage",
-            "theft",
-            "other",
-          ],
-          required: true,
-        },
+
+      _id: {  // Add this line
+        type: mongoose.Schema.Types.ObjectId,
+        default: () => new mongoose.Types.ObjectId()
+      },
+      type: {
+        type: String,
+        enum: ["accident", "breakdown", "traffic", "weather", "customer_issue", "package_damage", "theft", "other"],
+        required: true,
+      },
+      
         severity: {
           type: String,
           enum: ["low", "medium", "high", "critical"],

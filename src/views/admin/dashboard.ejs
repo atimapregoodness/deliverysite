@@ -1,407 +1,501 @@
 <%- layout('layouts/admin') %>
-<title>Express Delivery - Admin Dashboard</title>
+<title>Express Delivery - Dashboard</title>
 
 <!-- Bootstrap Icons -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
-/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
 
 <style>
   :root {
-    --primary-color: #2563eb;
-    --primary-dark: #1d4ed8;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
+    --primary: #3b82f6;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --dark: #1f2937;
+    --light: #f9fafb;
   }
 
-  .stat-card {
+  /* Compact cards */
+  .compact-card {
     background: white;
     border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    border-left: 4px solid var(--primary-color);
-    transition: transform 0.3s ease;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+    height: 100%;
   }
 
-  .stat-card:hover {
+  .compact-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
   }
 
-  .stat-card.warning {
-    border-left-color: var(--warning-color);
+  .stat-compact {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
-  .stat-card.success {
-    border-left-color: var(--success-color);
+  .stat-icon-sm {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
   }
 
-  .stat-card.danger {
-    border-left-color: var(--danger-color);
+  .stat-icon-sm.delivery {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
   }
 
-  .table-card {
+  .stat-icon-sm.driver {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+
+  .stat-icon-sm.warehouse {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+  }
+
+  .stat-content {
+    flex: 1;
+  }
+
+  .stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Compact table */
+  .compact-table {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
     overflow: hidden;
   }
 
-  .btn-primary {
-    background: linear-gradient(
-      135deg,
-      var(--primary-color) 0%,
-      var(--primary-dark) 100%
-    );
-    border: none;
+  .table-header-sm {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  .status-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
+  .table-title-sm {
+    font-size: 0.875rem;
     font-weight: 600;
+    color: var(--dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  .bg-status-pending {
+  .delivery-row-sm {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid #f3f4f6;
+    gap: 1rem;
+    transition: background 0.2s;
+  }
+
+  .delivery-row-sm:hover {
+    background: #f8fafc;
+  }
+
+  .delivery-row-sm:last-child {
+    border-bottom: none;
+  }
+
+  .delivery-info-sm {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .delivery-id {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 0.25rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .delivery-meta-sm {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  .delivery-status-sm {
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .status-pending {
     background: #fef3c7;
     color: #92400e;
   }
-  .bg-status-in_transit {
+
+  .status-transit {
     background: #dbeafe;
     color: #1e40af;
   }
-  .bg-status-delivered {
+
+  .status-delivered {
     background: #d1fae5;
     color: #065f46;
   }
-  .bg-status-delayed {
-    background: #fee2e2;
-    color: #991b1b;
-  }
 
-  .action-btn {
-    padding: 4px 8px;
+  .view-btn-sm {
+    background: var(--primary);
+    color: white;
     border: none;
-    border-radius: 6px;
-    margin: 0 2px;
-    transition: all 0.3s;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    transition: all 0.2s;
   }
 
-  .action-btn:hover {
-    transform: scale(1.1);
+  .view-btn-sm:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+  }
+
+  /* Header */
+  .header-compact {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+  }
+
+  .header-title-sm {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 0;
+  }
+
+  .new-btn-sm {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.625rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    transition: all 0.2s;
+  }
+
+  .new-btn-sm:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  }
+
+  /* Empty state */
+  .empty-sm {
+    padding: 2rem 1.25rem;
+    text-align: center;
+  }
+
+  .empty-icon-sm {
+    font-size: 1.5rem;
+    color: #d1d5db;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  /* Quick stats */
+  .quick-stats {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+  }
+
+  .quick-stat-item {
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .quick-stat-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+
+  .quick-stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  /* Loading */
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 </style>
 
 <div class="container-fluid">
-  <!-- Header -->
-  <div
-    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-  >
-    <h1 class="h2 text-dark">Dashboard Overview</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-      <div class="btn-group me-2">
-        <button type="button" class="btn btn-sm btn-outline-secondary">
-          Today
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">
-          Week
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">
-          Month
-        </button>
+  <!-- Compact Header -->
+  <div class="header-compact">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h1 class="header-title-sm">Dashboard</h1>
       </div>
-      <a href="/admin/deliveries/create">
-        <button type="button" class="btn btn-sm btn-primary">
+      <div class="col-md-6 text-md-end">
+        <a href="/admin/deliveries/create" class="btn new-btn-sm">
           <i class="bi bi-plus-circle"></i> New Delivery
-        </button>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="compact-card">
+        <div class="stat-compact">
+          <div class="stat-icon-sm delivery">
+            <i class="bi bi-truck"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number" id="total-deliveries">
+              <%= counts && counts.deliveries ? counts.deliveries : 0 %>
+            </div>
+            <div class="stat-label">Total Deliveries</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="compact-card">
+        <div class="stat-compact">
+          <div class="stat-icon-sm driver">
+            <i class="bi bi-person-badge"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number" id="total-drivers">
+              <%= counts && counts.drivers ? counts.drivers : 0 %>
+            </div>
+            <div class="stat-label">Active Drivers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="compact-card">
+        <div class="stat-compact">
+          <div class="stat-icon-sm warehouse">
+            <i class="bi bi-building"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number" id="total-warehouses">
+              <%= counts && counts.warehouses ? counts.warehouses : 0 %>
+            </div>
+            <div class="stat-label">Warehouses</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="quick-stats">
+    <div class="row g-0">
+      <div class="col-4">
+        <div class="quick-stat-item">
+          <div class="quick-stat-label">Today</div>
+          <div class="quick-stat-value" id="today-deliveries">
+            <%= todayStats && todayStats.newDeliveries ? todayStats.newDeliveries : 0 %>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="quick-stat-item">
+          <div class="quick-stat-label">In Transit</div>
+          <div class="quick-stat-value" id="active-deliveries">
+            <%= stats && stats.activeDeliveries ? stats.activeDeliveries : 0 %>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="quick-stat-item">
+          <div class="quick-stat-label">Pending</div>
+          <div class="quick-stat-value" id="pending-deliveries">
+            <%= stats && stats.pendingDeliveries ? stats.pendingDeliveries : 0 %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latest Deliveries (Only 5) -->
+  <div class="compact-table">
+    <div class="table-header-sm">
+      <h6 class="table-title-sm">
+        <i class="bi bi-clock"></i> Latest Deliveries
+      </h6>
+      <a href="/admin/deliveries" class="text-decoration-none text-primary" style="font-size: 0.75rem;">
+        View All <i class="bi bi-arrow-right"></i>
       </a>
     </div>
-  </div>
-
-  <!-- Stats Cards -->
-  <div class="row mb-4">
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="stat-card">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="text-muted mb-2">Total Deliveries</h6>
-            <h3 class="fw-bold mb-0" id="total-deliveries">156</h3>
-          </div>
-          <div class="align-self-center">
-            <i class="bi bi-truck text-primary" style="font-size: 2rem"></i>
-          </div>
-        </div>
-        <small class="text-success"
-          ><i class="bi bi-arrow-up"></i> 12% from last week</small
-        >
-      </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="stat-card success">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="text-muted mb-2">Active Deliveries</h6>
-            <h3 class="fw-bold mb-0" id="active-deliveries">23</h3>
-          </div>
-          <div class="align-self-center">
-            <i class="bi bi-clock text-success" style="font-size: 2rem"></i>
-          </div>
-        </div>
-        <small class="text-success"
-          ><i class="bi bi-arrow-up"></i> 5% from yesterday</small
-        >
-      </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="stat-card warning">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="text-muted mb-2">Pending Deliveries</h6>
-            <h3 class="fw-bold mb-0" id="pending-deliveries">8</h3>
-          </div>
-          <div class="align-self-center">
-            <i
-              class="bi bi-hourglass-split text-warning"
-              style="font-size: 2rem"
-            ></i>
-          </div>
-        </div>
-        <small class="text-danger"
-          ><i class="bi bi-arrow-down"></i> 2% from yesterday</small
-        >
-      </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="stat-card danger">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="text-muted mb-2">Delayed Deliveries</h6>
-            <h3 class="fw-bold mb-0" id="delayed-deliveries">3</h3>
-          </div>
-          <div class="align-self-center">
-            <i
-              class="bi bi-exclamation-triangle text-danger"
-              style="font-size: 2rem"
-            ></i>
-          </div>
-        </div>
-        <small class="text-danger"
-          ><i class="bi bi-arrow-up"></i> 1 new delay</small
-        >
-      </div>
-    </div>
-  </div>
-
-  <!-- Recent Deliveries Table -->
-  <div class="row">
-    <div class="col-12">
-      <div class="table-card">
-        <div class="card-header bg-white border-bottom">
-          <h5 class="card-title mb-0">Recent Deliveries</h5>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>Tracking ID</th>
-                  <th>Customer</th>
-                  <th>Driver</th>
-                  <th>Status</th>
-                  <th>ETA</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="deliveries-table">
-                <!-- Delivery data will be populated here -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Actions -->
-  <div class="row mt-4">
-    <div class="col-12">
-      <div class="table-card">
-        <div class="card-header bg-white border-bottom">
-          <h5 class="card-title mb-0">Quick Actions</h5>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-3">
-              <a href="/admin/deliveries/create">
-                <button class="btn btn-outline-primary w-100 h-100 py-3">
-                  <i
-                    class="bi bi-plus-circle d-block mb-2"
-                    style="font-size: 1.5rem"
-                  ></i>
-                  Create Delivery
-                </button>
-              </a>
+    
+    <div>
+      <% if (recentActivities && recentActivities.length > 0) { %>
+        <% recentActivities.slice(0, 5).forEach((delivery, index) => { %>
+          <div class="delivery-row-sm">
+            <div class="delivery-info-sm">
+              <h6 class="delivery-id">
+                <%= delivery.trackingId || '#' + (delivery._id ? delivery._id.toString().slice(-8).toUpperCase() : 'DEL' + (1000 + index)) %>
+              </h6>
+              <div class="delivery-meta-sm">
+                <% if (delivery.customerName) { %>
+                  <span><i class="bi bi-person"></i> <%= delivery.customerName %></span>
+                <% } %>
+                <% if (delivery.driver && delivery.driver.name) { %>
+                  <span><i class="bi bi-truck"></i> <%= delivery.driver.name %></span>
+                <% } else { %>
+                  <span><i class="bi bi-clock"></i> Unassigned</span>
+                <% } %>
+              </div>
             </div>
-            <div class="col-md-3">
-              <button
-                class="btn btn-outline-success w-100 h-100 py-3"
-                onclick="openAssignDriverModal()"
-              >
-                <i
-                  class="bi bi-person-plus d-block mb-2"
-                  style="font-size: 1.5rem"
-                ></i>
-                Assign Driver
-              </button>
+            
+            <div class="delivery-status-sm <%= getStatusClass(delivery.status) %>">
+              <%= formatStatus(delivery.status) %>
             </div>
-            <div class="col-md-3">
-              <button
-                class="btn btn-outline-warning w-100 h-100 py-3"
-                onclick="openRouteOptimization()"
-              >
-                <i class="bi bi-map d-block mb-2" style="font-size: 1.5rem"></i>
-                Optimize Routes
-              </button>
-            </div>
-            <div class="col-md-3">
-              <button
-                class="btn btn-outline-info w-100 h-100 py-3"
-                onclick="generateReport()"
-              >
-                <i
-                  class="bi bi-graph-up d-block mb-2"
-                  style="font-size: 1.5rem"
-                ></i>
-                Generate Report
-              </button>
-            </div>
+            
+            <a href="/admin/deliveries/<%= delivery._id %>" class="btn view-btn-sm" title="View">
+              <i class="bi bi-eye"></i>
+            </a>
+                   <a 
+  href="/delivery/track/results?trackingId=<%= delivery.trackingId %>" 
+  class="btn view-btn-sm" 
+  title="View Tracking"
+>
+  <i class="bi bi-geo-alt"></i>
+</a>
+
           </div>
+        <% }); %>
+      <% } else { %>
+        <div class="empty-sm">
+          <div class="empty-icon-sm">
+            <i class="bi bi-inbox"></i>
+          </div>
+          <p class="empty-text">No deliveries yet</p>
         </div>
-      </div>
+      <% } %>
     </div>
   </div>
 </div>
 
-<!-- Modals will be added here -->
-
 <script>
-  // Initialize dashboard
-  document.addEventListener("DOMContentLoaded", function () {
-    loadDashboardData();
-    setInterval(loadDashboardData, 30000); // Refresh every 30 seconds
-  });
+  // Auto-refresh every 60 seconds
+  setInterval(refreshDashboard, 60000);
 
-  // Load dashboard data
-  async function loadDashboardData() {
+  function formatStatus(status) {
+    if (!status) return 'PENDING';
+    return status.replace('_', ' ').toUpperCase();
+  }
+
+  function getStatusClass(status) {
+    const statusMap = {
+      'pending': 'status-pending',
+      'in_transit': 'status-transit',
+      'delivered': 'status-delivered',
+      'transit': 'status-transit'
+    };
+    return statusMap[status] || 'status-pending';
+  }
+
+  async function refreshDashboard() {
     try {
-      const response = await fetch("/admin/dashboard");
+      const response = await fetch("/admin/api/dashboard");
       const data = await response.json();
-
+      
       if (data.success) {
-        updateDashboardStats(data.data.stats);
-        updateDeliveriesTable(data.data.recentActivities);
+        updateDashboard(data.data);
       }
     } catch (error) {
-      console.error("Error loading dashboard data:", error);
+      console.error("Error refreshing dashboard:", error);
     }
   }
 
-  // Update dashboard statistics
-  function updateDashboardStats(stats) {
-    document.getElementById("total-deliveries").textContent =
-      stats.todayDeliveries || 0;
-    document.getElementById("active-deliveries").textContent =
-      stats.activeDeliveries || 0;
-    document.getElementById("pending-deliveries").textContent =
-      stats.pendingDeliveries || 0;
-    document.getElementById("delayed-deliveries").textContent =
-      stats.delayedDeliveries || 0;
-  }
-
-  // Update deliveries table
-  function updateDeliveriesTable(deliveries) {
-    const tableBody = document.getElementById("deliveries-table");
-    tableBody.innerHTML = "";
-
-    deliveries.forEach((delivery) => {
-      const row = document.createElement("tr");
-
-      const statusClass = `bg-status-${delivery.status}`;
-      const statusText = delivery.status
-        .replace("_", " ")
-        .replace(/\b\w/g, (l) => l.toUpperCase());
-
-      row.innerHTML = `
-        <td class="fw-bold">${delivery.trackingId}</td>
-        <td>${delivery.customer?.name || "N/A"}</td>
-        <td>${delivery.driver?.name || "Unassigned"}</td>
-        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-        <td>${
-          delivery.estimatedDelivery
-            ? new Date(delivery.estimatedDelivery).toLocaleTimeString()
-            : "N/A"
-        }</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary action-btn" onclick="viewDelivery('${
-            delivery._id
-          }')" title="Edit">
-            <i class="bi bi-pencil"></i>
-          </button>
-          <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteDelivery('${
-            delivery._id
-          }')" title="Delete">
-            <i class="bi bi-trash"></i>
-          </button>
-        </td>
-      `;
-
-      tableBody.appendChild(row);
-    });
-  }
-
-  // Action functions
-  function viewDelivery(deliveryId) {
-    window.location.href = `/admin/deliveries/${deliveryId}`;
-  }
-
-  function editDelivery(deliveryId) {
-    // Open edit modal or redirect to edit page
-    alert(`Edit delivery: ${deliveryId}`);
-  }
-
-  function deleteDelivery(deliveryId) {
-    if (confirm("Are you sure you want to delete this delivery?")) {
-      fetch(`/admin/deliveries/${deliveryId}`, {
-        method: "DELETE",
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            loadDashboardData(); // Refresh data
-            alert("Delivery deleted successfully");
-          }
-        });
+  function updateDashboard(data) {
+    if (data.stats) {
+      document.getElementById('total-deliveries').textContent = data.stats.totalDeliveries || 0;
+      document.getElementById('total-drivers').textContent = data.stats.totalDrivers || 0;
+      document.getElementById('total-warehouses').textContent = data.stats.totalWarehouses || 0;
+      document.getElementById('today-deliveries').textContent = data.todayStats?.newDeliveries || 0;
+      document.getElementById('active-deliveries').textContent = data.stats.activeDeliveries || 0;
+      document.getElementById('pending-deliveries').textContent = data.stats.pendingDeliveries || 0;
     }
   }
 
-  function openCreateDeliveryModal() {
-    alert("Open create delivery modal");
-  }
-
-  function openAssignDriverModal() {
-    alert("Open assign driver modal");
-  }
-
-  function openRouteOptimization() {
-    alert("Open route optimization");
-  }
-
-  function generateReport() {
-    alert("Generate report");
-  }
+  // Initialize on load
+  document.addEventListener('DOMContentLoaded', refreshDashboard);
 </script>
+
+<% 
+  function formatStatus(status) {
+    if (!status) return 'PENDING';
+    return status.replace('_', ' ').toUpperCase();
+  }
+
+  function getStatusClass(status) {
+    const statusMap = {
+      'pending': 'status-pending',
+      'in_transit': 'status-transit',
+      'delivered': 'status-delivered',
+      'transit': 'status-transit'
+    };
+    return statusMap[status] || 'status-pending';
+  }
+%>

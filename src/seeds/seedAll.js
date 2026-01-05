@@ -2,6 +2,7 @@ const seedAdmins = require("./seedAdmin");
 const seedDrivers = require("./seedDrivers");
 const seedWarehouses = require("./seedWarehouses");
 const seedDeliveries = require("./seedDeliveries");
+const seedSettings = require("./seedSettings");
 
 const seedAll = async () => {
   console.log("🌱 Starting database seeding...\n");
@@ -18,6 +19,11 @@ const seedAll = async () => {
 
     console.log("\n4. Seeding deliveries...");
     await seedDeliveries();
+
+    
+    console.log("\n4. Seeding Settings...");
+    await seedSettings();
+
 
     console.log("\n🎉 All seeding completed successfully!");
     console.log("\n📋 Next steps:");
