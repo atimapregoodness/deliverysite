@@ -20,6 +20,24 @@
     );
   }
 
+  .btn-gradient {
+    background: linear-gradient(
+      90deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .btn-gradient:hover {
+    background: linear-gradient(90deg, var(--primary-dark), #5a32a3);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+  }
+
   .footer a {
     color: #5a6c7d;
     text-decoration: none;
@@ -346,3 +364,20 @@
 >
   <i class="fas fa-chevron-up"></i>
 </a>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    /* Back to Top */
+    const backToTopButton = document.getElementById("back-to-top");
+    if (backToTopButton) {
+      window.addEventListener("scroll", () => {
+        backToTopButton.style.display = window.scrollY > 300 ? "block" : "none";
+      });
+
+      // Smooth scroll to top
+      backToTopButton.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+  });
+</script>

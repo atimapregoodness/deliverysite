@@ -1,191 +1,210 @@
 <%- layout('layouts/main') %>
+<title>Nexus Logistics | Smart Delivery Tracking</title>
+
 <style>
   :root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --dark-gradient: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-    --primary-color: #6366f1;
-    --accent-color: #f59e0b;
-    --success-color: #10b981;
-    --dark-color: #0f172a;
-    --light-color: #f8fafc;
-    --glass-bg: rgba(255, 255, 255, 0.08);
+    --primary-color: #0d6efd;
+    --primary-dark: #0b5ed7;
+    --secondary-color: #6f42c1;
+    --accent-color: #20c997;
+    --dark-color: #212529;
+    --light-color: #f8f9fa;
+    --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(255, 255, 255, 0.2);
-    --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-    --hover-shadow: 0 30px 60px rgba(99, 102, 241, 0.15);
   }
 
-  body {
-    background: #f8fafc;
-    min-height: 100vh;
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      sans-serif;
-  }
-
-  .hero-section {
+  /* Modern Glass Effect */
+  .glass-card {
     background: var(--glass-bg);
-
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    color: #000;
-    border-radius: 24px;
-    padding: 4rem 2rem;
-    margin-top: 2rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--card-shadow);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
   }
 
-  .hero-section::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      ellipse at center,
-      rgba(99, 102, 241, 0.1) 0%,
-      transparent 70%
-    );
-    z-index: -1;
+  /* Background Pattern */
+  .bg-pattern {
+    background-image: radial-gradient(
+        circle at 10% 20%,
+        rgba(13, 110, 253, 0.05) 0%,
+        transparent 20%
+      ),
+      radial-gradient(
+        circle at 90% 80%,
+        rgba(111, 66, 193, 0.05) 0%,
+        transparent 20%
+      ),
+      linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(248, 249, 250, 0.95) 100%
+      );
+    background-attachment: fixed;
   }
 
-  .hero-section::after {
-    content: "";
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 200%;
-    background: radial-gradient(
-      circle at center,
-      rgba(255, 255, 255, 0.05) 0%,
-      transparent 70%
-    );
-    animation: float 20s linear infinite;
+  /* Compact Tracking Container */
+  .tracking-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 0;
   }
 
-  .tracking-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 24px;
-    padding: 3rem;
-    box-shadow: var(--card-shadow);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    margin-top: -60px;
-    position: relative;
-    z-index: 10;
-  }
-
-  .tracking-input {
-    border: 2px solid #e2e8f0;
+  /* Enhanced Input Group */
+  .input-group-enhanced {
+    box-shadow: 0 8px 32px rgba(13, 110, 253, 0.15);
     border-radius: 16px;
-    padding: 1rem 1.5rem;
-    font-size: 1.125rem;
-    font-weight: 500;
+    overflow: hidden;
+    border: 1px solid rgba(13, 110, 253, 0.1);
+    background: white;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .input-group-enhanced:hover {
+    box-shadow: 0 12px 40px rgba(13, 110, 253, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .tracking-input-enhanced {
+    border: none;
+    padding: 1.25rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background: white;
+    border-radius: 16px 0 0 16px;
     letter-spacing: 0.5px;
   }
 
-  .tracking-input::placeholder {
+  .tracking-input-enhanced:focus {
+    box-shadow: none;
+    background: white;
+  }
+
+  .tracking-input-enhanced::placeholder {
     color: #94a3b8;
     font-weight: 400;
   }
 
-  .tracking-input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-    background: white;
-    transform: translateY(-1px);
-  }
-
-  .btn-track {
-    background: var(--primary-gradient);
+  .btn-track-enhanced {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
     border: none;
-    border-radius: 16px;
-    padding: 1rem 2.5rem;
+    padding: 1.25rem 2.5rem;
     font-weight: 600;
-    font-size: 1.125rem;
-    letter-spacing: 0.5px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0 16px 16px 0;
     position: relative;
     overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .btn-track::before {
+  .btn-track-enhanced:hover {
+    background: linear-gradient(135deg, var(--primary-dark), #5a32a3);
+    transform: translateX(2px);
+  }
+
+  .btn-track-enhanced:active {
+    transform: scale(0.98);
+  }
+
+  /* Status Badges */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(13, 110, 253, 0.1);
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .status-badge i {
+    font-size: 0.9rem;
+  }
+
+  /* Delivery Stats Cards */
+  .stats-card-compact {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+  }
+
+  .stats-card-compact:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 24px rgba(13, 110, 253, 0.1);
+  }
+
+  /* Live Tracking Preview */
+  .tracking-preview {
+    height: 180px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .tracking-preview::before {
     content: "";
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.2),
-      transparent
-    );
-    transition: left 0.7s;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at 20% 80%,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 50%
+      );
   }
 
-  .btn-track:hover::before {
-    left: 100%;
-  }
-
-  .btn-track:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: var(--hover-shadow);
-  }
-
-  .feature-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 2rem;
-    height: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .feature-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    border-color: var(--primary-color);
-    box-shadow: var(--hover-shadow);
-  }
-
-  .feature-icon {
-    width: 64px;
-    height: 64px;
-    background: var(--primary-gradient);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
-  }
-
-  .feature-icon i {
-    font-size: 1.75rem;
-    color: white;
-  }
-
-  @keyframes float {
-    0%,
-    100% {
-      transform: translate(0, 0) rotate(0deg);
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .tracking-container {
+      padding: 1rem;
     }
-    33% {
-      transform: translate(30px, 30px) rotate(120deg);
+
+    .tracking-input-enhanced,
+    .btn-track-enhanced {
+      padding: 1rem 1.25rem;
+      font-size: 1rem;
     }
-    66% {
-      transform: translate(-20px, 40px) rotate(240deg);
+
+    .input-group-enhanced {
+      flex-direction: column;
+      border-radius: 16px;
+    }
+
+    .tracking-input-enhanced,
+    .btn-track-enhanced {
+      border-radius: 12px;
+      width: 100%;
+    }
+
+    .tracking-input-enhanced {
+      border-radius: 12px 12px 0 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .btn-track-enhanced {
+      border-radius: 0 0 12px 12px;
     }
   }
 
-  @keyframes pulse {
+  /* Animation */
+  @keyframes pulse-subtle {
     0%,
     100% {
       opacity: 1;
@@ -195,484 +214,718 @@
     }
   }
 
-  .map-preview {
-    height: 280px;
-    border-radius: 20px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+  .pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
   }
 
-  .stats-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 2rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Enhanced Form Text */
+  .form-helper {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  .stats-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 6px;
-    height: 100%;
-    background: var(--primary-gradient);
-  }
-
-  .stats-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--hover-shadow);
-  }
-
-  .glow {
-    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.2);
-  }
-
-  .stats-number {
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-size: 3rem;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  .badge-modern {
-    background: var(--primary-gradient);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-
-  .section-title {
-    position: relative;
-    display: inline-block;
-    font-size: 2.5rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 1rem;
-  }
-
-  .section-title::after {
-    content: "";
-    position: absolute;
-    bottom: -10px;
-    left: 0;
-    width: 60px;
-    height: 4px;
-    background: var(--primary-gradient);
-    border-radius: 2px;
-  }
-
-  .chip {
+  /* Quick Actions */
+  .quick-action {
     display: inline-flex;
     align-items: center;
-    background: rgba(99, 102, 241, 0.1);
+    gap: 0.5rem;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+    transition: all 0.2s ease;
+  }
+
+  .quick-action:hover {
+    border-color: var(--primary-color);
     color: var(--primary-color);
-    padding: 0.5rem 1rem;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin: 0.25rem;
+    transform: translateY(-1px);
   }
 
-  .scan-animation {
-    position: relative;
-    overflow: hidden;
+  /* Grid Background */
+  .grid-bg {
+    background-image: linear-gradient(
+        rgba(13, 110, 253, 0.03) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(13, 110, 253, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
   }
 
-  .scan-animation::after {
-    content: "";
+  /* Floating Elements */
+  .floating-element {
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--accent-color),
-      transparent
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(13, 110, 253, 0.1) 0%,
+      transparent 70%
     );
-    animation: scan 3s ease-in-out infinite;
+    pointer-events: none;
   }
 
-  @keyframes scan {
-    0% {
-      left: -100%;
-    }
+  .floating-element-1 {
+    top: 20%;
+    left: 10%;
+    animation: float 20s linear infinite;
+  }
+
+  .floating-element-2 {
+    bottom: 30%;
+    right: 15%;
+    animation: float 25s linear infinite reverse;
+  }
+
+  @keyframes float {
+    0%,
     100% {
-      left: 100%;
+      transform: translate(0, 0);
     }
-  }
-
-  .powered-badge {
-    display: inline-flex;
-    align-items: center;
-    background: var(--dark-color);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-top: 1rem;
-  }
-
-  .input-group {
-    gap: 1rem;
-  }
-
-  @media (max-width: 768px) {
-    .hero-section {
-      padding: 2rem 1rem;
-      border-radius: 20px;
-      margin-top: 1rem;
+    25% {
+      transform: translate(20px, 20px);
     }
-
-    .tracking-card {
-      padding: 2rem 1.5rem;
-      margin-top: -40px;
+    50% {
+      transform: translate(0, 40px);
     }
-
-    .input-group {
-      flex-direction: column;
+    75% {
+      transform: translate(-20px, 20px);
     }
-
-    .btn-track {
-      width: 100%;
-      padding: 1rem;
-    }
-
-    .section-title {
-      font-size: 2rem;
-    }
-
-    .stats-number {
-      font-size: 2.5rem;
-    }
-  }
-
-  /* Modern scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: var(--primary-gradient);
-    border-radius: 4px;
-  }
-
-  /* Selection color */
-  ::selection {
-    background: rgba(99, 102, 241, 0.3);
-    color: white;
   }
 </style>
 
-<!-- Main Content -->
-<div class="container px-3 px-md-4 py-4">
-  <!-- Hero Section -->
-  <div class="hero-section text-center">
-    <div class="position-relative" style="z-index: 2">
-      <h1 class="display-4 fw-bold mb-3 text-dark" style="font-weight: 900">
-        Advanced Delivery Intelligence
-      </h1>
-      <p
-        class="lead mb-4 opacity-90 fs-5"
-        style="max-width: 800px; margin: 0 auto"
+<!-- Background Elements -->
+<div class="floating-element floating-element-1"></div>
+<div class="floating-element floating-element-2"></div>
+
+<!-- Main Tracking Section -->
+<section class="py-5 bg-pattern grid-bg" style="min-height: 100vh">
+  <div class="tracking-container">
+    <!-- Header -->
+    <div class="text-center mb-5">
+      <div class="d-flex justify-content-center gap-2 mb-3">
+        <span class="status-badge pulse-subtle">
+          <i class="fas fa-satellite"></i>
+          <span>Live Tracking Active</span>
+        </span>
+        <span class="status-badge">
+          <i class="fas fa-shield-alt"></i>
+          <span>Enterprise Security</span>
+        </span>
+      </div>
+
+      <h1
+        class="display-5 fw-bold mb-3"
+        style="
+          background: linear-gradient(
+            135deg,
+            var(--primary-color),
+            var(--secondary-color)
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        "
       >
-        Real-time AI-powered tracking with predictive analytics and interactive
+        Smart Delivery Tracking
+      </h1>
+      <p class="text-muted mb-4 fs-5" style="max-width: 600px; margin: 0 auto">
+        Enter your tracking ID for AI-powered predictive analytics and real-time
         Mapbox visualization
       </p>
-
-      <div class="d-flex justify-content-center gap-2 flex-wrap mb-4">
-        <span class="chip"> <i class="fas fa-bolt me-2"></i>Live Updates </span>
-        <span class="chip">
-          <i class="fas fa-robot me-2"></i>AI Predictions
-        </span>
-        <span class="chip">
-          <i class="fas fa-map-marked-alt me-2"></i>Interactive Maps
-        </span>
-        <span class="chip">
-          <i class="fas fa-shield-alt me-2"></i>Enterprise Security
-        </span>
-      </div>
-
-      <!-- Animated elements -->
-      <div
-        class="position-absolute top-0 start-0"
-        style="z-index: 1; animation: float 6s ease-in-out infinite"
-      >
-        <div
-          class="rounded-circle"
-          style="
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(
-              circle,
-              rgba(255, 255, 255, 0.1) 0%,
-              transparent 70%
-            );
-          "
-        ></div>
-      </div>
-      <div
-        class="position-absolute bottom-0 end-0"
-        style="z-index: 1; animation: float 8s ease-in-out infinite 1s"
-      >
-        <div
-          class="rounded-circle"
-          style="
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(
-              circle,
-              rgba(255, 255, 255, 0.1) 0%,
-              transparent 70%
-            );
-          "
-        ></div>
-      </div>
     </div>
-  </div>
 
-  <!-- Tracking Card -->
-  <div class="tracking-card glow scan-animation">
-    <div class="row align-items-center g-4">
-      <div class="col-lg-8">
-        <h2 class="fw-bold mb-3 text-dark">Track Delivery in Real-Time</h2>
-        <p class="text-dark mb-4 fs-6">
-          Enter your unique tracking ID for AI-powered predictive tracking, live
-          location updates, and delivery analytics.
-        </p>
-
-        <form id="trackingForm" onsubmit="handleTrackSubmit(event)">
-          <div class="input-group">
-            <input
-              type="text"
-              id="trackingId"
-              class="form-control tracking-input shadow-sm"
-              placeholder="DEL-51434020-X3RY"
-              pattern="^DEL-\d{8}-[A-Z0-9]{4}$"
-              title="Format: DEL-8 digits-4 characters (e.g., DEL-51434020-X3RY)"
-              required
-              autocomplete="off"
-              autocorrect="off"
-              spellcheck="false"
-            />
-            <button class="btn btn-track shadow-lg" type="submit">
-              <i class="fas fa-satellite-dish me-2"></i>Track Delivery
-            </button>
+    <!-- Main Tracking Card -->
+    <div class="glass-card p-4 mb-5">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="bg-primary bg-opacity-10 rounded-2 p-2">
+              <i class="fas fa-qrcode text-primary fs-4"></i>
+            </div>
+            <div>
+              <h3 class="fw-bold mb-1">Track Any Delivery</h3>
+              <p class="text-muted mb-0 fs-6">
+                Use your unique tracking ID for instant AI-powered tracking
+              </p>
+            </div>
           </div>
 
+          <form id="trackingForm" onsubmit="handleTrackSubmit(event)">
+            <div class="mb-4">
+              <div class="input-group d-flex">
+                <input
+                  type="text"
+                  id="trackingId"
+                  name="trackingId"
+                  class="form-control tracking-input-enhanced"
+                  placeholder="DEL-51434020-X3RY"
+                  pattern="^DEL-\d{8}-[A-Z0-9]{4}$"
+                  title="Format: DEL-8 digits-4 characters (e.g., DEL-51434020-X3RY)"
+                  required
+                  autocomplete="off"
+                  autocorrect="off"
+                  spellcheck="false"
+                />
+                <button
+                  class="btn btn-track-enhanced shadow-none"
+                  type="submit"
+                  id="submitBtn"
+                >
+                  <i class="fas fa-satellite-dish me-2"></i>Track Now
+                </button>
+              </div>
+
+              <div
+                class="d-flex flex-wrap justify-content-between align-items-center mt-3 gap-2"
+              >
+                <div class="form-helper">
+                  <i class="fas fa-key text-primary"></i>
+                  Format: DEL-XXXXXXXX-XXXX
+                </div>
+                <div class="d-flex gap-2">
+                  <button
+                    type="button"
+                    class="quick-action"
+                    onclick="pasteFromClipboard()"
+                  >
+                    <i class="fas fa-paste"></i>
+                    Paste ID
+                  </button>
+                  <button
+                    type="button"
+                    class="quick-action"
+                    onclick="generateSampleId()"
+                  >
+                    <i class="fas fa-magic"></i>
+                    Generate Sample
+                  </button>
+                </div>
+              </div>
+
+              <!-- Error Container -->
+              <div id="errorContainer" class="mt-3" style="display: none"></div>
+            </div>
+          </form>
+
+          <!-- Recent Tracking -->
+          <div class="mt-4"></div>
+        </div>
+
+        <div class="col-lg-4">
           <div
-            class="d-flex flex-wrap align-items-center justify-content-between mt-3"
+            class="tracking-preview d-flex flex-column justify-content-center align-items-center text-white p-4"
           >
-            <div class="form-text text-muted fs-7">
-              <i class="fas fa-key me-1"></i>
-              Format: DEL-XXXXXXXX-XXXX (Example: DEL-51434020-X3RY)
+            <div class="position-relative z-2 text-center">
+              <div
+                class="bg-white bg-opacity-20 rounded-circle p-3 mb-3 d-inline-flex text-dark"
+              >
+                <i class="fas fa-map-marked-alt fa-2x"></i>
+              </div>
+              <h5 class="fw-bold mb-2">Live AI Tracking</h5>
+              <p class="opacity-90 mb-3 fs-7">
+                Real-time predictive analytics with Mapbox visualization
+              </p>
+              <div
+                class="badge bg-white bg-opacity-20 rounded-pill px-3 py-2 text-dark"
+              >
+                <i class="fas fa-bolt me-1"></i>
+                AI-Powered
+              </div>
             </div>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-primary"
-              onclick="pasteFromClipboard()"
-            >
-              <i class="fas fa-paste me-1"></i>Paste from clipboard
-            </button>
-          </div>
-        </form>
-
-        <div class="mt-4">
-          <div class="powered-badge">
-            <i class="fab fa-mapbox me-2"></i>
-            Powered by Mapbox AI & Predictive Analytics
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4">
-        <div
-          class="map-preview d-flex align-items-center justify-content-center position-relative"
-        >
-          <div class="text-center p-4" style="z-index: 2">
-            <div
-              class="bg-white rounded-circle p-3 mb-3 d-inline-block shadow-lg"
-            >
-              <i class="fas fa-map-marked-alt fa-2x text-primary"></i>
-            </div>
-            <h5 class="fw-bold mb-2 fs-5">Live AI Tracking</h5>
-            <p class="text-white opacity-90 mb-3 fs-7">
-              Real-time predictive analytics with Mapbox visualization
-            </p>
-            <div class="badge-modern">
-              <i class="fas fa-brain me-1"></i>
-              AI-Powered
-            </div>
-          </div>
-          <!-- Animated map grid -->
-          <div class="position-absolute w-100 h-100" style="z-index: 1">
-            <div
-              class="position-absolute top-0 start-0 w-100 h-100"
-              style="
-                background: linear-gradient(
-                  90deg,
-                  transparent 49%,
-                  rgba(255, 255, 255, 0.1) 50%,
-                  transparent 51%
-                );
-                background-size: 20px 20px;
-              "
-            ></div>
-            <div
-              class="position-absolute top-0 start-0 w-100 h-100"
-              style="
-                background: linear-gradient(
-                  0deg,
-                  transparent 49%,
-                  rgba(255, 255, 255, 0.1) 50%,
-                  transparent 51%
-                );
-                background-size: 20px 20px;
-              "
-            ></div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Features Section -->
-  <div class="mt-5">
-    <h3 class="section-title">Enterprise Tracking Features</h3>
-    <p class="text-muted mb-4 fs-6">
-      Advanced capabilities for modern logistics
-    </p>
+    <!-- Quick Stats -->
+    <div class="row g-3 mb-5">
+      <div class="col-md-3 col-6">
+        <div class="stats-card-compact text-center">
+          <div class="text-primary mb-2">
+            <i class="fas fa-clock fa-2x"></i>
+          </div>
+          <h4 class="fw-bold mb-1">30s</h4>
+          <p class="text-muted mb-0 fs-7">Update Frequency</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stats-card-compact text-center">
+          <div class="text-success mb-2">
+            <i class="fas fa-bullseye fa-2x"></i>
+          </div>
+          <h4 class="fw-bold mb-1">99.8%</h4>
+          <p class="text-muted mb-0 fs-7">Accuracy Rate</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stats-card-compact text-center">
+          <div class="text-warning mb-2">
+            <i class="fas fa-globe fa-2x"></i>
+          </div>
+          <h4 class="fw-bold mb-1">142+</h4>
+          <p class="text-muted mb-0 fs-7">Countries</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stats-card-compact text-center">
+          <div class="text-info mb-2">
+            <i class="fas fa-truck fa-2x"></i>
+          </div>
+          <h4 class="fw-bold mb-1">12.4k</h4>
+          <p class="text-muted mb-0 fs-7">Active Fleet</p>
+        </div>
+      </div>
+    </div>
 
+    <!-- AI Processing Container -->
+    <div id="aiProcessing" style="display: none"></div>
+
+    <!-- Features Grid -->
     <div class="row g-4">
       <div class="col-md-4">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-satellite"></i>
+        <div class="glass-card p-4 h-100">
+          <div
+            class="bg-primary bg-opacity-10 rounded-2 p-3 d-inline-flex mb-3"
+          >
+            <i class="fas fa-robot text-primary fs-3"></i>
           </div>
-          <h5 class="fw-bold mb-2 fs-5">AI-Powered Predictive Tracking</h5>
-          <p class="text-muted mb-3 fs-7">
+          <h5 class="fw-bold mb-2">AI Predictions</h5>
+          <p class="text-muted fs-7 mb-0">
             Machine learning algorithms predict delivery times with 99.2%
-            accuracy using historical data and real-time conditions.
+            accuracy using historical data.
           </p>
-          <div class="d-flex align-items-center">
-            <div class="progress flex-grow-1 me-2" style="height: 6px">
-              <div class="progress-bar bg-success" style="width: 92%"></div>
-            </div>
-            <small class="text-success fw-bold">92% Accurate</small>
-          </div>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-map-marked-alt"></i>
+        <div class="glass-card p-4 h-100">
+          <div
+            class="bg-success bg-opacity-10 rounded-2 p-3 d-inline-flex mb-3"
+          >
+            <i class="fas fa-map-marked-alt text-success fs-3"></i>
           </div>
-          <h5 class="fw-bold mb-2 fs-5">Interactive Mapbox Integration</h5>
-          <p class="text-muted mb-3 fs-7">
-            Real-time visualization with geocoding, route optimization, and live
-            traffic analysis powered by Mapbox.
+          <h5 class="fw-bold mb-2">Live Maps</h5>
+          <p class="text-muted fs-7 mb-0">
+            Real-time Mapbox visualization with geocoding and route
+            optimization.
           </p>
-          <div class="d-flex align-items-center">
-            <div class="progress flex-grow-1 me-2" style="height: 6px">
-              <div class="progress-bar bg-primary" style="width: 98%"></div>
-            </div>
-            <small class="text-primary fw-bold">Real-time</small>
-          </div>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-chart-line"></i>
+        <div class="glass-card p-4 h-100">
+          <div
+            class="bg-warning bg-opacity-10 rounded-2 p-3 d-inline-flex mb-3"
+          >
+            <i class="fas fa-shield-alt text-warning fs-3"></i>
           </div>
-          <h5 class="fw-bold mb-2 fs-5">Advanced Analytics Dashboard</h5>
-          <p class="text-muted mb-3 fs-7">
-            Comprehensive analytics with delivery metrics, performance insights,
-            and predictive trend analysis.
+          <h5 class="fw-bold mb-2">Enterprise Security</h5>
+          <p class="text-muted fs-7 mb-0">
+            Military-grade encryption and compliance with global security
+            standards.
           </p>
-          <div class="d-flex align-items-center">
-            <div class="progress flex-grow-1 me-2" style="height: 6px">
-              <div class="progress-bar bg-warning" style="width: 85%"></div>
-            </div>
-            <small class="text-warning fw-bold">85% Faster</small>
-          </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Stats Section -->
-  <div class="row g-4 mt-4">
-    <div class="col-md-3 col-6">
-      <div class="stats-card">
-        <h3 class="stats-number">24/7</h3>
-        <p class="text-muted mb-0 fs-7">Live AI Monitoring</p>
-        <small class="text-success fw-bold d-block mt-1">
-          <i class="fas fa-arrow-up me-1"></i>99.9% Uptime
-        </small>
-      </div>
-    </div>
-    <div class="col-md-3 col-6">
-      <div class="stats-card">
-        <h3 class="stats-number">99.8%</h3>
-        <p class="text-muted mb-0 fs-7">Delivery Accuracy</p>
-        <small class="text-primary fw-bold d-block mt-1">
-          <i class="fas fa-bullseye me-1"></i>AI-Powered
-        </small>
-      </div>
-    </div>
-    <div class="col-md-3 col-6">
-      <div class="stats-card">
-        <h3 class="stats-number">30s</h3>
-        <p class="text-muted mb-0 fs-7">Update Frequency</p>
-        <small class="text-warning fw-bold d-block mt-1">
-          <i class="fas fa-bolt me-1"></i>Real-time
-        </small>
-      </div>
-    </div>
-    <div class="col-md-3 col-6">
-      <div class="stats-card">
-        <h3 class="stats-number">150+</h3>
-        <p class="text-muted mb-0 fs-7">Enterprise Clients</p>
-        <small class="text-info fw-bold d-block mt-1">
-          <i class="fas fa-shield-alt me-1"></i>Secured
-        </small>
-      </div>
-    </div>
-  </div>
-</div>
+</section>
 
 <script>
-  // Enhanced tracking ID validation
+  // Enhanced JavaScript with modern features
+
+  // Initialize
+  document.addEventListener("DOMContentLoaded", function () {
+    // Auto-focus tracking input
+    const trackingInput = document.getElementById("trackingId");
+    if (trackingInput) {
+      setTimeout(() => trackingInput.focus(), 300);
+
+      // Add input formatting
+      trackingInput.addEventListener("input", function (e) {
+        let value = e.target.value.toUpperCase();
+
+        // Remove invalid characters
+        value = value.replace(/[^A-Z0-9\-]/g, "");
+
+        // Auto-format tracking ID
+        if (value.startsWith("DEL") && value.length > 3 && value[3] !== "-") {
+          value = "DEL-" + value.slice(3);
+        }
+        if (value.length > 12 && value[12] !== "-") {
+          value = value.slice(0, 12) + "-" + value.slice(12);
+        }
+
+        // Limit length
+        if (value.length > 17) {
+          value = value.slice(0, 17);
+        }
+
+        e.target.value = value;
+
+        // Update validation state
+        validateInput(value);
+      });
+    }
+
+    // Add keyboard shortcuts
+    document.addEventListener("keydown", function (e) {
+      // Ctrl/Cmd + K to focus tracking
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        trackingInput?.focus();
+        trackingInput?.select();
+      }
+
+      // Escape to clear
+      if (e.key === "Escape" && document.activeElement === trackingInput) {
+        trackingInput.value = "";
+      }
+    });
+  });
+
+  // Enhanced validation
+  function validateInput(value) {
+    const input = document.getElementById("trackingId");
+    const pattern = /^DEL-\d{8}-[A-Z0-9]{4}$/;
+
+    input.classList.remove("is-valid", "is-invalid");
+
+    if (!value) return;
+
+    if (pattern.test(value)) {
+      input.classList.add("is-valid");
+      showVisualFeedback("success", "✓ Valid format");
+    } else if (value.length >= 3) {
+      input.classList.add("is-invalid");
+      showVisualFeedback("error", "Format: DEL-XXXXXXXX-XXXX");
+    }
+  }
+
+  // Visual feedback
+  function showVisualFeedback(type, message) {
+    // Remove existing feedback
+    const existing = document.querySelector(".input-feedback");
+    if (existing) existing.remove();
+
+    if (!message) return;
+
+    const inputGroup = document.querySelector(".input-group-enhanced");
+    const feedback = document.createElement("div");
+    feedback.className = `input-feedback position-absolute start-0 w-100 mt-1 px-3 text-${
+      type === "success" ? "success" : "danger"
+    } fs-7`;
+    feedback.style.top = "100%";
+    feedback.innerHTML = `<i class="fas fa-${
+      type === "success" ? "check-circle" : "exclamation-circle"
+    } me-1"></i> ${message}`;
+
+    inputGroup.style.position = "relative";
+    inputGroup.appendChild(feedback);
+
+    // Auto-remove after 3 seconds
+    setTimeout(() => feedback.remove(), 3000);
+  }
+
+  // Enhanced paste function
+  async function pasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      const input = document.getElementById("trackingId");
+
+      if (!text.trim()) {
+        showNotification("Clipboard is empty", "warning");
+        return;
+      }
+
+      // Clean and validate
+      let cleaned = text.trim().toUpperCase().replace(/\s+/g, "");
+
+      // Auto-add DEL- prefix if missing but pattern matches
+      if (/^\d{8}-[A-Z0-9]{4}$/.test(cleaned)) {
+        cleaned = "DEL-" + cleaned;
+      }
+
+      input.value = cleaned;
+      input.focus();
+      input.select();
+
+      // Validate
+      validateInput(cleaned);
+
+      // Show success animation
+      const btn = event.target.closest(".quick-action");
+      if (btn) {
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Pasted!';
+        btn.classList.add("btn-success");
+        btn.classList.remove("btn-outline-primary");
+
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove("btn-success");
+          btn.classList.add("btn-outline-primary");
+        }, 1500);
+      }
+    } catch (error) {
+      showNotification(
+        "Cannot access clipboard. Paste manually (Ctrl+V).",
+        "error"
+      );
+      document.getElementById("trackingId")?.focus();
+    }
+  }
+
+  // Sample ID functions
+  function generateSampleId() {
+    const samples = [
+      "DEL-51434020-X3RY",
+      "DEL-62389145-B8TZ",
+      "DEL-98701234-K9LX",
+      "DEL-34567890-P4QW",
+    ];
+    const randomId = samples[Math.floor(Math.random() * samples.length)];
+    const input = document.getElementById("trackingId");
+    input.value = randomId;
+    input.focus();
+    validateInput(randomId);
+
+    showNotification(`Sample ID loaded: ${randomId}`, "info");
+  }
+
+  function useSample(id) {
+    const input = document.getElementById("trackingId");
+    input.value = id;
+    input.focus();
+    input.select();
+    validateInput(id);
+  }
+
+  // Enhanced notification system
+  function showNotification(message, type = "info") {
+    const existing = document.querySelectorAll(".notification-toast");
+    existing.forEach((n) => n.remove());
+
+    const colors = {
+      success: "linear-gradient(135deg, #10b981, #059669)",
+      error: "linear-gradient(135deg, #ef4444, #dc2626)",
+      warning: "linear-gradient(135deg, #f59e0b, #d97706)",
+      info: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+    };
+
+    const notification = document.createElement("div");
+    notification.className = "notification-toast position-fixed top-4 end-4";
+    notification.style.zIndex = "9999";
+    notification.innerHTML = `
+      <div class="toast show" style="min-width: 300px; border-radius: 12px; overflow: hidden; border: none;">
+        <div class="toast-header text-white" style="background: ${
+          colors[type]
+        }; padding: 0.75rem 1rem;">
+          <strong class="me-auto">${type.toUpperCase()}</strong>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body bg-white" style="padding: 1rem;">
+          ${message}
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto-remove
+    setTimeout(() => notification.remove(), type === "success" ? 3000 : 5000);
+
+    // Add click to dismiss
+    notification.querySelector(".btn-close").addEventListener("click", () => {
+      notification.remove();
+    });
+  }
+
+  // Form submission (existing functionality with enhancements)
+  async function handleTrackSubmit(event) {
+    event.preventDefault();
+
+    const input = document.getElementById("trackingId");
+    let trackingId = input.value.trim().toUpperCase();
+
+    // Remove extra spaces
+    trackingId = trackingId.replace(/\s+/g, "");
+
+    // Validate
+    const validationError = validateTrackingId(trackingId);
+    if (validationError) {
+      showNotification(validationError, "error");
+      input.focus();
+      input.select();
+      return;
+    }
+
+    // Show loading state
+    const btn = document.querySelector(".btn-track-enhanced");
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = `
+      <span class="spinner-grow spinner-grow-sm me-2"></span>
+      AI Processing...
+    `;
+    btn.disabled = true;
+
+    // Visual feedback
+    input.style.borderColor = "#10b981";
+    input.disabled = true;
+
+    try {
+      // Show AI processing
+      showAIProcessing(trackingId);
+
+      // Send request
+      const response = await fetch("/delivery/track", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: new URLSearchParams({ trackingId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        completeAIProcessing();
+
+        if (data.warning) {
+          showNotification(data.warning, "warning");
+          setTimeout(() => {
+            showNotification("Redirecting to tracking...", "success");
+          }, 1000);
+        } else {
+          showNotification("Tracking found! Redirecting...", "success");
+        }
+
+        setTimeout(() => {
+          window.location.href = data.redirect;
+        }, 1500);
+      } else {
+        resetFormState(btn, originalContent, input);
+        showNotification(data.error || "Tracking not found", "error");
+        hideAIProcessing();
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      resetFormState(btn, originalContent, input);
+      showNotification("Network error. Please try again.", "error");
+      hideAIProcessing();
+    }
+  }
+
+  // AI Processing functions (keep existing functionality)
+  function showAIProcessing(trackingId) {
+    const container = document.getElementById("aiProcessing");
+    if (!container) return;
+
+    container.style.display = "block";
+    container.innerHTML = `
+      <div class="glass-card p-4 mt-4">
+        <div class="ai-processing-animation">
+          <div class="ai-header">
+            <i class="fas fa-brain text-primary me-2"></i>
+            <span class="fw-bold">AI Route Analysis in Progress</span>
+            <small class="text-muted ms-2">${trackingId}</small>
+          </div>
+          <div class="ai-steps">
+            <div class="ai-step active" data-step="1">
+              <i class="fas fa-search me-2"></i>
+              <span>Querying global database...</span>
+            </div>
+            <div class="ai-step" data-step="2">
+              <i class="fas fa-microchip me-2"></i>
+              <span>Analyzing route patterns...</span>
+            </div>
+            <div class="ai-step" data-step="3">
+              <i class="fas fa-robot me-2"></i>
+              <span>Calculating ETA with AI...</span>
+            </div>
+            <div class="ai-step" data-step="4">
+              <i class="fas fa-map-marked-alt me-2"></i>
+              <span>Generating real-time map...</span>
+            </div>
+          </div>
+          <div class="ai-progress mt-3">
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 25%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Animate steps
+    let step = 1;
+    const steps = container.querySelectorAll(".ai-step");
+    const progressBar = container.querySelector(".progress-bar");
+
+    const interval = setInterval(() => {
+      if (step <= 4) {
+        if (step > 1) {
+          steps[step - 2].classList.remove("active");
+        }
+        if (steps[step - 1]) {
+          steps[step - 1].classList.add("active");
+          progressBar.style.width = `${(step / 4) * 100}%`;
+        }
+        step++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 600);
+  }
+
+  function completeAIProcessing() {
+    const container = document.getElementById("aiProcessing");
+    if (container) {
+      const progressBar = container.querySelector(".progress-bar");
+      if (progressBar) {
+        progressBar.style.width = "100%";
+        progressBar.classList.remove("progress-bar-animated");
+        progressBar.classList.add("bg-success");
+      }
+
+      setTimeout(() => {
+        container.innerHTML = `
+          <div class="glass-card p-4 mt-4 text-center">
+            <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+            <h5 class="fw-bold mb-2">Analysis Complete!</h5>
+            <p class="text-muted">Redirecting to tracking results...</p>
+          </div>
+        `;
+      }, 500);
+    }
+  }
+
+  function hideAIProcessing() {
+    const container = document.getElementById("aiProcessing");
+    if (container) {
+      container.style.display = "none";
+      container.innerHTML = "";
+    }
+  }
+
+  function resetFormState(btn, originalContent, input) {
+    btn.innerHTML = originalContent;
+    btn.disabled = false;
+    input.disabled = false;
+    input.style.borderColor = "";
+  }
+
+  // Validation helper
   function validateTrackingId(trackingId) {
-    // Format: DEL-XXXXXXXX-XXXX
     const pattern = /^DEL-\d{8}-[A-Z0-9]{4}$/;
 
     if (!pattern.test(trackingId)) {
-      // Provide more specific error messages
       if (!trackingId.startsWith("DEL-")) {
         return 'Tracking ID must start with "DEL-"';
       }
@@ -696,228 +949,36 @@
     return null;
   }
 
-  async function handleTrackSubmit(event) {
-    event.preventDefault();
-
-    const input = document.getElementById("trackingId");
-    let trackingId = input.value.trim().toUpperCase();
-
-    // Remove any extra spaces or invalid characters
-    trackingId = trackingId.replace(/\s+/g, "");
-
-    // Validate format
-    const validationError = validateTrackingId(trackingId);
-    if (validationError) {
-      showNotification(validationError, "error");
-      input.focus();
-      input.select();
-      return;
-    }
-
-    // Show loading state with enhanced animation
-    const btn = document.querySelector(".btn-track");
-    const originalContent = btn.innerHTML;
-    btn.innerHTML = `
-      <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
-      <span class="loading-text">Analyzing with AI...</span>
+  // Add CSS for animations if not already present
+  if (!document.querySelector("#tracking-styles")) {
+    const style = document.createElement("style");
+    style.id = "tracking-styles";
+    style.textContent = `
+      @keyframes progress-bar-stripes {
+        0% { background-position: 1rem 0; }
+        100% { background-position: 0 0; }
+      }
+      
+      .progress-bar-striped {
+        background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+        background-size: 1rem 1rem;
+      }
+      
+      .progress-bar-animated {
+        animation: progress-bar-stripes 1s linear infinite;
+      }
+      
+      .ai-step {
+        opacity: 0.6;
+        transition: all 0.3s ease;
+      }
+      
+      .ai-step.active {
+        opacity: 1;
+        color: #0d6efd;
+        font-weight: 600;
+      }
     `;
-    btn.disabled = true;
-
-    // Add typing effect to input
-    input.style.borderColor = "#10b981";
-    input.style.boxShadow = "0 0 0 3px rgba(16, 185, 129, 0.1)";
-
-    // Simulate AI processing
-    setTimeout(() => {
-      // Redirect to tracking results
-      window.location.href = `/delivery/track/results?trackingId=${encodeURIComponent(
-        trackingId
-      )}`;
-    }, 1000);
+    document.head.appendChild(style);
   }
-
-  // Modern notification system
-  function showNotification(message, type = "info") {
-    // Remove existing notifications
-    const existing = document.querySelectorAll(".notification-toast");
-    existing.forEach((n) => n.remove());
-
-    const icons = {
-      success: "fas fa-check-circle",
-      error: "fas fa-exclamation-circle",
-      warning: "fas fa-exclamation-triangle",
-      info: "fas fa-info-circle",
-    };
-
-    const colors = {
-      success: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-      error: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-      warning: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-      info: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-    };
-
-    const notification = document.createElement("div");
-    notification.className = "notification-toast position-fixed top-4 end-4";
-    notification.style.zIndex = "99999";
-    notification.innerHTML = `
-      <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header" style="background: ${
-          colors[type]
-        }; color: white; border-radius: 12px 12px 0 0;">
-          <i class="${icons[type]} me-2"></i>
-          <strong class="me-auto">${
-            type.charAt(0).toUpperCase() + type.slice(1)
-          }</strong>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body bg-white" style="border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-          ${message}
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(notification);
-
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 5000);
-
-    // Add close button functionality
-    notification.querySelector(".btn-close").addEventListener("click", () => {
-      notification.remove();
-    });
-  }
-
-  // Clipboard paste functionality
-  async function pasteFromClipboard() {
-    try {
-      const text = await navigator.clipboard.readText();
-      const input = document.getElementById("trackingId");
-      input.value = text.trim().toUpperCase();
-      input.focus();
-      input.select();
-
-      // Validate and show feedback
-      const validationError = validateTrackingId(input.value);
-      if (!validationError) {
-        input.style.borderColor = "#10b981";
-        input.style.boxShadow = "0 0 0 3px rgba(16, 185, 129, 0.1)";
-        showNotification("Tracking ID pasted successfully!", "success");
-      } else {
-        input.style.borderColor = "#ef4444";
-        input.style.boxShadow = "0 0 0 3px rgba(239, 68, 68, 0.1)";
-      }
-    } catch (err) {
-      showNotification(
-        "Unable to access clipboard. Please paste manually.",
-        "warning"
-      );
-    }
-  }
-
-  // Dynamic sample IDs rotation
-  const sampleIds = [
-    "DEL-51434020-X3RY",
-    "DEL-62389145-B8TZ",
-    "DEL-98701234-K9LX",
-    "DEL-34567890-P4QW",
-  ];
-
-  let currentSampleIndex = 0;
-
-  function rotateSampleId() {
-    const input = document.getElementById("trackingId");
-    if (!input.value || sampleIds.includes(input.value.toUpperCase())) {
-      // Only rotate if input is empty or contains a sample ID
-      if (document.activeElement !== input) {
-        input.value = sampleIds[currentSampleIndex];
-        currentSampleIndex = (currentSampleIndex + 1) % sampleIds.length;
-
-        // Animate the change
-        input.style.opacity = "0.7";
-        setTimeout(() => {
-          input.style.opacity = "1";
-          input.style.transform = "translateY(-2px)";
-          setTimeout(() => {
-            input.style.transform = "translateY(0)";
-          }, 300);
-        }, 50);
-      }
-    }
-  }
-
-  // Enhanced input interaction
-  document.addEventListener("DOMContentLoaded", () => {
-    const input = document.getElementById("trackingId");
-
-    // Initialize with first sample
-    rotateSampleId();
-
-    // Rotate every 4 seconds
-    setInterval(rotateSampleId, 4000);
-
-    // Clear sample when user focuses
-    input.addEventListener("focus", () => {
-      if (sampleIds.includes(input.value.toUpperCase())) {
-        input.value = "";
-      }
-      input.style.borderColor = "#6366f1";
-      input.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)";
-    });
-
-    // Validate on blur
-    input.addEventListener("blur", () => {
-      if (input.value.trim() !== "") {
-        const error = validateTrackingId(input.value.toUpperCase());
-        if (error) {
-          input.style.borderColor = "#ef4444";
-          input.style.boxShadow = "0 0 0 3px rgba(239, 68, 68, 0.1)";
-        } else {
-          input.style.borderColor = "#10b981";
-          input.style.boxShadow = "0 0 0 3px rgba(16, 185, 129, 0.1)";
-        }
-      }
-    });
-
-    // Auto-format as user types
-    input.addEventListener("input", (e) => {
-      let value = e.target.value.toUpperCase();
-
-      // Remove any non-alphanumeric except dashes
-      value = value.replace(/[^A-Z0-9-]/g, "");
-
-      // Auto-insert first dash after "DEL"
-      if (value.startsWith("DEL") && value.length > 3 && value[3] !== "-") {
-        value = "DEL-" + value.slice(3);
-      }
-
-      // Auto-insert second dash after 12 characters
-      if (value.length > 12 && value[12] !== "-") {
-        value = value.slice(0, 12) + "-" + value.slice(12);
-      }
-
-      // Limit length
-      if (value.length > 17) {
-        value = value.slice(0, 17);
-      }
-
-      e.target.value = value;
-    });
-
-    // Add keyboard shortcuts
-    document.addEventListener("keydown", (e) => {
-      if (e.ctrlKey && e.key === "/") {
-        e.preventDefault();
-        input.focus();
-        input.select();
-      }
-
-      if (e.key === "Escape") {
-        input.blur();
-      }
-    });
-  });
 </script>

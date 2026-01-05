@@ -254,7 +254,7 @@ class TrackingController {
     });
   }
 
-  // POST /track - Process tracking form
+  // POST /track - Process tracking form with AJAX support
   async postTrackingForm(req, res) {
     try {
       let { trackingId } = req.body;
@@ -263,6 +263,15 @@ class TrackingController {
       trackingId = trackingId?.trim().toUpperCase();
 
       if (!trackingId) {
+        // Check if request is AJAX
+        if (req.xhr || req.headers.accept?.includes("application/json")) {
+          return res.status(400).json({
+            success: false,
+            error: "Tracking ID is required.",
+            trackingId: "",
+          });
+        }
+
         return res.render("pages/track-form", {
           title: "Track Delivery - ExpressLog",
           page: "tracking",
@@ -274,11 +283,21 @@ class TrackingController {
       // Validate format - UPDATED for new format: DEL-XXXXXXXX-XXXX
       const trackingRegex = /^DEL-\d{8}-[A-Z0-9]{4}$/;
       if (!trackingRegex.test(trackingId)) {
+        const errorMsg =
+          "Invalid tracking ID format. Use DEL-XXXXXXXX-XXXX (e.g., DEL-51434020-X3RY).";
+
+        if (req.xhr || req.headers.accept?.includes("application/json")) {
+          return res.status(400).json({
+            success: false,
+            error: errorMsg,
+            trackingId,
+          });
+        }
+
         return res.render("pages/track-form", {
           title: "Track Delivery - ExpressLog",
           page: "tracking",
-          error:
-            "Invalid tracking ID format. Use DEL-XXXXXXXX-XXXX (e.g., DEL-51434020-X3RY).",
+          error: errorMsg,
           trackingId,
         });
       }
@@ -286,24 +305,75 @@ class TrackingController {
       // Verify existence
       const delivery = await Delivery.findOne({ trackingId });
       if (!delivery) {
+        const errorMsg = "Tracking ID not found. Please verify and try again.";
+
+        if (req.xhr || req.headers.accept?.includes("application/json")) {
+          return res.status(404).json({
+            success: false,
+            error: errorMsg,
+            trackingId,
+          });
+        }
+
         return res.render("pages/track-form", {
           title: "Track Delivery - ExpressLog",
           page: "tracking",
-          error: "Tracking ID not found. Please verify and try again.",
+          error: errorMsg,
           trackingId,
         });
       }
 
-      // Redirect to results page
-      return res.redirect(
-        `/delivery/track/results?trackingId=${encodeURIComponent(trackingId)}`
-      );
+      // Check delivery status for possible issues
+      if (delivery.status === "cancelled" || delivery.status === "lost") {
+        const statusMsg =
+          delivery.status === "cancelled"
+            ? "This shipment has been cancelled."
+            : "This shipment has been marked as lost.";
+
+        if (req.xhr || req.headers.accept?.includes("application/json")) {
+          return res.status(200).json({
+            success: true,
+            redirect: `/delivery/track/results?trackingId=${encodeURIComponent(
+              trackingId
+            )}`,
+            warning: statusMsg,
+          });
+        }
+      }
+
+      // Success response
+      const redirectUrl = `/delivery/track/results?trackingId=${encodeURIComponent(
+        trackingId
+      )}`;
+
+      if (req.xhr || req.headers.accept?.includes("application/json")) {
+        return res.json({
+          success: true,
+          redirect: redirectUrl,
+          deliveryId: delivery._id,
+          status: delivery.status,
+          estimatedDelivery: delivery.estimatedDelivery,
+        });
+      }
+
+      // Regular form submission - redirect
+      return res.redirect(redirectUrl);
     } catch (error) {
       console.error("Tracking form error:", error);
+      const errorMsg = "An internal error occurred. Please try again later.";
+
+      if (req.xhr || req.headers.accept?.includes("application/json")) {
+        return res.status(500).json({
+          success: false,
+          error: errorMsg,
+          trackingId: "",
+        });
+      }
+
       return res.render("pages/track-form", {
         title: "Track Delivery - ExpressLog",
         page: "tracking",
-        error: "An internal error occurred. Please try again later.",
+        error: errorMsg,
         trackingId: "",
       });
     }
