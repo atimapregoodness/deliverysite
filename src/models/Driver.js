@@ -3,105 +3,108 @@ const Schema = mongoose.Schema;
 
 const driverSchema = new Schema(
   {
-    name: { 
-      type: String, 
+    name: {
+      type: String,
       required: [true, "Driver name is required"],
       trim: true,
-      minlength: [2, "Name must be at least 2 characters"]
+      minlength: [2, "Name must be at least 2 characters"],
     },
-    phone: { 
-      type: String, 
+    phone: {
+      type: String,
       required: [true, "Phone number is required"],
-
     },
-    email: { 
-      type: String, 
+    email: {
+      type: String,
       required: [true, "Email is required"],
       unique: true,
       lowercase: true,
-      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"]
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "Please enter a valid email",
+      ],
     },
-    licenseNumber: { 
-      type: String, 
+    licenseNumber: {
+      type: String,
       unique: true,
       uppercase: true,
-      trim: true
+      trim: true,
     },
-    photo: { 
+    photo: {
       type: String,
-      default: null
+      default: null,
     },
-    rating: { 
-      type: Number, 
-      default: 4.5, 
-      min: [0, "Rating cannot be less than 0"], 
-      max: [5, "Rating cannot exceed 5"] 
+    rating: {
+      type: Number,
+      default: 4.5,
+      min: [0, "Rating cannot be less than 0"],
+      max: [5, "Rating cannot exceed 5"],
     },
 
     currentLocation: {
-      type: { 
-        type: String, 
-        enum: ["Point"], 
-        default: "Point" 
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
       },
-      coordinates: { 
-        type: [Number], 
+      coordinates: {
+        type: [Number],
         default: [0, 0],
         validate: {
-          validator: function(coords) {
+          validator: function (coords) {
             return coords.length === 2;
           },
-          message: "Coordinates must be [longitude, latitude]"
-        }
+          message: "Coordinates must be [longitude, latitude]",
+        },
       },
-      lastUpdated: { 
-        type: Date, 
-        default: Date.now 
+      lastUpdated: {
+        type: Date,
+        default: Date.now,
       },
     },
 
-
-    currentDeliveries: [{
-      type: Schema.Types.ObjectId,
-      ref: "Delivery",
-    }],
+    currentDeliveries: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Delivery",
+      },
+    ],
 
     status: {
       type: String,
       enum: {
         values: ["available", "on_delivery", "off_duty", "break"],
-        message: "{VALUE} is not a valid driver status"
+        message: "{VALUE} is not a valid driver status",
       },
       default: "available",
     },
 
     stats: {
-      totalDeliveries: { 
-        type: Number, 
+      totalDeliveries: {
+        type: Number,
         default: 0,
-        min: 0 
+        min: 0,
       },
-      onTimeDeliveries: { 
-        type: Number, 
+      onTimeDeliveries: {
+        type: Number,
         default: 0,
-        min: 0 
+        min: 0,
       },
-      totalDistance: { 
-        type: Number, 
+      totalDistance: {
+        type: Number,
         default: 0,
-        min: 0 
+        min: 0,
       },
-      ratingCount: { 
-        type: Number, 
+      ratingCount: {
+        type: Number,
         default: 0,
-        min: 0 
+        min: 0,
       },
     },
   },
   {
     timestamps: true,
     toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    toObject: { virtuals: true },
   }
 );
 
@@ -114,7 +117,7 @@ driverSchema.index({ licenseNumber: 1 }, { unique: true });
 driverSchema.index({ email: 1 }, { unique: true });
 
 // Virtual for on-time percentage
-driverSchema.virtual('onTimePercentage').get(function() {
+driverSchema.virtual("onTimePercentage").get(function () {
   if (this.stats.totalDeliveries === 0) return 0;
   return (this.stats.onTimeDeliveries / this.stats.totalDeliveries) * 100;
 });

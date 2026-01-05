@@ -24,11 +24,10 @@ class DriverController {
       }
 
       // Fetch drivers with populated vehicle info
-      const drivers = await Driver.find(query)
-        .sort({ createdAt: -1 });
+      const drivers = await Driver.find(query).sort({ createdAt: -1 });
 
       res.render("admin/drivers/drivers", {
-        title: "Driver Management", 
+        title: "Driver Management",
         drivers,
         query: req.query,
         messages: req.flash(),
@@ -57,9 +56,8 @@ class DriverController {
   // Create new driver
   postCreateDriver = async (req, res) => {
     try {
-      const { name, email, phone,  photo, status, latitude, longitude } = req.body;
-
-
+      const { name, email, phone, photo, status, latitude, longitude } =
+        req.body;
 
       // Create location object if coordinates provided
       let currentLocation = undefined;
@@ -94,14 +92,14 @@ class DriverController {
       res.redirect("/admin/drivers");
     } catch (error) {
       console.error("Error creating driver:", error);
-      
+
       if (error.name === "ValidationError") {
-        const messages = Object.values(error.errors).map(val => val.message);
+        const messages = Object.values(error.errors).map((val) => val.message);
         req.flash("error", messages.join(", "));
       } else {
         req.flash("error", "Error creating driver");
       }
-      
+
       res.render("admin/drivers/new", {
         title: "Add New Driver",
         driver: req.body,
@@ -113,9 +111,9 @@ class DriverController {
   // Show single driver
   getDriver = async (req, res) => {
     try {
-      const driver = await Driver.findById(req.params.id)
-
-        .populate("currentDeliveries");
+      const driver = await Driver.findById(req.params.id).populate(
+        "currentDeliveries"
+      );
 
       if (!driver) {
         req.flash("error", "Driver not found");
@@ -159,15 +157,25 @@ class DriverController {
   // Update driver
   putUpdateDriver = async (req, res) => {
     try {
-      const { name, email, phone, licenseNumber, photo, status, rating, latitude, longitude } = req.body;
-      
+      const {
+        name,
+        email,
+        phone,
+        licenseNumber,
+        photo,
+        status,
+        rating,
+        latitude,
+        longitude,
+      } = req.body;
+
       // Check if license number is being changed and if it already exists
       if (licenseNumber) {
         const existingDriver = await Driver.findOne({
           licenseNumber,
-          _id: { $ne: req.params.id }
+          _id: { $ne: req.params.id },
         });
-        
+
         if (existingDriver) {
           req.flash("error", "Another driver already has this license number");
           return res.redirect(`/admin/drivers/${req.params.id}/edit`);
@@ -203,11 +211,10 @@ class DriverController {
         };
       }
 
-      const driver = await Driver.findByIdAndUpdate(
-        req.params.id,
-        updateData,
-        { new: true, runValidators: true }
-      );
+      const driver = await Driver.findByIdAndUpdate(req.params.id, updateData, {
+        new: true,
+        runValidators: true,
+      });
 
       if (!driver) {
         req.flash("error", "Driver not found");
@@ -218,14 +225,14 @@ class DriverController {
       res.redirect("/admin/drivers");
     } catch (error) {
       console.error("Error updating driver:", error);
-      
+
       if (error.name === "ValidationError") {
-        const messages = Object.values(error.errors).map(val => val.message);
+        const messages = Object.values(error.errors).map((val) => val.message);
         req.flash("error", messages.join(", "));
       } else {
         req.flash("error", "Error updating driver");
       }
-      
+
       res.redirect(`/admin/drivers/${req.params.id}/edit`);
     }
   };
@@ -265,12 +272,11 @@ class DriverController {
     }
   };
 
-
   // Update driver status
   postUpdateStatus = async (req, res) => {
     try {
       const { status } = req.body;
-      
+
       const driver = await Driver.findByIdAndUpdate(
         req.params.id,
         { status },
@@ -288,6 +294,77 @@ class DriverController {
       console.error("Error updating status:", error);
       req.flash("error", "Error updating driver status");
       res.redirect(`/admin/drivers/${req.params.id}`);
+    }
+  };
+
+  // Delete driver
+  deleteDriver = async (req, res) => {
+    try {
+      const driver = await Driver.findById(req.params.id).populate(
+        "currentDeliveries",
+        "status trackingNumber"
+      );
+
+      if (!driver) {
+        return res.status(404).json({
+          success: false,
+          error: "Driver not found",
+        });
+      }
+
+      // Check if driver has current deliveries
+      if (driver.currentDeliveries && driver.currentDeliveries.length > 0) {
+        const activeDeliveries = driver.currentDeliveries.filter(
+          (d) => d.status === "in_transit" || d.status === "pending"
+        );
+
+        if (activeDeliveries.length > 0) {
+          return res.status(400).json({
+            success: false,
+            error: `Cannot delete driver with ${activeDeliveries.length} active delivery(ies). 
+                  Please reassign or complete these deliveries first.`,
+            deliveries: activeDeliveries.map((d) => ({
+              id: d._id,
+              trackingNumber: d.trackingNumber,
+              status: d.status,
+            })),
+          });
+        }
+      }
+
+      // Check if driver is currently on delivery
+      if (driver.status === "on_delivery") {
+        return res.status(400).json({
+          success: false,
+          error:
+            "Driver is currently on delivery. Please wait until the delivery is completed.",
+        });
+      }
+
+      // Soft delete option (if you want to keep data)
+      // driver.isDeleted = true;
+      // driver.deletedAt = new Date();
+      // await driver.save();
+
+      // Or hard delete
+      await Driver.findByIdAndDelete(req.params.id);
+
+      res.json({
+        success: true,
+        message: "Driver deleted successfully",
+        data: {
+          driverId: req.params.id,
+          driverName: driver.name,
+        },
+      });
+    } catch (error) {
+      console.error("Error deleting driver:", error);
+      res.status(500).json({
+        success: false,
+        error: "An error occurred while deleting the driver",
+        details:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
     }
   };
 }

@@ -1,112 +1,348 @@
-<footer class="bg-white border-t border-gray-200 mt-12">
-  <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-      <div class="col-span-1">
-        <div class="flex items-center">
-          <i class="fas fa-shipping-fast text-2xl text-blue-600 mr-2"></i>
-          <span class="text-xl font-bold text-gray-900">Express Delivery</span>
-        </div>
-        <p class="mt-4 text-gray-600 text-sm">
-          Fast, reliable, and secure delivery services with real-time tracking
-          and advanced monitoring.
+<style>
+  .footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    color: #2c3e50;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .footer:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+  }
+
+  .footer a {
+    color: #5a6c7d;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+
+  .footer a:hover {
+    color: var(--primary-color);
+    transform: translateX(5px);
+  }
+
+  .footer-brand {
+    font-family: "Outfit", sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    background: linear-gradient(
+      90deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .footer-section-title {
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    font-weight: 700;
+  }
+
+  .footer-section-title:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    border-radius: 2px;
+  }
+
+  .footer-contact-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+
+  .social-icon {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .social-icon:hover {
+    transform: translateY(-5px);
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    color: white;
+    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+  }
+
+  .newsletter-input {
+    border-radius: 50px;
+    padding: 0.8rem 1.5rem;
+    border: 2px solid #e9ecef;
+    background: white;
+    font-weight: 500;
+  }
+
+  .newsletter-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+  }
+
+  .footer-list li {
+    margin-bottom: 0.75rem;
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .footer-list li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+    font-weight: bold;
+    transition: transform 0.3s ease;
+  }
+
+  .footer-list li:hover:before {
+    transform: translateX(5px);
+  }
+
+  .footer-badge {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.5rem;
+  }
+
+  .footer-divider {
+    background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+    height: 1px;
+    margin: 3rem 0;
+  }
+
+  .map-point {
+    width: 8px;
+    height: 8px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+  }
+
+  .floating-element {
+    animation: floating 3s ease-in-out infinite;
+  }
+
+  @keyframes floating {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+</style>
+
+<footer class="footer py-5">
+  <div class="position-absolute top-0 end-0 opacity-10">
+    <i class="fas fa-shipping-fast fa-10x"></i>
+  </div>
+  <div class="position-absolute bottom-0 start-0 opacity-10">
+    <i class="fas fa-globe-americas fa-10x"></i>
+  </div>
+
+  <div class="container position-relative">
+    <div class="row">
+      <div class="col-lg-4 mb-5 mb-lg-0">
+        <a href="#" class="footer-brand d-block mb-3">NexusLogistics</a>
+        <p>
+          Delivering tomorrow's logistics today. Enterprise-grade delivery
+          solutions with real-time tracking, AI routing, and global logistics
+          infrastructure.
         </p>
+
+        <div class="mb-4">
+          <h6 class="fw-bold mb-3">Stay Updated</h6>
+          <div class="input-group">
+            <input
+              type="email"
+              class="form-control newsletter-input"
+              placeholder="Enter your email"
+            />
+            <button class="btn btn-gradient rounded-pill px-3 ms-2">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+          <small>No spam, only logistics insights</small>
+        </div>
+
+        <div class="d-flex gap-3">
+          <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+        </div>
       </div>
 
-      <div>
-        <h3
-          class="text-sm font-semibold text-gray-900 tracking-wider uppercase"
-        >
-          Services
-        </h3>
-        <ul class="mt-4 space-y-2">
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >Package Delivery</a
-            >
-          </li>
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >Express Shipping</a
-            >
-          </li>
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >International</a
-            >
-          </li>
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >Same Day Delivery</a
-            >
-          </li>
-        </ul>
-      </div>
+      <div class="col-lg-8">
+        <div class="row">
+          <div class="col-md-4">
+            <h5 class="footer-section-title">Services</h5>
+            <ul class="footer-list list-unstyled">
+              <li>
+                <a href="#"
+                  >Real-Time Tracking <span class="footer-badge">AI</span></a
+                >
+              </li>
+              <li><a href="#">Warehouse Management</a></li>
+              <li>
+                <a href="#"
+                  >Fleet Monitoring <span class="footer-badge">Live</span></a
+                >
+              </li>
+              <li><a href="#">International Shipping</a></li>
+              <li><a href="#">SafeGuard™ Insurance</a></li>
+              <li>
+                <a href="#"
+                  >Enterprise API <span class="footer-badge">New</span></a
+                >
+              </li>
+            </ul>
+          </div>
 
-      <div>
-        <h3
-          class="text-sm font-semibold text-gray-900 tracking-wider uppercase"
-        >
-          Support
-        </h3>
-        <ul class="mt-4 space-y-2">
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >Help Center</a
-            >
-          </li>
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >Track Package</a
-            >
-          </li>
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >Contact Us</a
-            >
-          </li>
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >FAQ</a
-            >
-          </li>
-        </ul>
-      </div>
+          <div class="col-md-4">
+            <h5 class="footer-section-title">Company</h5>
+            <ul class="footer-list list-unstyled">
+              <li><a href="#">About Us</a></li>
+              <li>
+                <a href="#">Careers <span class="footer-badge">Hiring</span></a>
+              </li>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Press</a></li>
+              <li><a href="#">Partners</a></li>
+              <li><a href="#">Sustainability</a></li>
+            </ul>
+          </div>
 
-      <div>
-        <h3
-          class="text-sm font-semibold text-gray-900 tracking-wider uppercase"
-        >
-          Connect
-        </h3>
-        <ul class="mt-4 space-y-2">
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >Twitter</a
-            >
-          </li>
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >Facebook</a
-            >
-          </li>
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >Instagram</a
-            >
-          </li>
-          <li>
-            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm"
-              >LinkedIn</a
-            >
-          </li>
-        </ul>
+          <div class="col-md-4">
+            <h5 class="footer-section-title">Contact</h5>
+
+            <div class="d-flex mb-3">
+              <div class="footer-contact-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div>
+                <h6>Email</h6>
+                <a href="mailto:support@nexuslogistics.com"
+                  >support@nexuslogistics.com</a
+                >
+              </div>
+            </div>
+
+            <div class="d-flex mb-3">
+              <div class="footer-contact-icon">
+                <i class="fas fa-phone"></i>
+              </div>
+              <div>
+                <h6>Phone</h6>
+                <a href="tel:+18005551234">+1 (800) 555-1234</a>
+              </div>
+            </div>
+
+            <div class="d-flex">
+              <div class="footer-contact-icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <div>
+                <h6>Global HQ</h6>
+                <p>123 Innovation Drive<br />San Francisco, CA</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="mt-8 pt-8 border-t border-gray-200">
-      <p class="text-center text-gray-500 text-sm">
-        &copy; 2023 Express Delivery. All rights reserved.
-      </p>
+    <div class="footer-divider"></div>
+
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        © 2023 Nexus Logistics, Inc. All rights reserved.
+      </div>
+      <div class="col-md-6 d-flex justify-content-end gap-3">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Cookies</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+
+    <div
+      class="mt-5 position-relative"
+      style="height: 80px; background: #f1f5f9; border-radius: 12px"
+    >
+      <div class="map-point" style="top: 40%; left: 20%"></div>
+      <div class="map-point" style="top: 30%; left: 40%"></div>
+      <div class="map-point" style="top: 60%; left: 60%"></div>
+      <div class="map-point" style="top: 50%; left: 80%"></div>
+
+      <div
+        class="position-absolute top-50 start-0 translate-middle-y floating-element"
+      >
+        <i class="fas fa-truck fa-lg"></i>
+      </div>
     </div>
   </div>
 </footer>
+
+<a
+  href="#home"
+  class="btn btn-gradient btn-lg rounded-circle position-fixed bottom-0 end-0 m-4"
+  id="back-to-top"
+>
+  <i class="fas fa-chevron-up"></i>
+</a>

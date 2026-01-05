@@ -1,1027 +1,874 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title || 'Secure Logistics Solutions' %></title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      /* Ultra-Compact Professional Header */
-      :root {
-        --primary-dark: #1a365d;
-        --primary-blue: #2d5aa0;
-        --accent-gold: #d4af37;
-        --accent-blue-light: #3b82f6;
-        --neutral-white: #ffffff;
-        --neutral-light: #f8fafc;
-        --neutral-gray: #94a3b8;
-        --neutral-dark: #1e293b;
-        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-        --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.08);
-        --border-radius: 10px;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      .main-header {
-        background: var(--neutral-white);
-        color: var(--neutral-dark);
-        box-shadow: var(--shadow-md);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        background: rgba(255, 255, 255, 0.98);
-      }
-
-      .header-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 65px;
-        position: relative;
-      }
-
-      /* Logo Section */
-      .logo-container {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        position: relative;
-        cursor: pointer;
-        text-decoration: none;
-        color: inherit;
-      }
-
-      .logo-icon-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .logo-icon-bg {
-        position: absolute;
-        width: 36px;
-        height: 36px;
-        background: linear-gradient(
-          135deg,
-          var(--primary-dark),
-          var(--primary-blue)
-        );
-        border-radius: 8px;
-        transform: rotate(45deg);
-        opacity: 0.9;
-        transition: var(--transition);
-      }
-
-      .logo-icon {
-        font-size: 1.2rem;
-        color: var(--neutral-white);
-        position: relative;
-        z-index: 2;
-      }
-
-      .logo-text {
-        font-size: 1.3rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        background: linear-gradient(
-          135deg,
-          var(--primary-dark) 0%,
-          var(--primary-blue) 100%
-        );
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        line-height: 1;
-        position: relative;
-      }
-
-      .logo-subtext {
-        font-size: 0.6rem;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        color: var(--neutral-gray);
-        margin-top: 3px;
-        font-weight: 500;
-      }
-
-      .nav-container {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .nav-main {
-        display: flex;
-        list-style: none;
-        gap: 0.2rem;
-      }
-
-      .nav-item {
-        position: relative;
-      }
-
-      .nav-link {
-        color: var(--neutral-dark);
-        text-decoration: none;
-        padding: 0.6rem 0.9rem;
-        border-radius: var(--border-radius);
-        font-weight: 600;
-        font-size: 0.85rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: var(--transition);
-        position: relative;
-        letter-spacing: -0.1px;
-      }
-
-      .nav-link::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 2px;
-        background: linear-gradient(
-          to right,
-          var(--accent-gold),
-          var(--accent-blue-light)
-        );
-        border-radius: 2px;
-        transition: width 0.3s ease;
-      }
-
-      .nav-link:hover::after {
-        width: 70%;
-      }
-
-      .nav-link:hover {
-        color: var(--primary-blue);
-        background: rgba(59, 130, 246, 0.05);
-      }
-
-      .nav-link.active {
-        color: var(--primary-blue);
-        background: linear-gradient(
-          135deg,
-          rgba(59, 130, 246, 0.08) 0%,
-          rgba(212, 175, 55, 0.04) 100%
-        );
-      }
-
-      .nav-link.active::after {
-        width: 80%;
-        background: linear-gradient(
-          to right,
-          var(--primary-blue),
-          var(--accent-gold)
-        );
-      }
-
-      .nav-link i {
-        font-size: 0.85rem;
-      }
-
-      .dropdown-arrow {
-        font-size: 0.6rem;
-        transition: transform 0.3s ease;
-        margin-left: 0.2rem;
-        color: var(--neutral-gray);
-      }
-
-      .nav-item:hover .dropdown-arrow {
-        transform: rotate(180deg);
-        color: var(--primary-blue);
-      }
-
-      /* Dropdown for desktop - no href on parent */
-      .dropdown-trigger {
-        cursor: pointer;
-        background: none;
-        border: none;
-        font-family: inherit;
-        font-size: inherit;
-        font-weight: inherit;
-        color: inherit;
-      }
-
-      /* Ultra Compact Mega Dropdown */
-      .dropdown-mega {
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 0;
-        width: 260px;
-        background: var(--neutral-white);
-        border-radius: var(--border-radius);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        padding: 0;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-5px);
-        transition: var(--transition);
-        z-index: 1000;
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        overflow: hidden;
-      }
-
-      .dropdown-mega::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(
-          to right,
-          var(--primary-blue),
-          var(--accent-gold)
-        );
-      }
-
-      .nav-item:hover .dropdown-mega {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
-
-      .dropdown-header {
-        color: var(--primary-dark);
-        font-weight: 700;
-        font-size: 0.95rem;
-        margin: 0;
-        padding: 1rem 1rem 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        background: var(--neutral-light);
-      }
-
-      .dropdown-icon {
-        color: var(--accent-gold);
-        font-size: 1rem;
-        background: var(--neutral-white);
-        padding: 0.4rem;
-        border-radius: 8px;
-        box-shadow: var(--shadow-sm);
-      }
-
-      .dropdown-list {
-        list-style: none;
-        padding: 0.8rem 0.5rem;
-      }
-
-      .dropdown-item {
-        margin: 0.2rem 0.5rem;
-        position: relative;
-      }
-
-      .dropdown-link {
-        color: var(--neutral-dark);
-        text-decoration: none;
-        padding: 0.6rem 0.8rem;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        transition: var(--transition);
-        font-size: 0.82rem;
-        font-weight: 500;
-        position: relative;
-      }
-
-      .dropdown-link::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        height: 0;
-        width: 2px;
-        background: var(--primary-blue);
-        transition: height 0.2s ease;
-        border-radius: 2px;
-      }
-
-      .dropdown-link:hover {
-        background: rgba(59, 130, 246, 0.08);
-        color: var(--primary-blue);
-        padding-left: 1rem;
-      }
-
-      .dropdown-link:hover::before {
-        height: 60%;
-      }
-
-      .dropdown-link i {
-        color: var(--primary-blue);
-        width: 18px;
-        text-align: center;
-        font-size: 0.8rem;
-      }
-
-      /* Professional Badge - Compact */
-      .professional-badge {
-        background: linear-gradient(
-          135deg,
-          rgba(212, 175, 55, 0.08) 0%,
-          rgba(59, 130, 246, 0.08) 100%
-        );
-        color: var(--primary-dark);
-        padding: 0.4rem 0.8rem;
-        border-radius: 15px;
-        font-size: 0.65rem;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        border: 1px solid rgba(212, 175, 55, 0.2);
-        font-weight: 600;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-        transition: var(--transition);
-        margin-left: 0.5rem;
-      }
-
-      .professional-badge:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-        border-color: var(--accent-gold);
-      }
-
-      .professional-badge i {
-        color: var(--accent-gold);
-        font-size: 0.7rem;
-      }
-
-      /* Mobile Menu Toggle */
-      .mobile-toggle {
-        display: none;
-        background: none;
-        border: none;
-        color: var(--neutral-dark);
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0.4rem;
-        transition: var(--transition);
-        position: relative;
-        z-index: 1001;
-      }
-
-      .mobile-toggle:hover {
-        color: var(--primary-blue);
-      }
-
-      /* Responsive Design */
-      @media (max-width: 1200px) {
-        .header-container {
-          padding: 0 1.2rem;
-        }
-
-        .nav-link {
-          padding: 0.5rem 0.7rem;
-          font-size: 0.82rem;
-        }
-
-        .logo-text {
-          font-size: 1.2rem;
-        }
-
-        .logo-icon-bg {
-          width: 32px;
-          height: 32px;
-        }
-
-        .logo-icon {
-          font-size: 1rem;
-        }
-      }
-
-      @media (max-width: 1100px) {
-        .header-container {
-          padding: 0 1rem;
-          height: 60px;
-        }
-
-        .mobile-toggle {
-          display: block;
-        }
-
-        .nav-container {
-          position: fixed;
-          top: 60px;
-          left: 0;
-          width: 100%;
-          height: calc(100vh - 60px);
-          background: var(--neutral-white);
-          backdrop-filter: blur(10px);
-          flex-direction: column;
-          padding: 1.5rem;
-          transform: translateX(-100%);
-          opacity: 0;
-          visibility: hidden;
-          transition: var(--transition);
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-          overflow-y: auto;
-          justify-content: flex-start;
-          gap: 0;
-          border-top: 1px solid rgba(226, 232, 240, 0.8);
-          z-index: 999;
-        }
-
-        .nav-container.active {
-          transform: translateX(0);
-          opacity: 1;
-          visibility: visible;
-        }
-
-        .nav-main {
-          flex-direction: column;
-          width: 100%;
-          gap: 0;
-          margin-bottom: 1rem;
-        }
-
-        .nav-item {
-          width: 100%;
-          border-bottom: 1px solid rgba(226, 232, 240, 0.5);
-        }
-
-        .nav-item:last-child {
-          border-bottom: none;
-        }
-
-        .nav-link {
-          padding: 1rem;
-          font-size: 0.95rem;
-          justify-content: space-between;
-          width: 100%;
-          border-radius: 0;
-          background: none;
-          text-align: left;
-        }
-
-        .nav-link.active {
-          background: rgba(59, 130, 246, 0.08);
-          border-left: 3px solid var(--primary-blue);
-        }
-
-        .nav-link::after {
-          display: none;
-        }
-
-        .dropdown-mega {
-          position: static;
-          width: 100%;
-          opacity: 1;
-          visibility: visible;
-          transform: none;
-          box-shadow: none;
-          background: var(--neutral-light);
-          margin-top: 0;
-          display: none;
-          border: none;
-          border-radius: 0;
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 0.4s ease-out, padding 0.3s ease;
-          padding: 0;
-        }
-
-        .dropdown-mega::before {
-          display: none;
-        }
-
-        .dropdown-mega.active {
-          display: block;
-          max-height: 1000px;
-          padding: 0.5rem 0;
-          border-top: 1px solid rgba(226, 232, 240, 0.5);
-          border-bottom: 1px solid rgba(226, 232, 240, 0.5);
-        }
-
-        .dropdown-header {
-          display: none;
-        }
-
-        .dropdown-list {
-          padding: 0.5rem 0;
-        }
-
-        .dropdown-item {
-          margin: 0;
-        }
-
-        .dropdown-link {
-          padding: 0.8rem 1.5rem;
-          font-size: 0.9rem;
-          border-radius: 0;
-          position: relative;
-        }
-
-        .dropdown-link::before {
-          content: "";
-          position: absolute;
-          left: 0.5rem;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 4px;
-          height: 4px;
-          background: var(--primary-blue);
-          border-radius: 50%;
-          opacity: 0.5;
-        }
-
-        .dropdown-link:hover::before {
-          height: 4px;
-          width: 4px;
-        }
-
-        .dropdown-link i {
-          font-size: 0.85rem;
-          margin-right: 0.5rem;
-        }
-
-        .nav-item:hover .dropdown-mega {
-          transform: none;
-        }
-
-        .professional-badge {
-          justify-content: center;
-          margin: 1rem auto 0;
-          width: auto;
-          display: inline-flex;
-          padding: 0.6rem 1.2rem;
-          font-size: 0.75rem;
-        }
-      }
-
-      /* Animation for mobile dropdown */
-      @keyframes slideDown {
-        from {
-          opacity: 0;
-          transform: translateY(-10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* Extra small devices */
-      @media (max-width: 480px) {
-        .header-container {
-          padding: 0 0.8rem;
-        }
-
-        .logo-text {
-          font-size: 1.1rem;
-        }
-
-        .logo-subtext {
-          font-size: 0.55rem;
-          letter-spacing: 1px;
-        }
-
-        .logo-icon-bg {
-          width: 28px;
-          height: 28px;
-        }
-
-        .nav-container {
-          padding: 1rem;
-        }
-
-        .nav-link {
-          padding: 0.9rem;
-          font-size: 0.9rem;
-        }
-
-        .dropdown-link {
-          padding: 0.7rem 1.2rem;
-          font-size: 0.85rem;
-        }
-      }
-
-      /* Small tablets */
-      @media (max-width: 768px) and (min-width: 481px) {
-        .nav-container {
-          padding: 1.5rem 2rem;
-        }
-      }
-
-      /* Prevent body scroll when mobile menu is open */
-      body.menu-open {
-        overflow: hidden;
-        position: fixed;
-        width: 100%;
-      }
-
-      /* Hover effects for touch devices */
-      @media (hover: hover) and (pointer: fine) {
-        .dropdown-mega {
-          transition-delay: 0.1s;
-        }
-
-        .nav-item:hover .dropdown-mega {
-          transition-delay: 0s;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header class="main-header">
-      <div class="header-container">
-        <!-- Logo Section -->
-        <a href="/" class="logo-container">
-          <div class="logo-icon-wrapper">
-            <div class="logo-icon-bg"></div>
-            <i class="fas fa-shield-alt logo-icon"></i>
-          </div>
-          <div>
-            <div class="logo-text">SHIELD LOGISTICS</div>
-            <div class="logo-subtext">Secure • Swift • Reliable</div>
-          </div>
-        </a>
-
-        <!-- Navigation -->
-        <nav class="nav-container" id="mainNav">
-          <ul class="nav-main">
-            <li class="nav-item">
-              <a
-                href="/"
-                class="nav-link <%= currentPage === 'home' ? 'active' : '' %>"
-              >
-                <i class="fas fa-home"></i>
-                Home
-              </a>
-            </li>
-
-            <!-- Track Delivery Link -->
-            <li class="nav-item">
-              <a
-                href="/track"
-                class="nav-link <%= (currentPage === 'track' || currentPage === 'delivery/track') ? 'active' : '' %>"
-              >
-                <i class="fas fa-location-dot"></i>
-                Track Delivery
-              </a>
-            </li>
-
-            <!-- Security Services Dropdown -->
-            <li class="nav-item">
-              <button
-                class="nav-link dropdown-trigger <%= currentPage === 'security' ? 'active' : '' %>"
-                type="button"
-                aria-expanded="false"
-              >
-                <i class="fas fa-user-shield"></i>
-                Security
-                <i class="fas fa-chevron-down dropdown-arrow"></i>
-              </button>
-              <div class="dropdown-mega">
-                <div class="dropdown-header">
-                  <i class="fas fa-shield-alt dropdown-icon"></i>
-                  Security Solutions
-                </div>
-                <ul class="dropdown-list">
-                  <li class="dropdown-item">
-                    <a href="/security/static-guards" class="dropdown-link">
-                      <i class="fas fa-user-check"></i>
-                      Static Security Guards
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/security/mobile-patrols" class="dropdown-link">
-                      <i class="fas fa-car-alt"></i>
-                      Mobile Patrols
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/security/alarm-monitoring" class="dropdown-link">
-                      <i class="fas fa-bell"></i>
-                      Alarm Monitoring
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/security/cctv" class="dropdown-link">
-                      <i class="fas fa-video"></i>
-                      CCTV Systems
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/security/cyber" class="dropdown-link">
-                      <i class="fas fa-lock"></i>
-                      Cybersecurity
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </li>
-
-            <!-- Logistics Services Dropdown -->
-            <li class="nav-item">
-              <button
-                class="nav-link dropdown-trigger <%= currentPage === 'logistics' ? 'active' : '' %>"
-                type="button"
-                aria-expanded="false"
-              >
-                <i class="fas fa-shipping-fast"></i>
-                Logistics
-                <i class="fas fa-chevron-down dropdown-arrow"></i>
-              </button>
-              <div class="dropdown-mega">
-                <div class="dropdown-header">
-                  <i class="fas fa-truck-loading dropdown-icon"></i>
-                  Logistics Solutions
-                </div>
-                <ul class="dropdown-list">
-                  <li class="dropdown-item">
-                    <a
-                      href="/logistics/freight-forwarding"
-                      class="dropdown-link"
-                    >
-                      <i class="fas fa-plane-departure"></i>
-                      Freight Forwarding
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/logistics/warehousing" class="dropdown-link">
-                      <i class="fas fa-warehouse"></i>
-                      Warehousing
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/logistics/distribution" class="dropdown-link">
-                      <i class="fas fa-route"></i>
-                      Last-Mile Delivery
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/logistics/cold-chain" class="dropdown-link">
-                      <i class="fas fa-snowflake"></i>
-                      Cold Chain
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/logistics/supply-chain" class="dropdown-link">
-                      <i class="fas fa-project-diagram"></i>
-                      Supply Chain
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </li>
-
-            <!-- Company Dropdown -->
-            <li class="nav-item">
-              <button
-                class="nav-link dropdown-trigger <%= currentPage === 'company' ? 'active' : '' %>"
-                type="button"
-                aria-expanded="false"
-              >
-                <i class="fas fa-landmark"></i>
-                Company
-                <i class="fas fa-chevron-down dropdown-arrow"></i>
-              </button>
-              <div class="dropdown-mega">
-                <div class="dropdown-header">
-                  <i class="fas fa-info-circle dropdown-icon"></i>
-                  Company Information
-                </div>
-                <ul class="dropdown-list">
-                  <li class="dropdown-item">
-                    <a href="/about" class="dropdown-link">
-                      <i class="fas fa-building"></i>
-                      About Us
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/contact" class="dropdown-link">
-                      <i class="fas fa-phone-alt"></i>
-                      Contact Us
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/company/leadership" class="dropdown-link">
-                      <i class="fas fa-users"></i>
-                      Leadership
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/company/careers" class="dropdown-link">
-                      <i class="fas fa-briefcase"></i>
-                      Careers
-                    </a>
-                  </li>
-                  <li class="dropdown-item">
-                    <a href="/company/certifications" class="dropdown-link">
-                      <i class="fas fa-award"></i>
-                      Certifications
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-
-          <!-- Professional Badge -->
-          <div class="professional-badge">
-            <i class="fas fa-certificate"></i>
-            ISO 9001:2023
-          </div>
-        </nav>
-
-        <!-- Mobile Toggle -->
-        <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
-          <i class="fas fa-bars"></i>
-        </button>
+<style>
+  :root {
+    --primary-blue: #0d6efd;
+    --primary-dark: #0b5ed7;
+    --secondary-color: #6f42c1;
+    --accent-blue: #20c997;
+    --accent-gold: #ffc107;
+    --dark-color: #212529;
+    --light-color: #f8f9fa;
+    --gray-color: #6c757d;
+    --border-color: #dee2e6;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+  }
+
+  /* Modern Compact Header */
+  .main-header {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    height: 60px;
+    transition: var(--transition);
+  }
+
+  .header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Compact Logo */
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+  }
+
+  .logo-icon-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-icon-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      135deg,
+      var(--primary-blue),
+      var(--secondary-color)
+    );
+    border-radius: 8px;
+    transform: rotate(45deg);
+    opacity: 0.9;
+    transition: var(--transition);
+  }
+
+  .logo-icon {
+    font-size: 0.9rem;
+    color: white;
+    position: relative;
+    z-index: 2;
+  }
+
+  .logo-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    background: linear-gradient(
+      135deg,
+      var(--primary-blue),
+      var(--secondary-color)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-subtext {
+    font-size: 0.55rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray-color);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  /* Navigation */
+  .nav-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav-main {
+    display: flex;
+    list-style: none;
+    gap: 0.25rem;
+  }
+
+  .nav-item {
+    position: relative;
+  }
+
+  .nav-link,
+  .dropdown-trigger {
+    color: var(--dark-color);
+    text-decoration: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: var(--transition);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    position: relative;
+  }
+
+  .nav-link:hover,
+  .dropdown-trigger:hover {
+    color: var(--primary-blue);
+    background: rgba(13, 110, 253, 0.05);
+  }
+
+  .nav-link.active,
+  .dropdown-trigger.active {
+    color: var(--primary-blue);
+    background: rgba(13, 110, 253, 0.1);
+    font-weight: 600;
+  }
+
+  .nav-link i,
+  .dropdown-trigger i {
+    font-size: 0.75rem;
+    width: 14px;
+    text-align: center;
+  }
+
+  .dropdown-arrow {
+    font-size: 0.6rem;
+    transition: transform 0.3s ease;
+    margin-left: 0.2rem;
+  }
+
+  /* Dropdown Menus */
+  .dropdown-mega {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 220px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 0.75rem 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+  }
+
+  .nav-item:hover .dropdown-mega {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .dropdown-header {
+    padding: 0 1rem 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .dropdown-list {
+    list-style: none;
+  }
+
+  .dropdown-item {
+    margin: 0.15rem 0.5rem;
+  }
+
+  .dropdown-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--dark-color);
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: var(--transition);
+  }
+
+  .dropdown-link:hover {
+    background: rgba(13, 110, 253, 0.08);
+    color: var(--primary-blue);
+    transform: translateX(3px);
+  }
+
+  .dropdown-link i {
+    font-size: 0.7rem;
+    color: var(--primary-blue);
+    width: 14px;
+  }
+
+  /* Professional Badge */
+  .professional-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    background: linear-gradient(
+      135deg,
+      rgba(13, 110, 253, 0.1),
+      rgba(32, 201, 151, 0.1)
+    );
+    border: 1px solid rgba(13, 110, 253, 0.2);
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-left: 0.75rem;
+    transition: var(--transition);
+  }
+
+  .professional-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+    border-color: var(--primary-blue);
+  }
+
+  .professional-badge i {
+    font-size: 0.6rem;
+    color: var(--accent-gold);
+  }
+
+  /* Mobile Toggle */
+  .mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: var(--transition);
+    color: var(--dark-color);
+  }
+
+  .mobile-toggle:hover {
+    background: rgba(13, 110, 253, 0.1);
+    color: var(--primary-blue);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .header-container {
+      padding: 0 1rem;
+    }
+
+    .nav-link,
+    .dropdown-trigger {
+      padding: 0.5rem 0.6rem;
+      font-size: 0.78rem;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .main-header {
+      height: 56px;
+    }
+
+    .mobile-toggle {
+      display: flex;
+    }
+
+    .nav-container {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      right: 0;
+      background: white;
+      padding: 1rem;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      transform: translateX(-100%);
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      max-height: calc(100vh - 56px);
+      overflow-y: auto;
+      z-index: 1020;
+    }
+
+    .nav-container.active {
+      transform: translateX(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .nav-main {
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .nav-item {
+      border-bottom: 1px solid rgba(222, 226, 230, 0.5);
+    }
+
+    .nav-item:last-child {
+      border-bottom: none;
+    }
+
+    .nav-link,
+    .dropdown-trigger {
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      justify-content: space-between;
+      border-radius: 5px;
+    }
+
+    .dropdown-mega {
+      position: static;
+      width: 100%;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      box-shadow: none;
+      border: none;
+      margin-top: 0.25rem;
+      padding: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .dropdown-mega.active {
+      max-height: 500px;
+      padding: 0.5rem 0;
+    }
+
+    .dropdown-header {
+      padding: 0.5rem 1rem;
+      margin: 0;
+    }
+
+    .dropdown-list {
+      padding: 0 0.5rem;
+    }
+
+    .dropdown-link {
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .professional-badge {
+      justify-content: center;
+      margin: 0.5rem auto 0;
+      width: fit-content;
+      order: 1;
+    }
+  }
+
+  /* Small mobile devices */
+  @media (max-width: 480px) {
+    .header-container {
+      padding: 0 0.75rem;
+    }
+
+    .logo-text {
+      font-size: 1.1rem;
+    }
+
+    .logo-subtext {
+      font-size: 0.5rem;
+    }
+
+    .nav-container {
+      padding: 0.75rem;
+    }
+
+    .nav-link,
+    .dropdown-trigger {
+      padding: 0.7rem;
+      font-size: 0.82rem;
+    }
+
+    .dropdown-link {
+      padding: 0.55rem 0.75rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  /* Animation for dropdown items */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dropdown-mega .dropdown-item {
+    animation: slideIn 0.2s ease forwards;
+    opacity: 0;
+  }
+
+  .dropdown-mega .dropdown-item:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  .dropdown-mega .dropdown-item:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  .dropdown-mega .dropdown-item:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+  .dropdown-mega .dropdown-item:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+  .dropdown-mega .dropdown-item:nth-child(5) {
+    animation-delay: 0.25s;
+  }
+
+  /* Scroll behavior for header */
+  .main-header.scrolled {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+
+  /* Focus states for accessibility */
+  .nav-link:focus,
+  .dropdown-trigger:focus,
+  .dropdown-link:focus,
+  .mobile-toggle:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+  }
+
+  /* Touch device optimizations */
+  @media (hover: none) and (pointer: coarse) {
+    .nav-link,
+    .dropdown-trigger {
+      padding: 0.6rem 0.75rem;
+    }
+
+    .dropdown-link {
+      padding: 0.6rem 1rem;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .nav-link.active,
+    .dropdown-trigger.active {
+      outline: 2px solid currentColor;
+    }
+
+    .dropdown-mega {
+      border: 2px solid currentColor;
+    }
+  }
+</style>
+
+<header class="main-header">
+  <div class="header-container">
+    <!-- Logo -->
+    <a href="/" class="logo-container">
+      <div class="logo-icon-wrapper">
+        <div class="logo-icon-bg"></div>
+        <i class="fas fa-shipping-fast logo-icon"></i>
       </div>
-    </header>
+      <div>
+        <div class="logo-text">SHIELD LOGISTICS</div>
+        <div class="logo-subtext">Secure • Swift • Reliable</div>
+      </div>
+    </a>
 
-    <script>
-      // Mobile Navigation Toggle
-      const mobileToggle = document.getElementById("mobileToggle");
-      const navContainer = document.getElementById("mainNav");
-      const body = document.body;
+    <!-- Desktop Navigation -->
+    <nav class="nav-container" id="mainNav">
+      <ul class="nav-main">
+        <li class="nav-item">
+          <a
+            href="/"
+            class="nav-link <%= currentPage === 'home' ? 'active' : '' %>"
+          >
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+        </li>
 
-      mobileToggle.addEventListener("click", function () {
-        const isActive = navContainer.classList.toggle("active");
-        this.innerHTML = isActive
-          ? '<i class="fas fa-times"></i>'
-          : '<i class="fas fa-bars"></i>';
+        <!-- Track Delivery -->
+        <li class="nav-item">
+          <a
+            href="/track"
+            class="nav-link <%= (currentPage === 'track' || currentPage === 'delivery/track') ? 'active' : '' %>"
+          >
+            <i class="fas fa-location-dot"></i>
+            <span>Track Delivery</span>
+          </a>
+        </li>
 
-        // Toggle body scroll lock
-        if (isActive) {
-          body.classList.add("menu-open");
-          // Set body position to prevent scroll jump
-          body.style.top = `-${window.scrollY}px`;
-        } else {
-          const scrollY = body.style.top;
-          body.classList.remove("menu-open");
-          body.style.top = "";
-          if (scrollY) {
-            window.scrollTo(0, parseInt(scrollY || "0") * -1);
-          }
-        }
-      });
+        <!-- Security Services -->
+        <li class="nav-item">
+          <button
+            class="nav-link dropdown-trigger <%= currentPage === 'security' ? 'active' : '' %>"
+            type="button"
+          >
+            <i class="fas fa-user-shield"></i>
+            <span>Security</span>
+            <i class="fas fa-chevron-down dropdown-arrow"></i>
+          </button>
+          <div class="dropdown-mega">
+            <div class="dropdown-header">Security Solutions</div>
+            <ul class="dropdown-list">
+              <li class="dropdown-item">
+                <a href="/security/static-guards" class="dropdown-link">
+                  <i class="fas fa-user-check"></i>
+                  <span>Static Security Guards</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/security/mobile-patrols" class="dropdown-link">
+                  <i class="fas fa-car-alt"></i>
+                  <span>Mobile Patrols</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/security/alarm-monitoring" class="dropdown-link">
+                  <i class="fas fa-bell"></i>
+                  <span>Alarm Monitoring</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/security/cctv" class="dropdown-link">
+                  <i class="fas fa-video"></i>
+                  <span>CCTV Systems</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/security/cyber" class="dropdown-link">
+                  <i class="fas fa-lock"></i>
+                  <span>Cybersecurity</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
 
-      // Mobile Dropdown Toggle
-      const dropdownTriggers = document.querySelectorAll(".dropdown-trigger");
+        <!-- Logistics Services -->
+        <li class="nav-item">
+          <button
+            class="nav-link dropdown-trigger <%= currentPage === 'logistics' ? 'active' : '' %>"
+            type="button"
+          >
+            <i class="fas fa-shipping-fast"></i>
+            <span>Logistics</span>
+            <i class="fas fa-chevron-down dropdown-arrow"></i>
+          </button>
+          <div class="dropdown-mega">
+            <div class="dropdown-header">Logistics Solutions</div>
+            <ul class="dropdown-list">
+              <li class="dropdown-item">
+                <a href="/logistics/freight-forwarding" class="dropdown-link">
+                  <i class="fas fa-plane-departure"></i>
+                  <span>Freight Forwarding</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/logistics/warehousing" class="dropdown-link">
+                  <i class="fas fa-warehouse"></i>
+                  <span>Warehousing</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/logistics/distribution" class="dropdown-link">
+                  <i class="fas fa-route"></i>
+                  <span>Last-Mile Delivery</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/logistics/cold-chain" class="dropdown-link">
+                  <i class="fas fa-snowflake"></i>
+                  <span>Cold Chain</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/logistics/supply-chain" class="dropdown-link">
+                  <i class="fas fa-project-diagram"></i>
+                  <span>Supply Chain</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
 
-      dropdownTriggers.forEach((trigger) => {
-        trigger.addEventListener("click", function (e) {
-          if (window.innerWidth <= 1100) {
-            e.stopPropagation();
-            const dropdown = this.nextElementSibling;
-            const isActive = dropdown.classList.contains("active");
-            const arrow = this.querySelector(".dropdown-arrow");
+        <!-- Company -->
+        <li class="nav-item">
+          <button
+            class="nav-link dropdown-trigger <%= currentPage === 'company' ? 'active' : '' %>"
+            type="button"
+          >
+            <i class="fas fa-landmark"></i>
+            <span>Company</span>
+            <i class="fas fa-chevron-down dropdown-arrow"></i>
+          </button>
+          <div class="dropdown-mega">
+            <div class="dropdown-header">Company Information</div>
+            <ul class="dropdown-list">
+              <li class="dropdown-item">
+                <a href="/about" class="dropdown-link">
+                  <i class="fas fa-building"></i>
+                  <span>About Us</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/contact" class="dropdown-link">
+                  <i class="fas fa-phone-alt"></i>
+                  <span>Contact Us</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/company/leadership" class="dropdown-link">
+                  <i class="fas fa-users"></i>
+                  <span>Leadership</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/company/careers" class="dropdown-link">
+                  <i class="fas fa-briefcase"></i>
+                  <span>Careers</span>
+                </a>
+              </li>
+              <li class="dropdown-item">
+                <a href="/company/certifications" class="dropdown-link">
+                  <i class="fas fa-award"></i>
+                  <span>Certifications</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
 
-            // Close all other dropdowns
-            document.querySelectorAll(".dropdown-mega.active").forEach((dd) => {
-              if (dd !== dropdown) {
-                dd.classList.remove("active");
-                const otherArrow =
-                  dd.previousElementSibling.querySelector(".dropdown-arrow");
-                if (otherArrow) {
-                  otherArrow.style.transform = "rotate(0deg)";
-                }
-              }
-            });
+      <!-- Professional Badge -->
+      <div class="professional-badge">
+        <i class="fas fa-certificate"></i>
+        <span>ISO 9001:2023</span>
+      </div>
+    </nav>
 
-            // Toggle current dropdown
-            dropdown.classList.toggle("active");
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+</header>
 
-            // Rotate arrow
-            if (arrow) {
-              if (isActive) {
-                arrow.style.transform = "rotate(0deg)";
-              } else {
-                arrow.style.transform = "rotate(180deg)";
-              }
-            }
+<script>
+  // Mobile Menu Toggle
+  const mobileToggle = document.getElementById("mobileToggle");
+  const navContainer = document.getElementById("mainNav");
+  const body = document.body;
+
+  mobileToggle.addEventListener("click", () => {
+    const isActive = navContainer.classList.toggle("active");
+    mobileToggle.innerHTML = isActive
+      ? '<i class="fas fa-times"></i>'
+      : '<i class="fas fa-bars"></i>';
+
+    if (isActive) {
+      body.style.overflow = "hidden";
+    } else {
+      body.style.overflow = "";
+    }
+  });
+
+  // Mobile Dropdown Toggle
+  document.querySelectorAll(".dropdown-trigger").forEach((trigger) => {
+    trigger.addEventListener("click", (e) => {
+      if (window.innerWidth <= 1100) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const dropdown = trigger.nextElementSibling;
+        const isActive = dropdown.classList.contains("active");
+        const arrow = trigger.querySelector(".dropdown-arrow");
+
+        // Close other dropdowns
+        document.querySelectorAll(".dropdown-mega.active").forEach((dd) => {
+          if (dd !== dropdown) {
+            dd.classList.remove("active");
+            const otherArrow =
+              dd.previousElementSibling.querySelector(".dropdown-arrow");
+            if (otherArrow) otherArrow.style.transform = "rotate(0deg)";
           }
         });
-      });
 
-      // Close dropdowns when clicking outside on mobile
-      document.addEventListener("click", function (e) {
-        if (window.innerWidth <= 1100) {
-          // Check if click is outside nav items and dropdowns
-          if (
-            !e.target.closest(".nav-item") &&
-            !e.target.closest(".mobile-toggle")
-          ) {
-            document
-              .querySelectorAll(".dropdown-mega.active")
-              .forEach((dropdown) => {
-                dropdown.classList.remove("active");
-                const arrow =
-                  dropdown.previousElementSibling.querySelector(
-                    ".dropdown-arrow"
-                  );
-                if (arrow) {
-                  arrow.style.transform = "rotate(0deg)";
-                }
-              });
-          }
+        // Toggle current dropdown
+        dropdown.classList.toggle("active");
+
+        // Rotate arrow
+        if (arrow) {
+          arrow.style.transform = isActive ? "rotate(0deg)" : "rotate(180deg)";
         }
-      });
+      }
+    });
+  });
 
-      // Close mobile menu when clicking on a link
-      document
-        .querySelectorAll(".nav-link[href], .dropdown-link")
-        .forEach((link) => {
-          link.addEventListener("click", function () {
-            if (window.innerWidth <= 1100) {
-              navContainer.classList.remove("active");
-              mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-              body.classList.remove("menu-open");
-              body.style.top = "";
-
-              // Close all dropdowns
-              document
-                .querySelectorAll(".dropdown-mega.active")
-                .forEach((dropdown) => {
-                  dropdown.classList.remove("active");
-                  const arrow =
-                    dropdown.previousElementSibling.querySelector(
-                      ".dropdown-arrow"
-                    );
-                  if (arrow) {
-                    arrow.style.transform = "rotate(0deg)";
-                  }
-                });
-            }
+  // Close dropdowns when clicking outside on mobile
+  document.addEventListener("click", (e) => {
+    if (window.innerWidth <= 1100) {
+      if (
+        !e.target.closest(".nav-item") &&
+        !e.target.closest(".mobile-toggle")
+      ) {
+        document
+          .querySelectorAll(".dropdown-mega.active")
+          .forEach((dropdown) => {
+            dropdown.classList.remove("active");
+            const arrow =
+              dropdown.previousElementSibling.querySelector(".dropdown-arrow");
+            if (arrow) arrow.style.transform = "rotate(0deg)";
           });
-        });
-
-      // Hide header on scroll down, show on scroll up (only on desktop)
-      if (window.innerWidth > 1100) {
-        let lastScroll = 0;
-        const header = document.querySelector(".main-header");
-
-        window.addEventListener("scroll", function () {
-          const currentScroll = window.pageYOffset;
-
-          if (currentScroll > 100) {
-            if (currentScroll > lastScroll && currentScroll > 200) {
-              header.style.transform = "translateY(-100%)";
-            } else {
-              header.style.transform = "translateY(0)";
-            }
-          } else {
-            header.style.transform = "translateY(0)";
-          }
-
-          lastScroll = currentScroll;
-        });
       }
+    }
+  });
 
-      // Logo hover effect
-      const logoContainer = document.querySelector(".logo-container");
-      const logoIconBg = document.querySelector(".logo-icon-bg");
-
-      if (logoContainer && logoIconBg) {
-        logoContainer.addEventListener("mouseenter", () => {
-          logoIconBg.style.transform = "rotate(45deg) scale(1.1)";
-        });
-
-        logoContainer.addEventListener("mouseleave", () => {
-          logoIconBg.style.transform = "rotate(45deg) scale(1)";
-        });
-      }
-
-      // Close mobile menu on window resize to desktop
-      window.addEventListener("resize", function () {
-        if (window.innerWidth > 1100) {
+  // Close mobile menu when clicking a link
+  document
+    .querySelectorAll(".nav-link[href], .dropdown-link")
+    .forEach((link) => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth <= 1100) {
           navContainer.classList.remove("active");
           mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-          body.classList.remove("menu-open");
-          body.style.top = "";
+          body.style.overflow = "";
 
-          // Reset all dropdown arrows
-          document.querySelectorAll(".dropdown-arrow").forEach((arrow) => {
-            arrow.style.transform = "rotate(0deg)";
-          });
+          // Close all dropdowns
+          document
+            .querySelectorAll(".dropdown-mega.active")
+            .forEach((dropdown) => {
+              dropdown.classList.remove("active");
+              const arrow =
+                dropdown.previousElementSibling.querySelector(
+                  ".dropdown-arrow"
+                );
+              if (arrow) arrow.style.transform = "rotate(0deg)";
+            });
         }
       });
-    </script>
-  </body>
-</html>
+    });
+
+  // Header scroll effect
+  const header = document.querySelector(".main-header");
+  let lastScroll = 0;
+
+  window.addEventListener("scroll", () => {
+    const currentScroll = window.pageYOffset;
+
+    // Add shadow on scroll
+    if (currentScroll > 10) {
+      header.classList.add("scrolled");
+    } else {
+      header.classList.remove("scrolled");
+    }
+
+    // Hide/show header on scroll (desktop only)
+    if (window.innerWidth > 1100 && currentScroll > 100) {
+      if (currentScroll > lastScroll && currentScroll > 200) {
+        header.style.transform = "translateY(-100%)";
+      } else {
+        header.style.transform = "translateY(0)";
+      }
+    } else {
+      header.style.transform = "translateY(0)";
+    }
+
+    lastScroll = currentScroll;
+  });
+
+  // Logo hover effect
+  const logoContainer = document.querySelector(".logo-container");
+  const logoIconBg = document.querySelector(".logo-icon-bg");
+
+  if (logoContainer && logoIconBg) {
+    logoContainer.addEventListener("mouseenter", () => {
+      logoIconBg.style.transform = "rotate(45deg) scale(1.1)";
+    });
+
+    logoContainer.addEventListener("mouseleave", () => {
+      logoIconBg.style.transform = "rotate(45deg) scale(1)";
+    });
+  }
+
+  // Handle window resize
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 1100) {
+      // Reset mobile menu
+      navContainer.classList.remove("active");
+      mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+      body.style.overflow = "";
+
+      // Reset dropdown arrows
+      document.querySelectorAll(".dropdown-arrow").forEach((arrow) => {
+        arrow.style.transform = "rotate(0deg)";
+      });
+    }
+  });
+
+  // Keyboard navigation
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      // Close mobile menu
+      if (
+        window.innerWidth <= 1100 &&
+        navContainer.classList.contains("active")
+      ) {
+        navContainer.classList.remove("active");
+        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        body.style.overflow = "";
+      }
+
+      // Close dropdowns
+      document.querySelectorAll(".dropdown-mega.active").forEach((dropdown) => {
+        dropdown.classList.remove("active");
+        const arrow =
+          dropdown.previousElementSibling.querySelector(".dropdown-arrow");
+        if (arrow) arrow.style.transform = "rotate(0deg)";
+      });
+    }
+  });
+
+  // Initialize header with shadow if scrolled on load
+  if (window.pageYOffset > 10) {
+    header.classList.add("scrolled");
+  }
+</script>

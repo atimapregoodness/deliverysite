@@ -9,5 +9,12 @@ router.get("/", (req, res) => {
   });
 });
 
+// Public routes
+router.get("/track", (req, res) => {
+  res.render("pages/track-form", {
+    title: "Express Delivery - Track Your Package",
+    user: req.user,
+  });
+});
 
 module.exports = router;
