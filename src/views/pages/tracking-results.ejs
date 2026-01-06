@@ -1,135 +1,273 @@
 <%- layout('layouts/main') %>
 <style>
   :root {
+    --glass-bg: rgba(255, 255, 255, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
     --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --primary-color: #667eea;
-    --primary-light: #f7f9ff;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --info-color: #3b82f6;
-    --light-bg: #f8fafc;
-    --card-bg: #ffffff;
-    --text-dark: #1e293b;
-    --text-muted: #64748b;
-    --border-color: #e2e8f0;
+    --primary-light: rgba(102, 126, 234, 0.1);
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
   }
 
   body {
-    background-color: #f1f5f9;
-    color: var(--text-dark);
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: radial-gradient(
+        circle at 20% 80%,
+        rgba(102, 126, 234, 0.08) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        rgba(118, 75, 162, 0.08) 0%,
+        transparent 50%
+      ),
+      linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 100vh;
+    font-family: "Inter", -apple-system, sans-serif;
+    overflow-x: hidden;
   }
 
-  .tracking-header {
-    background: var(--primary-gradient);
-    color: white;
-    border-radius: 0 0 24px 24px;
-    padding: 2rem 0;
-    margin-bottom: 2rem;
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 400px;
+    background: linear-gradient(
+      135deg,
+      rgba(102, 126, 234, 0.05) 0%,
+      rgba(118, 75, 162, 0.05) 100%
+    );
+    z-index: -1;
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 0 100%);
   }
 
   .modern-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+
+.card-header-modern {
+  background: #f8f9fa;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.incidents-scrollable {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.collapsible-section + .collapsible-section {
+  border-top: 1px solid #e0e0e0;
+}
+
+.collapsible-header {
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.collapsible-header:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.collapsible-content {
+  display: none;
+  padding: 0.5rem 0.75rem;
+  background: #f9f9f9;
+  border-left: 3px solid #0d6efd;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.collapsible-header i {
+  transition: transform 0.3s ease;
+}
+
+.collapsible-section.active .collapsible-content {
+  display: block;
+}
+
+.collapsible-section.active .collapsible-header i {
+  transform: rotate(180deg);
+}
+
+@keyframes fadeIn {
+  from {opacity:0;}
+  to {opacity:1;}
+}
+
+
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: var(--glass-shadow);
+  }
+
+  .professional-header {
+    background: linear-gradient(
+      135deg,
+      rgba(102, 126, 234, 0.95) 0%,
+      rgba(118, 75, 162, 0.95) 100%
+    );
+    backdrop-filter: blur(20px);
+    padding: 1.5rem 0;
+    margin-bottom: 2rem;
+    position: relative;
     overflow: hidden;
   }
 
-  .modern-card:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  .professional-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at 20% 30%,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 70%,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 50%
+      );
+    pointer-events: none;
   }
 
-  .card-header-modern {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  }
-
-  .card-body-modern {
-    padding: 1.5rem;
-  }
-
-  .status-badge {
-    padding: 0.5rem 1.25rem;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.875rem;
+  .tracking-badge {
     display: inline-flex;
     align-items: center;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
     gap: 0.5rem;
   }
 
-  .status-pending {
-    background: #fef3c7;
-    color: #92400e;
-  }
-  .status-in_transit {
-    background: #dbeafe;
-    color: #1e40af;
-  }
-  .status-delayed {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-  .status-delivered {
-    background: #d1fae5;
-    color: #065f46;
-  }
-  .status-cancelled {
-    background: #f3f4f6;
-    color: #374151;
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
   }
 
-  .map-container-modern {
-    height: 400px;
-    border-radius: 12px;
+  .status-pending .status-indicator {
+    background: #fbbf24;
+  }
+  .status-in_transit .status-indicator {
+    background: #3b82f6;
+  }
+  .status-delayed .status-indicator {
+    background: #ef4444;
+  }
+  .status-delivered .status-indicator {
+    background: #10b981;
+  }
+  .status-cancelled .status-indicator {
+    background: #6b7280;
+  }
+
+  .compact-map-container {
+    height: 500px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--border-color);
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    position: relative;
     margin-bottom: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
   }
 
-  .info-item {
-    background: #f8fafc;
-    padding: 1rem;
-    border-radius: 8px;
-    border-left: 4px solid var(--primary-color);
+  #map {
+    width: 100%;
+    height: 100%;
   }
 
-  .info-label {
-    font-size: 0.75rem;
+  .driver-panel {
+    width: 320px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+    padding: 1.25rem;
+    z-index: 1000;
+  }
+
+  .driver-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.25rem;
+    margin: 0 auto 1rem;
   }
 
-  .info-value {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-dark);
+  .driver-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
   }
 
-  .progress-track {
+  .driver-contact {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .contact-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .contact-btn:hover {
+    background: var(--primary-gradient);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .progress-compact {
     height: 8px;
-    background: #e2e8f0;
+    background: rgba(226, 232, 240, 0.6);
     border-radius: 4px;
     overflow: hidden;
-    margin: 1.5rem 0;
+    margin: 1rem 0;
     position: relative;
   }
 
@@ -141,178 +279,166 @@
     transition: width 0.5s ease;
   }
 
-  .timeline-modern {
+  .progress-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-card {
+    background: rgba(248, 250, 252, 0.6);
+    border-radius: 12px;
+    padding: 1rem;
+    border-left: 4px solid var(--primary-color);
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .info-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #f1f5f9;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #667eea;
+    line-height: 1;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-weight: 500;
+  }
+
+  .timeline-compact {
     position: relative;
     padding-left: 2rem;
   }
 
-  .timeline-modern::before {
+  .timeline-compact::before {
     content: "";
     position: absolute;
-    left: 11px;
+    left: 8px;
     top: 0;
     bottom: 0;
     width: 2px;
-    background: linear-gradient(to bottom, var(--primary-color), #c7d2fe);
+    background: linear-gradient(to bottom, #c7d2fe, #667eea);
   }
 
-  .timeline-item-modern {
+  .timeline-item {
     position: relative;
-    margin-bottom: 1.25rem;
-    padding: 1.25rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
     background: white;
     border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f5f9;
   }
 
-  .timeline-item-modern::before {
+  .timeline-item::before {
     content: "";
     position: absolute;
     left: -1.5rem;
-    top: 1.5rem;
-    width: 12px;
-    height: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background: var(--primary-color);
-    border: 3px solid white;
-    box-shadow: 0 0 0 2px var(--primary-color);
-  }
-
-  .timeline-item-modern.completed::before {
-    background: var(--success-color);
-    box-shadow: 0 0 0 2px var(--success-color);
-  }
-
-  .timeline-item-modern.current::before {
-    background: var(--warning-color);
-    box-shadow: 0 0 0 2px var(--warning-color);
-  }
-
-  .category-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    display: inline-block;
-  }
-
-  .category-electronics {
-    background: #dbeafe;
-    color: #1e40af;
-  }
-  .category-clothing {
-    background: #fce7f3;
-    color: #be185d;
-  }
-  .category-furniture {
-    background: #fef3c7;
-    color: #92400e;
-  }
-  .category-documents {
-    background: #dcfce7;
-    color: #166534;
-  }
-  .category-food {
-    background: #fef9c3;
-    color: #854d0e;
-  }
-  .category-medical {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-  .category-other {
-    background: #f3f4f6;
-    color: #374151;
-  }
-
-  .vehicle-marker {
-    width: 48px;
-    height: 48px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    border: 3px solid white;
-  }
-
-  .stats-card {
     background: white;
+    border: 3px solid #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .timeline-item.completed::before {
+    background: var(--success);
+    border-color: var(--success);
+  }
+
+  .timeline-item.current::before {
+    background: var(--warning);
+    border-color: var(--warning);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: translateY(-50%) scale(1);
+    }
+    50% {
+      transform: translateY(-50%) scale(1.1);
+    }
+  }
+
+  .alert-modern {
+    background: rgba(254, 243, 199, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-left: 4px solid #f59e0b;
     border-radius: 12px;
-    padding: 1.25rem;
-    text-align: center;
-  }
-
-  .stats-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    line-height: 1;
-  }
-
-  .stats-label {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-    margin-top: 0.5rem;
-  }
-
-  .incidents-scrollable {
-    max-height: 400px;
-    overflow-y: auto;
-    padding-right: 10px;
-  }
-
-  .incidents-scrollable::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .incidents-scrollable::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-  }
-
-  .incidents-scrollable::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 3px;
-  }
-
-  .collapsible-section {
-    margin-bottom: 1rem;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-  }
-
-  .collapsible-header {
-    padding: 1.25rem;
-    background: #f8fafc;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-  }
-
-  .collapsible-header:hover {
-    background: #f1f5f9;
-  }
-
-  .collapsible-content {
-    padding: 1.25rem;
-    background: white;
-    display: none;
-    border-top: 1px solid var(--border-color);
-  }
-
-  .collapsible-content.show {
-    display: block;
+    padding: 1rem;
   }
 
   .btn-modern {
     padding: 0.625rem 1.25rem;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 600;
     font-size: 0.875rem;
     border: none;
@@ -322,199 +448,587 @@
     gap: 0.5rem;
   }
 
-  .btn-modern-primary {
+  .btn-primary-modern {
     background: var(--primary-gradient);
     color: white;
   }
 
-  .btn-modern-outline {
-    background: transparent;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
+  .btn-primary-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
   }
 
-  .btn-modern-outline:hover {
-    background: var(--primary-color);
-    color: white;
-  }
-
-  .eta-card {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 1.25rem;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .eta-time {
-    font-size: 2rem;
-    font-weight: 700;
-    color: white;
-    line-height: 1;
-  }
-
-  .eta-label {
+  .rating-stars {
+    color: #fbbf24;
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin-top: 0.5rem;
   }
 
-  @media (max-width: 768px) {
-    .info-grid {
-      grid-template-columns: 1fr;
-    }
-    .timeline-modern {
-      padding-left: 1.5rem;
-    }
+  .driver-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
   }
 
-  .progress-container {
-    height: 40px;
-    position: relative;
-  }
-
-  .arrow-container {
-    position: absolute;
-    transform: translateX(-50%);
-    top: -4px;
-    z-index: 5;
-  }
-
-  .arrow {
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 10px solid #e2e8f0;
-    transition: all 0.3s ease;
-  }
-
-  .arrow.active {
-    border-top-color: var(--primary-color);
-    filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.3));
-  }
-
-  .stage-indicator {
+  .driver-stat-item {
     flex: 1;
+    text-align: center;
   }
 
-  .stage-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #e2e8f0;
-    color: #94a3b8;
+  .driver-stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #667eea;
+  }
+
+  .driver-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  /* Map Controls */
+  .map-controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+  }
+
+  .map-control-btn {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .map-control-btn:hover {
+    background: #f8fafc;
+    color: #334155;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Map Markers */
+  .map-marker {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
     font-size: 14px;
     font-weight: 600;
-    margin: 0 auto;
-    transition: all 0.3s ease;
-    position: relative;
-    border: 2px solid transparent;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
-  .stage-circle.completed {
-    background: var(--primary-gradient);
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
-    border-color: white;
+  .warehouse-marker {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   }
 
-  .stage-circle.current {
+  .delivery-marker {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  }
+
+  .vehicle-marker {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  /* Waypoint Markers */
+  .waypoint-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
     background: white;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-    animation: pulse 2s infinite;
+    border: 3px solid #94a3b8;
+    position: relative;
   }
 
-  .stage-label {
-    font-size: 0.75rem;
-    letter-spacing: 0.025em;
-    transition: all 0.3s ease;
+  .waypoint-marker.completed {
+    border-color: #10b981;
+    background: #10b981;
   }
 
-  .stage-percentage {
-    font-size: 0.7rem;
-    opacity: 0.8;
+  .waypoint-marker.current {
+    border-color: #f59e0b;
+    background: #f59e0b;
+    animation: marker-pulse 1.5s infinite;
   }
 
-  @keyframes pulse {
+  @keyframes marker-pulse {
     0%,
     100% {
       transform: scale(1);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      opacity: 1;
     }
     50% {
-      transform: scale(1.05);
-      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+      transform: scale(1.2);
+      opacity: 0.8;
     }
   }
 
-  /* Responsive adjustments */
+  /* Route Info Panel */
+  .route-info-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 1rem;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
   @media (max-width: 768px) {
-    .stage-label {
-      font-size: 0.7rem;
+    .driver-panel {
+      width: 100%;
+      top: auto;
+      right: auto;
+      margin-bottom: 1rem;
+      margin-top: -80px;
     }
 
-    .stage-circle {
-      width: 28px;
-      height: 28px;
-      font-size: 12px;
+    .compact-map-container {
+      height: 400px;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .professional-header {
+      padding: 1rem 0;
+    }
+
+    .route-info-panel {
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
     }
   }
 </style>
 
-<!-- Header Section -->
-<div class="tracking-header">
+<!-- Mapbox Resources -->
+<link
+  href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css"
+  rel="stylesheet"
+/>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+<style>
+  /* Enhanced Vehicle Display Styles */
+  .vehicle-info-panel {
+    position: absolute;
+    top: 20px;
+    right: 80px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 15px;
+    width: 250px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: none;
+    z-index: 10;
+  }
+
+  .vehicle-info-panel.show {
+    display: block;
+  }
+
+  .btn-close-vehicle {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+  }
+
+  .btn-close-vehicle:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .vehicle-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .vehicle-stat {
+    background: rgba(59, 130, 246, 0.05);
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 2px;
+  }
+
+  .stat-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .vehicle-driver {
+    display: flex;
+    align-items: center;
+  }
+
+  .driver-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    overflow: hidden;
+  }
+
+  .driver-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Distance Visualization */
+  .distance-visualization {
+    position: relative;
+  }
+
+  .location-point {
+    text-align: center;
+  }
+
+  .point-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 5px;
+  }
+
+  .point-icon.pickup {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+  }
+
+  .point-icon.delivery {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+  }
+
+  .distance-line {
+    flex: 1;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    margin: 0 15px;
+    position: relative;
+    overflow: visible;
+  }
+
+  .distance-completed {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #22c55e);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .vehicle-position {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    color: #3b82f6;
+    font-size: 12px;
+  }
+
+  /* Map Marker Enhancements */
+  .map-marker.vehicle-marker {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 2px solid #3b82f6;
+    transition: all 0.3s ease;
+  }
+
+  .map-marker.vehicle-marker i {
+    color: #3b82f6;
+    font-size: 16px;
+  }
+
+  .map-marker.vehicle-marker:hover {
+    transform: scale(1.2);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+  }
+
+  .map-marker.warehouse-marker,
+  .map-marker.delivery-marker {
+    position: relative;
+  }
+
+  .map-marker.warehouse-marker::after,
+  .map-marker.delivery-marker::after {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .map-marker.warehouse-marker:hover::after {
+    content: "Pickup Location";
+    opacity: 1;
+  }
+
+  .map-marker.delivery-marker:hover::after {
+    content: "Delivery Location";
+    opacity: 1;
+  }
+
+  /* Category Badge */
+  .category-badge {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Efficiency Progress */
+  .efficiency-progress {
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  .efficiency-progress .progress-bar {
+    background: linear-gradient(90deg, #22c55e, #3b82f6);
+    border-radius: 3px;
+  }
+
+
+  /* Driver Info Panel */
+.driver-info-panel {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: #333;
+  margin: 0.5em;
+  max-width: 200px;
+  margin-top: -3em;
+}
+
+/* Avatar */
+.driver-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #555;
+  overflow: hidden;
+}
+
+.driver-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Rating stars */
+.rating-stars {
+  color: #ffc107; /* gold */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.rating-stars i {
+  margin-right: 1px;
+}
+
+/* Text muted smaller */
+.driver-info-panel .small.text-muted {
+  font-size: 0.7rem;
+  color: #888;
+}
+
+/* Driver stats */
+.driver-info-panel .driver-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+/* Driver contact links */
+.driver-info-panel a {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.driver-info-panel a:hover {
+  text-decoration: underline;
+}
+
+.driver-info-panel .contact-btn {
+  display: inline-block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #0d6efd;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.driver-info-panel .contact-btn:hover {
+  text-decoration: underline;
+}
+
+/* Badge */
+.driver-info-panel .badge {
+  font-size: 0.65rem;
+  padding: 0.25em 0.4em;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .driver-info-panel {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+  }
+  .driver-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+  .rating-stars {
+    font-size: 0.7rem;
+  }
+}
+
+</style>
+<% let pickupAddress = null; let deliveryAddress = null; if (package.sender &&
+package.sender.address) { pickupAddress = package.sender.address; } else if
+(package.pickupAddress) { pickupAddress = package.pickupAddress; } if
+(package.receiver && package.receiver.address) { deliveryAddress =
+package.receiver.address; } else if (package.deliveryAddress) { deliveryAddress
+= package.deliveryAddress; } let pickupShort = 'Location'; let pickupFull =
+'Address not available'; let deliveryShort = 'Location'; let deliveryFull =
+'Address not available'; if (pickupAddress) { if (typeof pickupAddress ===
+'string') { pickupShort = pickupAddress.split(',')[0] || pickupAddress;
+pickupFull = pickupAddress; } else { pickupShort = pickupAddress.street ?
+pickupAddress.street.split(',')[0] : (pickupAddress.city || 'Location');
+pickupFull = [ pickupAddress.street, pickupAddress.city, pickupAddress.state,
+pickupAddress.postalCode ].filter(Boolean).join(', ') || pickupFull; } } if
+(deliveryAddress) { if (typeof deliveryAddress === 'string') { deliveryShort =
+deliveryAddress.split(',')[0] || deliveryAddress; deliveryFull =
+deliveryAddress; } else { deliveryShort = deliveryAddress.street ?
+deliveryAddress.street.split(',')[0] : (deliveryAddress.city || 'Location');
+deliveryFull = [ deliveryAddress.street, deliveryAddress.city,
+deliveryAddress.state, deliveryAddress.postalCode ].filter(Boolean).join(', ')
+|| deliveryFull; } } %>
+
+<!-- Professional Header -->
+<div class="professional-header">
   <div class="container">
     <div class="row align-items-center">
       <div class="col-md-8">
-        <h1 class="h2 fw-bold mb-2">Package Tracking</h1>
-        <div class="d-flex align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+          <div class="tracking-badge">
+            <i class="fas fa-box me-2"></i>
+            <%= package.trackingId %>
+          </div>
           <div
-            class="status-badge status-<%= package.status.replace('_', '-') %>"
+            class="tracking-badge status-<%= package.status.replace('_', '-') %>"
           >
-            <i
-              class="fas <%= { 'pending': 'fa-clock', 'in_transit': 'fa-truck-moving', 'delayed': 'fa-exclamation-triangle', 'delivered': 'fa-check-circle', 'cancelled': 'fa-times-circle' }[package.status] %>"
-            ></i>
+            <span class="status-indicator"></span>
             <%= package.status.replace('_', ' ').toUpperCase() %>
           </div>
-          <div class="text-light opacity-90">
-            <i class="fas fa-box me-1"></i> <%= package.trackingId %>
-          </div>
-          <% if(package.isOverdue) { %>
-          <div class="text-warning">
-            <i class="fas fa-exclamation-triangle me-1"></i> OVERDUE
+          <% if (package.isOverdue) { %>
+          <div
+            class="tracking-badge"
+            style="background: rgba(239, 68, 68, 0.2)"
+          >
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            OVERDUE
           </div>
           <% } %>
         </div>
-<a href="/delivery/track/print/<%= delivery.trackingId %>" target="_blank">
-  <button class="btn btn-modern btn-modern-primary btn-sm">
-    <i class="fas fa-print me-1"></i>Print Receipt
-  </button>
-</a>
-                  
+        <h1 class="h3 text-white mb-0">Package Tracking Details</h1>
+        <p class="text-white opacity-90 mb-0 mt-2">
+          <i class="fas fa-route me-2"></i>
+          <%= pickupShort %> → <%= deliveryShort %>
+        </p>
       </div>
       <div class="col-md-4 text-md-end">
-        <div class="d-flex gap-2 align-items-start justify-content-md-end flex-wrap">
-
-          <div class="eta-card mt-0">
-            <div class="eta-time">
-              <% if(package.estimatedDelivery) { %> <%= new
-              Date(package.estimatedDelivery).toLocaleTimeString([], {hour:
-              '2-digit', minute:'2-digit'}) %> <% } else { %> N/A <% } %>
-            </div>
-            <div class="eta-label">Estimated Delivery</div>
-            <% if(package.estimatedDelivery) { %>
-            <div class="small text-white opacity-90 mt-1">
-              <%= new Date(package.estimatedDelivery).toLocaleDateString('en-US',
-              { weekday: 'short', month: 'short', day: 'numeric' }) %>
-            </div>
-            <% } %>
+        <div class="mt-3 mt-md-0">
+          <div class="text-white opacity-75 small mb-1">Estimated Delivery</div>
+          <div class="h4 text-white mb-0">
+            <% if (package.estimatedDelivery) { %> <%= new
+            Date(package.estimatedDelivery).toLocaleDateString('en-US', {
+            weekday: 'short', month: 'short', day: 'numeric' }) %> <% } else {
+            %> N/A <% } %>
+          </div>
+          <div class="text-white opacity-90">
+            <% if (package.estimatedDelivery) { %> <%= new
+            Date(package.estimatedDelivery).toLocaleTimeString([], { hour:
+            '2-digit', minute: '2-digit' }) %> <% } else { %> Time not set <% }
+            %>
           </div>
         </div>
       </div>
@@ -523,871 +1037,1482 @@
 </div>
 
 <!-- Main Content -->
-<div class="container py-4">
-  <% if(package.delayInfo) { %>
-  <div
-    class="alert alert-warning alert-dismissible fade show mb-4"
-    role="alert"
-  >
-    <div class="d-flex align-items-center">
-      <i class="fas fa-clock me-3"></i>
-      <div>
-        <h6 class="alert-heading mb-1">Delivery Delay Alert</h6>
-        <p class="mb-1">
-          <strong>Reason:</strong> <%= package.delayInfo.reason %>
-        </p>
-        <p class="mb-1">
-          <strong>Description:</strong> <%= package.delayInfo.description %>
-        </p>
-        <% if(package.delayInfo.estimatedDelay) { %>
-        <p class="mb-0">
-          <strong>Estimated Delay:</strong> <%= package.delayInfo.estimatedDelay
-          %> minutes
-        </p>
+<div class="container pb-5">
+<!-- Latest Unresolved Accident Alert -->
+<% 
+  // Find latest unresolved accident
+  const latestUnresolvedAccident = package.incidents
+    ?.filter(inc => inc.type === 'accident' && !inc.resolved)
+    .sort((a, b) => new Date(b.reportedAt) - new Date(a.reportedAt))[0];
+%>
+
+<% if(latestUnresolvedAccident){ %>
+<div class="alert-modern mb-4">
+  <div class="d-flex align-items-start">
+    <i class="fas fa-clock text-warning mt-1 me-3"></i>
+    <div class="flex-grow-1">
+      <h6 class="fw-bold mb-1">Delivery Delay Alert</h6>
+      <p class="mb-1">
+        <strong>Reason:</strong> Accident
+      </p>
+      <p class="mb-0">
+        <strong>Description:</strong> <%= latestUnresolvedAccident.description %>
+      </p>
+      <% if(latestUnresolvedAccident.estimatedDelay){ %>
+      <div class="text-danger mt-2">
+        <i class="fas fa-exclamation-circle me-1"></i>
+        Estimated delay: <%= latestUnresolvedAccident.estimatedDelay %> minutes
+      </div>
+      <% } %>
+      <% if(latestUnresolvedAccident.address){ %>
+      <div class="text-muted mt-1 small">
+        Location: <%= latestUnresolvedAccident.address %>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<% } %>
+
+
+  <div class="row g-4">
+    <!-- Left Column - Map & Progress -->
+    <div class="col-lg-8">
+     <!-- Map Container -->
+<div class="compact-map-container glass-card p-0 position-relative">
+  <div id="map"></div>
+
+  <!-- Map Controls -->
+  <div class="map-controls">
+    <!-- buttons here ... -->
+  </div>
+
+  <!-- Vehicle Info Panel -->
+  <div class="vehicle-info-panel" id="vehicleInfoPanel">
+    <!-- vehicle info here ... -->
+  </div>
+
+  <!-- Driver Info Panel (Pinned Bottom-Left) -->
+  <% if (package.driver && package.driver._id) { 
+       const driver = package.driver;
+       const rating = driver.rating || 0;
+       const fullStars = Math.floor(rating);
+       const hasHalfStar = rating % 1 >= 0.5;
+  %>
+  <div class="driver-info-panel p-2 bg-white shadow-sm rounded position-absolute" style="bottom:0px; left:0px; width:220px; z-index:1000;">
+    
+    <!-- Name & Status -->
+    <div class="d-flex align-items-center mb-2">
+      <div class="driver-avatar me-2" style="width:36px; height:36px; font-size:1rem;">
+        <% if(driver.photo){ %>
+          <img src="<%= driver.photo %>" alt="<%= driver.name %>" class="rounded-circle"/>
+        <% } else { %>
+          <span class="fw-bold text-light"><%= (driver.name||'D').charAt(0).toUpperCase() %></span>
+        <% } %>
+      </div>
+      <div class="flex-grow-1">
+        <div class="fw-bold"><%= driver.name || 'N/A' %></div>
+        <% if(driver.status){ %>
+        <span class="badge badge-sm 
+          <%= driver.status==='available'?'bg-success':
+              driver.status==='on_delivery'?'bg-primary':
+              driver.status==='off_duty'?'bg-secondary':'bg-warning' %>">
+          <%= driver.status.replace('_',' ').toUpperCase() %>
+        </span>
         <% } %>
       </div>
     </div>
+
+    <!-- Rating -->
+    <div class="d-flex align-items-center mb-2">
+      <div class="rating-stars me-2" style="font-size:0.75rem; color:#ffc107;">
+        <% for(let i=0;i<fullStars;i++){ %><i class="fas fa-star"></i><% } %>
+        <% if(hasHalfStar){ %><i class="fas fa-star-half-alt"></i><% } %>
+        <% for(let i=fullStars+(hasHalfStar?1:0); i<5;i++){ %><i class="far fa-star"></i><% } %>
+      </div>
+      <div class="text-muted small"><%= rating.toFixed(1) %>/5</div>
+    </div>
+
+    <!-- Stats -->
+    <% if(driver.stats){ %>
+    <div class="d-flex justify-content-between text-center mb-2 small" style="gap:0.5rem;">
+      <div>
+        <div class="fw-bold"><%= driver.stats.totalDeliveries || 0 %></div>
+        <div>Deliveries</div>
+      </div>
+      <div>
+        <div class="fw-bold"><%= driver.stats.onTimeDeliveries || 0 %></div>
+        <div>On Time</div>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Contact Info -->
+    <div class="driver-contact d-flex flex-column gap-1 small">
+      <% if(driver.phone){ %>
+        <div>WhatsApp: 
+          <a href="https://wa.me/<%= driver.phone.replace(/\D/g,'') %>" target="_blank"><%= driver.phone %></a>
+        </div>
+      <% } %>
+      <% if(driver.email){ %>
+        <div>Email: <a href="mailto:<%= driver.email %>"><%= driver.email %></a></div>
+      <% } %>
+      <div>Location: <a href="#" onclick="showDriverLocation(); return false;">View on Map</a></div>
+      <% if(driver.currentDeliveries?.length > 1){ %>
+        <div>Other Deliveries: 
+          <a href="#" onclick="showOtherDeliveries(); return false;"><%= driver.currentDeliveries.length %> active</a>
+        </div>
+      <% } %>
+    </div>
+
   </div>
   <% } %>
+</div>
 
-  <div class="row">
-    <!-- Left Column: Map & Tracking -->
-    <div class="col-lg-8">
-      <!-- Map Section -->
-      <div class="modern-card mb-4">
-        <div class="card-header-modern">
-          <h4 class="h5 fw-bold mb-0">
-            <i class="fas fa-map-marked-alt me-2"></i>Live Delivery Route
-          </h4>
+      <!-- Progress Bar -->
+      <div class="glass-card p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold mb-0">Delivery Progress</h6>
+          <span class="fw-bold text-primary" id="progressPercentage">
+            <%= package.trackingData && package.trackingData.vehicleProgress ?
+            package.trackingData.vehicleProgress : 0 %>%
+          </span>
         </div>
-        <div class="card-body-modern p-0">
-          <div class="p-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <p class="text-muted small mb-0">
-                <%= package.pickupAddress %> → <%= package.deliveryAddress %>
-              </p>
-              <div class="d-flex gap-2">
-                <button
-                  class="btn btn-modern btn-modern-outline btn-sm"
-                  onclick="centerMap()"
-                >
-                  <i class="fas fa-crosshairs me-1"></i>Center
-                </button>
-                <button
-                  class="btn btn-modern btn-modern-outline btn-sm"
-                  onclick="toggleCheckpoints()"
-                >
-                  <i class="fas fa-layer-group me-1"></i>Checkpoints
-                </button>
-              </div>
-            </div>
-            <div id="map" class="map-container-modern"></div>
-          </div>
+        <div class="progress-compact">
+          <div
+            class="progress-fill"
+            id="progressFill"
+            style="width: <%= package.trackingData && package.trackingData.vehicleProgress ? package.trackingData.vehicleProgress : 0 %>%;"
+          ></div>
         </div>
       </div>
 
-      <!-- Progress & Stats -->
-      <div class="modern-card mb-4">
-        <div class="card-header-modern">
-          <h4 class="h5 fw-bold mb-0">
-            <i class="fas fa-chart-line me-2"></i>Delivery Progress & Status
-          </h4>
-        </div>
-        <div class="card-body-modern">
-          <!-- Progress Bar -->
-          <div class="progress-track">
-            <div
-              class="progress-fill"
-              style="width: <%= package.trackingData?.vehicleProgress || 0 %>%"
-            ></div>
-          </div>
 
-          <!-- Progress Stages -->
-          <div class="row text-center mt-4">
-            <div class="col-6 col-md-3 mb-3">
-              <div class="stats-card">
-                <div class="stats-value">
-                  <%= package.trackingData?.vehicleProgress || 0 %>%
+      <!-- Distance Breakdown - Fixed -->
+      <div class="glass-card p-4 mb-4">
+        <h6 class="fw-bold mb-3">Distance Breakdown</h6>
+        <div class="row">
+          <div class="col-md-6 mb-3 mb-md-0">
+            <div class="distance-stats">
+              <div class="distance-stat">
+                <div class="distance-label">Total Route</div>
+                <div class="distance-value">
+                  <%= package.route && package.route.totalDistance ?
+                  (package.route.totalDistance / 1000).toFixed(1) : '0.0' %> km
                 </div>
-                <div class="stats-label">Progress</div>
               </div>
-            </div>
-
-            <div class="col-6 col-md-3 mb-3">
-              <div class="stats-card">
-                <div class="stats-value">
-                  <%= package.route?.totalDistance ?
-                  (package.route.totalDistance/1000).toFixed(1) : '0' %>
+              <div class="distance-stat mt-3">
+                <div class="distance-label">Completed</div>
+                <div class="distance-value" id="completedDistance">
+                  <% if (package.route?.totalDistance &&
+                  package.trackingData?.vehicleProgress) { %> <%=
+                  ((package.route.totalDistance / 1000) *
+                  (package.trackingData.vehicleProgress / 100)).toFixed(1) %> km
+                  <% } else { %> 0.0 km <% } %>
                 </div>
-                <div class="stats-label">Distance (km)</div>
-              </div>
-            </div>
-
-            <div class="col-6 col-md-3 mb-3">
-              <div class="stats-card">
-                <div class="stats-value">
-                  <%= package.route?.totalDuration ?
-                  Math.floor(package.route.totalDuration/60) : '0' %>
-                </div>
-                <div class="stats-label">Est. Time (min)</div>
-              </div>
-            </div>
-
-            <div class="col-6 col-md-3 mb-3">
-              <div class="stats-card">
-                <div class="stats-value">
-                  <%= package.trackingData.waypoints ?
-                  package.trackingData.waypoints.filter(wp => wp.arrived).length
-                  : 0 %>
-                </div>
-                <div class="stats-label">Checkpoints</div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="card-body">
-          <h4 class="h6 fw-bold mb-3">Delivery Progress</h4>
-          <div class="progress-container-light">
-            <div
-              class="progress-bar-light"
-              id="progressBar"
-              style="width: <%= package.trackingData.routeProgress %>%"
-            ></div>
-          </div>
-          <div class="row text-center mt-3 small">
-            <% const stages = ['Order Received', 'Processing', 'In Transit',
-            'Out for Delivery', 'Delivered']; %> <% stages.forEach((stage, i) =>
-            { %>
-            <div class="col">
-              <div class="text-muted"><%= stage %></div>
-              <% if(i < package.trackingData.routeProgress / 25){ %>
-              <div class="fw-bold text-success">✓</div>
-              <% } else if(i === Math.floor(package.trackingData.routeProgress /
-              25)){ %>
-              <div class="fw-bold text-primary">●</div>
-              <% } else { %>
-              <div class="fw-bold text-muted">○</div>
-              <% } %>
+          <div class="col-md-6">
+            <div class="distance-stats">
+              <div class="distance-stat">
+                <div class="distance-label">Remaining</div>
+                <div class="distance-value" id="remainingDistance">
+                  <% if (package.route?.totalDistance &&
+                  package.trackingData?.vehicleProgress) { %> <%=
+                  ((package.route.totalDistance / 1000) * ((100 -
+                  package.trackingData.vehicleProgress) / 100)).toFixed(1) %> km
+                  <% } else { %> 0.0 km <% } %>
+                </div>
+              </div>
+              <div class="distance-stat mt-3">
+                <div class="distance-label">Estimated Arrival</div>
+                <div class="distance-value" id="dynamicETA">
+                  <% // Calculate ETA inline let etaDisplay = 'Calculating...';
+                  if (package.route && package.route.totalDistance) { const
+                  totalDistance = package.route.totalDistance / 1000; const
+                  progress = package.trackingData?.vehicleProgress || 0; const
+                  currentSpeed = package.trackingData?.speed || 50; const
+                  remainingDistance = totalDistance * ((100 - progress) / 100);
+                  if (remainingDistance <= 0) { etaDisplay = 'Arrived'; } else {
+                  const etaHours = remainingDistance / currentSpeed; const now =
+                  new Date(); const etaTime = new Date(now.getTime() + etaHours
+                  * 3600000); etaDisplay = etaTime.toLocaleTimeString([], {
+                  hour: '2-digit', minute: '2-digit' }); } } %> <%= etaDisplay
+                  %>
+                </div>
+              </div>
             </div>
-            <% }) %>
           </div>
         </div>
-        </div>
 
-        <!-- Timeline -->
-        <div class="modern-card mb-4">
-          <div class="card-header-modern">
-            <h4 class="h5 fw-bold mb-0">
-              <i class="fas fa-history me-2"></i>Delivery Timeline
-            </h4>
-          </div>
-          <div class="card-body-modern">
-            <div class="timeline-modern">
-              <div class="timeline-item-modern completed">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 class="fw-bold mb-1 text-dark">Order Created</h6>
-                    <p class="text-muted small mb-0">
-                      Tracking ID: <%= package.trackingId %>
-                    </p>
-                  </div>
-                  <div class="text-end">
-                    <div class="small fw-bold">
-                      <%= new Date(package.createdAt).toLocaleDateString() %>
-                    </div>
-                    <div class="small text-muted">
-                      <%= new Date(package.createdAt).toLocaleTimeString() %>
-                    </div>   
-                  </div>
-                </div>
+        <!-- Distance Visualization -->
+        <div class="distance-visualization mt-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="location-point">
+              <div class="point-icon pickup">
+                <i class="fas fa-warehouse"></i>
               </div>
-
-              <% package.trackingData.waypoints?.forEach((wp, idx) => { %>
+              <div class="point-label small">Pickup</div>
+            </div>
+            <div class="distance-line">
               <div
-                class="timeline-item-modern <%= wp.arrived ? 'completed' : (idx === 0 ? 'current' : '') %>"
+                class="distance-completed"
+                id="distanceLineFill"
+                style="
+                  width: <%= package.trackingData?.vehicleProgress || 0 %>%;
+                "
               >
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 class="fw-bold mb-1"><%= wp.name %></h6>
-                    <p class="text-muted small mb-0">
-                      <%= wp.type.toUpperCase() %>
-                    </p>
-                    <% if(wp.arrived && wp.timestamp) { %>
-                    <div class="small text-success mt-1 ">
-                      <i class="fas fa-check-circle me-1"></i>Arrived
-                    </div>
-                    <% } %>
-                  </div>
-                  <div class="text-end">
-                    <% if(wp.timestamp) { %>
-                    <div class="small fw-bold">
-                      <%= new Date(wp.timestamp).toLocaleDateString() %>
-                    </div>
-                    <div class="small text-muted">
-                      <%= new Date(wp.timestamp).toLocaleTimeString() %>
-                    </div>
-                    <% } else { %>
-                    <div class="small text-warning">Pending</div>
-                    <% } %>
-                  </div>
+                <div class="vehicle-position" id="vehiclePositionIndicator">
+                  <i class="fas fa-truck"></i>
                 </div>
               </div>
-              <% }) %>
-
-              <!-- Only show delivered timeline item if package is delivered -->
-              <% if(package.status === 'delivered') { %>
-              <div class="timeline-item-modern completed">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 class="fw-bold mb-1">Package Delivered</h6>
-                    <p class="text-muted small mb-0">
-                      Successfully delivered to recipient
-                    </p>
-                    <% if(package.actualDelivery) { %>
-                    <div class="small text-success mt-1">
-                      <i class="fas fa-check-circle me-1"></i>Delivered
-                    </div>
-                    <% } %>
-                  </div>
-                  <div class="text-end">
-                    <% if(package.actualDelivery) { %>
-                    <div class="small fw-bold">
-                      <%= new Date(package.actualDelivery).toLocaleDateString()
-                      %>
-                    </div>
-                    <div class="small text-muted">
-                      <%= new Date(package.actualDelivery).toLocaleTimeString()
-                      %>
-                    </div>
-                    <% } else { %>
-                    <div class="small text-success">Completed</div>
-                    <% } %>
-                  </div>
-                </div>
+            </div>
+            <div class="location-point">
+              <div class="point-icon delivery">
+                <i class="fas fa-flag-checkered"></i>
               </div>
-              <% } else { %>
-              <div class="timeline-item-modern">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 class="fw-bold mb-1 text-dark">Estimated Delivery</h6>
-                    <p class="text-muted small mb-0">Expected arrival time</p>
-                  </div>
-                  <div class="text-end">
-                    <div class="small fw-bold">
-                      <%= new
-                      Date(package.estimatedDelivery).toLocaleDateString() %>
-                    </div>
-                    <div class="small text-muted">
-                      <%= new
-                      Date(package.estimatedDelivery).toLocaleTimeString() %>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <% } %>
+              <div class="point-label small">Delivery</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Details -->
-      <div class="col-lg-4">
-        <!-- Package Details -->
-        <div class="modern-card mb-4">
-          <div class="card-header-modern">
-            <h4 class="h5 fw-bold mb-0">
-              <i class="fas fa-box-open me-2"></i>Package Details
-            </h4>
+      <!-- Metrics Grid -->
+      <div class="metric-grid mb-4">
+        <div class="metric-card">
+          <div class="metric-value">
+            <%= package.route && package.route.totalDistance ?
+            (package.route.totalDistance / 1000).toFixed(1) : '0.0' %>
           </div>
-          <div class="card-body-modern">
-            <div class="info-grid">
-              <div class="info-item">
-                <div class="info-label">Tracking ID</div>
-                <div class="info-value"><%= package.trackingId %></div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Category</div>
-                <div class="info-value">
-                  <span
-                    class="category-badge category-<%= package.package.category %>"
-                  >
-                    <%= package.package.category.toUpperCase() %>
-                  </span>
-                </div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Weight</div>
-                <div class="info-value"><%= package.package.weight %> kg</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Value</div>
-                <div class="info-value">
-                  $<%= package.package.value?.toFixed(2) || '0.00' %>
-                </div>
-              </div>
-            </div>
+          <div class="metric-label">Total Distance (km)</div>
+        </div>
 
-            <div class="mb-3">
-              <div class="info-label">Description</div>
-              <div class="info-value"><%= package.package.description %></div>
-            </div>
+        <div class="metric-card">
+          <div class="metric-value">
+            <%= package.route && package.route.totalDuration ?
+            Math.floor(package.route.totalDuration / 60) : '0' %>
+          </div>
+          <div class="metric-label">Est. Time (min)</div>
+        </div>
 
-            <div class="mb-3">
-              <div class="info-label">Dimensions</div>
-              <div class="info-value">
-                <%= package.package.dimensions?.length || 0 %> × <%=
-                package.package.dimensions?.width || 0 %> × <%=
-                package.package.dimensions?.height || 0 %> cm
+        <div class="metric-card">
+          <div class="metric-value">
+            <%= package.trackingData && package.trackingData.waypoints ?
+            package.trackingData.waypoints.filter(wp => wp.arrived).length : 0
+            %>
+          </div>
+          <div class="metric-label">Checkpoints Passed</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-value" id="currentSpeedMetric">
+            <% if (package.trackingData && package.trackingData.speed) { %> <%=
+            package.trackingData.speed.toFixed(0) %> <% } else { %> 0 <% } %>
+          </div>
+          <div class="metric-label">Current Speed (km/h)</div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="glass-card p-4">
+        <h6 class="fw-bold mb-3">Delivery Timeline</h6>
+        <div class="timeline-compact">
+          <!-- Order Created -->
+          <div class="timeline-item completed">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong class="d-block">Order Created</strong>
+                <small class="text-muted">Tracking ID issued</small>
               </div>
+              <small class="text-muted">
+                <%= new Date(package.createdAt).toLocaleTimeString([], { hour:
+                '2-digit', minute: '2-digit' }) %>
+              </small>
+            </div>
+          </div>
+
+          <!-- Waypoints -->
+          <% if (package.trackingData && package.trackingData.waypoints) { %> <%
+          package.trackingData.waypoints.forEach((wp, idx) => { %>
+          <div
+            class="timeline-item <%= wp.arrived ? 'completed' : (idx === 0 ? 'current' : '') %>"
+          >
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong class="d-block"><%= wp.name %></strong>
+                <small class="text-muted"
+                  ><%= wp.type ? wp.type.replace('_', ' ') : '' %></small
+                >
+              </div>
+              <% if (wp.timestamp) { %>
+              <small class="text-muted">
+                <%= new Date(wp.timestamp).toLocaleTimeString([], { hour:
+                '2-digit', minute: '2-digit' }) %>
+              </small>
+              <% } else { %>
+              <small class="text-warning">Pending</small>
+              <% } %>
+            </div>
+          </div>
+          <% }) %> <% } %>
+
+          <!-- Vehicle Status -->
+          <div
+            class="timeline-item <%= package.status === 'in_transit' ? 'current' : '' %>"
+          >
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong class="d-block">Vehicle in Transit</strong>
+                <small class="text-muted">
+                  <% if (package.trackingData?.vehicleProgress) { %> <%=
+                  package.trackingData.vehicleProgress %>% complete <% } else {
+                  %> En route to destination <% } %>
+                </small>
+              </div>
+              <small class="text-primary">
+                <i class="fas fa-truck-moving me-1"></i>
+                In Progress
+              </small>
+            </div>
+          </div>
+
+          <!-- Delivery Status -->
+          <% if (package.status === 'delivered') { %>
+          <div class="timeline-item completed">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong class="d-block">Package Delivered</strong>
+                <small class="text-muted"
+                  >Successfully delivered to recipient</small
+                >
+              </div>
+              <% if (package.actualDelivery) { %>
+              <small class="text-success">
+                <%= new Date(package.actualDelivery).toLocaleTimeString([], {
+                hour: '2-digit', minute: '2-digit' }) %>
+              </small>
+              <% } %>
+            </div>
+          </div>
+          <% } else { %>
+          <div class="timeline-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong class="d-block">Estimated Delivery</strong>
+                <small class="text-muted">Expected arrival time</small>
+              </div>
+              <% if (package.estimatedDelivery) { %>
+              <small class="text-muted">
+                <%= new Date(package.estimatedDelivery).toLocaleTimeString([], {
+                hour: '2-digit', minute: '2-digit' }) %>
+              </small>
+              <% } %>
+            </div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Details -->
+    <div class="col-lg-4">
+      <!-- Package Details -->
+      <div class="glass-card p-4 mb-4">
+        <h6 class="fw-bold mb-3">Package Details</h6>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Tracking ID</div>
+            <div class="info-value"><%= package.trackingId %></div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-label">Category</div>
+            <div class="info-value">
+              <span class="badge category-badge">
+                <%= package.package.category %>
+              </span>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-label">Weight</div>
+            <div class="info-value"><%= package.package.weight %> kg</div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-label">Value</div>
+            <div class="info-value">
+              $<%= package.package.value ? package.package.value.toFixed(2) :
+              '0.00' %>
             </div>
           </div>
         </div>
 
-        <!-- Sender & Receiver -->
-        <div class="modern-card mb-4">
-          <div class="card-header-modern">
-            <h4 class="h5 fw-bold mb-0">
-              <i class="fas fa-exchange-alt me-2"></i>Sender & Receiver
-            </h4>
-          </div>
-          <div class="card-body-modern">
-            <div class="info-grid">
-              <div class="info-item">
-                <div class="info-label">Sender</div>
-                <div class="info-value"><%= package.sender.name %></div>
-                <div class="small text-muted"><%= package.sender.email %></div>
-                <div class="small text-muted"><%= package.sender.phone %></div>
-          
-                                <div class="small text-muted">
-                  <%= package.sender.address.fullAddress %>
-                </div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Receiver</div>
-                <div class="info-value"><%= package.receiver.name %></div>
-                <div class="small text-muted">
-                  <%= package.receiver.email %>
-                </div>
-                <div class="small text-muted">
-                  <%= package.receiver.phone %>
-                </div>
-                                <div class="small text-muted">
-                  <%= package.receiver.address.fullAddress %>
-                </div>
-              </div>
+        <div class="mt-3">
+          <div class="info-label mb-2">Description</div>
+          <p class="mb-0 text-muted"><%= package.package.description %></p>
+        </div>
+      </div>
+
+      <!-- Addresses -->
+      <div class="glass-card p-4 mb-4">
+        <h6 class="fw-bold mb-3">Route Information</h6>
+
+        <div class="mb-4">
+          <div class="d-flex align-items-start mb-3">
+            <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+              <i class="fas fa-location-arrow text-primary"></i>
             </div>
+            <div class="flex-grow-1">
+              <div class="fw-bold small">Pickup Location</div>
+              <div class="text-muted small mb-1">
+                <%= package.sender ? package.sender.name : 'Sender' %>
+              </div>
+              <div class="small text-truncate"><%= pickupFull %></div>
+              <% if (package.warehouse?.name) { %>
+              <div class="mt-1 text-primary small">
+                <i class="fas fa-warehouse me-1"></i>
+                <%= package.warehouse.name %>
+              </div>
+              <% } %>
+            </div>
+          </div>
 
-
+          <div class="d-flex align-items-start">
+            <div class="rounded-circle bg-success bg-opacity-10 p-2 me-3">
+              <i class="fas fa-flag-checkered text-success"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-bold small">Delivery Location</div>
+              <div class="text-muted small mb-1">
+                <%= package.receiver ? package.receiver.name : 'Receiver' %>
+              </div>
+              <div class="small text-truncate"><%= deliveryFull %></div>
+              <% if (package.receiver && package.receiver.deliveryInstructions)
+              { %>
+              <div class="mt-2 text-warning small">
+                <i class="fas fa-info-circle me-1"></i>
+                <%= package.receiver.deliveryInstructions %>
+              </div>
+              <% } %>
+            </div>
           </div>
         </div>
 
-        <!-- Incidents -->
-        <% if(package.incidents && package.incidents.length > 0) { %>
-        <div class="modern-card mb-4">
-          <div class="card-header-modern">
-            <h4 class="h5 fw-bold mb-0">
-              <i class="fas fa-exclamation-triangle me-2"></i>Notice
-              <span class="badge bg-danger ms-2"
-                ><%= package.incidents.length %></span
+        <% if (package.route && package.route.totalDistance &&
+        package.route.totalDuration) { %>
+        <div class="border-top pt-3">
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="fw-bold text-primary">
+                <%= (package.route.totalDistance / 1000).toFixed(1) %> km
+              </div>
+              <div class="small text-muted">Total Distance</div>
+            </div>
+            <div class="col-6">
+              <div class="fw-bold text-primary">
+                <%= Math.floor(package.route.totalDuration / 60) %> min
+              </div>
+              <div class="small text-muted">Est. Duration</div>
+            </div>
+          </div>
+
+          <!-- Direct Distance vs Route Distance -->
+          <div class="mt-3 pt-3 border-top">
+            <div class="small text-muted mb-1">Route Efficiency</div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small">Direct Path:</span>
+              <span class="fw-bold" id="directDistance">Calculating...</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small">Actual Route:</span>
+              <span class="fw-bold"
+                ><%= (package.route.totalDistance / 1000).toFixed(1) %> km</span
               >
-            </h4>
-          </div>
-          <div class="card-body-modern p-0">
-            <div class="incidents-scrollable p-3">
-              <% package.incidents.forEach((incident, idx) => { %>
-              <div class="collapsible-section">
-                <div class="collapsible-header" onclick="toggleCollapse(this)">
-                  <div>
-                    <strong><%= incident.type.toUpperCase() %></strong>
-                    <span
-                      class="badge <%= incident.resolved ? 'bg-success' : 'bg-warning' %> ms-2"
-                    >
-                      <%= incident.resolved ? 'RESOLVED' : 'ACTIVE' %>
-                    </span>
-                  </div>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="collapsible-content">
-                  <p class="small mb-2"><%= incident.description %></p>
-                  <div class="row g-2 small">
-                    <div class="col-6">
-                      <div class="text-muted">Severity</div>
-                      <div class="fw-bold">
-                        <%= incident.severity.toUpperCase() %>
-                      </div>
-                    </div>
-                    <div class="col-6">
-                      <div class="text-muted">Reported</div>
-                      <div class="fw-bold">
-                        <%= new Date(incident.reportedAt).toLocaleDateString()
-                        %>
-                      </div>
-                    </div>
-                    <% if(incident.estimatedDelay) { %>
-                    <div class="col-6">
-                      <div class="text-muted">Delay</div>
-                      <div class="fw-bold text-danger">
-                        <%= incident.estimatedDelay %> min
-                      </div>
-                    </div>
-                    <% } %> <% if(incident.resolvedAt) { %>
-                    <div class="col-12">
-                      <div class="text-muted">Resolved</div>
-                      <div class="fw-bold text-success">
-                        <%= new Date(incident.resolvedAt).toLocaleString() %>
-                      </div>
-                    </div>
-                    <% } %>
-                  </div>
-                </div>
-              </div>
-              <% }) %>
+            </div>
+            <div class="progress efficiency-progress mt-2">
+              <div
+                class="progress-bar"
+                id="efficiencyBar"
+                style="width: 100%"
+              ></div>
+            </div>
+            <div class="text-center small text-muted mt-1">
+              <span id="efficiencyText">Calculating efficiency...</span>
             </div>
           </div>
         </div>
         <% } %>
+      </div>
 
-        <!-- System Info -->
-        <div class="modern-card">
-          <div class="card-header-modern">
-            <h4 class="h5 fw-bold mb-0">
-              <i class="fas fa-info-circle me-2"></i>System Information
-            </h4>
+      <!-- Actions -->
+      <div class="glass-card p-4">
+        <div class="d-grid gap-2">
+          <a
+            href="/delivery/track/print/<%= package.trackingId %>"
+            target="_blank"
+            class="btn btn-primary-modern btn-modern"
+          >
+            <i class="fas fa-print me-2"></i>Print Receipt
+          </a>
+
+
+          <% if (package.incidents && package.incidents.length > 0) { %>
+          <div class="alert alert-warning py-2 mt-3 mb-0">
+            <small>
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              <%= package.incidents.length %> active incident(s)
+            </small>
           </div>
-          <div class="card-body-modern">
-            <div class="row g-2 small">
-              <div class="col-6">
-                <div class="text-muted">Created</div>
-                <div class="fw-bold">
-                  <%= new Date(package.createdAt).toLocaleDateString() %>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="text-muted">Updated</div>
-                <div class="fw-bold">
-                  <%= new Date(package.updatedAt).toLocaleDateString() %>
-                </div>
-              </div>
-              <div class="col-12">
-                <div class="text-muted">Tracking</div>
-                <div class="fw-bold">
-                  <% if(package.trackingData.active) { %>
-                  <span class="text-success">✓ Active</span>
-                  <% } else { %>
-                  <span class="text-muted">Inactive</span>
-                  <% } %>
-                </div>
-              </div>
-            </div>
+          <% } %>
+
+          <div class="text-center mt-3">
+            <small class="text-muted">
+              Last updated: <%= new Date(package.updatedAt).toLocaleString() %>
+            </small>
           </div>
         </div>
       </div>
-    </div>
-</div>
+<!-- Incidents Panel -->
+<% if(package.incidents && package.incidents.length > 0) { %>
+<div class="glass-card mb-4 mt-2">
+  <div class="p-2 d-flex align-items-center justify-content-between">
+    <h4 class="h5 fw-bold mb-0">
+      <i class="fas fa-exclamation-triangle me-2"></i>Notice
+      <span class="badge bg-danger ms-2"><%= package.incidents.length %></span>
+    </h4>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-  <script>
-    const mapboxToken = "<%= mapboxToken %>";
-    const packageData = <%- JSON.stringify(package) %>;
+  <div class="card-body-modern p-0">
+    <div class="incidents-scrollable p-2">
+      <% package.incidents.forEach((incident, idx) => { %>
+      <div class="collapsible-section">
+        <div class="collapsible-header d-flex justify-content-between align-items-center" onclick="toggleCollapse(this)">
+          <div>
+            <strong><%= incident.type.toUpperCase() %></strong>
+            <span class="badge <%= incident.resolved ? 'bg-success' : 'bg-warning' %> ms-2">
+              <%= incident.resolved ? 'RESOLVED' : 'ACTIVE' %>
+            </span>
+          </div>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="collapsible-content">
+          <p class="small mb-2"><%= incident.description %></p>
+          <div class="row g-2 small">
+            <div class="col-6">
+              <div class="text-muted">Severity</div>
+              <div class="fw-bold"><%= incident.severity.toUpperCase() %></div>
+            </div>
+            <div class="col-6">
+              <div class="text-muted">Reported</div>
+              <div class="fw-bold"><%= new Date(incident.reportedAt).toLocaleDateString() %></div>
+            </div>
+            <% if(incident.estimatedDelay) { %>
+            <div class="col-6">
+              <div class="text-muted">Delay</div>
+              <div class="fw-bold text-danger"><%= incident.estimatedDelay %> min</div>
+            </div>
+            <% } %>
+            <% if(incident.resolvedAt) { %>
+            <div class="col-12">
+              <div class="text-muted">Resolved</div>
+              <div class="fw-bold text-success"><%= new Date(incident.resolvedAt).toLocaleString() %></div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+<% } %>
+    </div>
+  </div>
+</div>
 
-    // Get coordinates
-    const startCoords = packageData.sender?.address?.coordinates?.coordinates || [-0.1278, 51.5074];
-    const endCoords = packageData.receiver?.address?.coordinates?.coordinates || [-0.1278, 51.5074];
-    const currentCoords = packageData.trackingData?.currentLocation?.coordinates || startCoords;
+<!-- Mapbox Resources -->
+<link
+  href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css"
+  rel="stylesheet"
+/>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
-    // Initialize Map (original light style)
+<style>
+  /* Enhanced Vehicle Display Styles */
+  .vehicle-info-panel {
+    position: absolute;
+    top: 20px;
+    right: 80px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 15px;
+    width: 250px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: none;
+    z-index: 10;
+  }
+
+  .vehicle-info-panel.show {
+    display: block;
+  }
+
+  .btn-close-vehicle {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+  }
+
+  .btn-close-vehicle:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .vehicle-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .vehicle-stat {
+    background: rgba(59, 130, 246, 0.05);
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 2px;
+  }
+
+  .stat-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .vehicle-driver {
+    display: flex;
+    align-items: center;
+  }
+
+  .driver-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    overflow: hidden;
+  }
+
+  .driver-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Distance Visualization */
+  .distance-visualization {
+    position: relative;
+  }
+
+  .location-point {
+    text-align: center;
+  }
+
+  .point-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 5px;
+  }
+
+  .point-icon.pickup {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+  }
+
+  .point-icon.delivery {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+  }
+
+  .distance-line {
+    flex: 1;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    margin: 0 15px;
+    position: relative;
+    overflow: visible;
+  }
+
+  .distance-completed {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #22c55e);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .vehicle-position {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    color: #3b82f6;
+    font-size: 12px;
+  }
+
+  /* Map Marker Enhancements */
+  .map-marker.vehicle-marker {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 2px solid #3b82f6;
+    transition: all 0.3s ease;
+  }
+
+  .map-marker.vehicle-marker i {
+    color: #3b82f6;
+    font-size: 16px;
+  }
+
+  .map-marker.vehicle-marker:hover {
+    transform: scale(1.2);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+  }
+
+  .map-marker.warehouse-marker,
+  .map-marker.delivery-marker {
+    position: relative;
+  }
+
+  .map-marker.warehouse-marker::after,
+  .map-marker.delivery-marker::after {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .map-marker.warehouse-marker:hover::after {
+    content: "Pickup Location";
+    opacity: 1;
+  }
+
+  .map-marker.delivery-marker:hover::after {
+    content: "Delivery Location";
+    opacity: 1;
+  }
+
+  /* Category Badge */
+  .category-badge {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Efficiency Progress */
+  .efficiency-progress {
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  .efficiency-progress .progress-bar {
+    background: linear-gradient(90deg, #22c55e, #3b82f6);
+    border-radius: 3px;
+  }
+</style>
+
+<script>
+  // Configuration
+  const mapboxToken = "<%= mapboxToken %>";
+  const packageData = <%- JSON.stringify(package) %>;
+
+  // Get coordinates - handle different possible data structures
+  let warehouseCoords = [-0.1278, 51.5074]; // London as default fallback
+  let deliveryCoords = [-0.1276, 51.5072]; // Slightly different as default
+
+  // Try to extract warehouse coordinates
+  if (packageData.warehouse?.location?.coordinates) {
+    warehouseCoords = packageData.warehouse.location.coordinates;
+  } else if (packageData.warehouse?.coordinates) {
+    warehouseCoords = packageData.warehouse.coordinates;
+  } else if (packageData.sender?.address?.coordinates?.coordinates) {
+    warehouseCoords = packageData.sender.address.coordinates.coordinates;
+  } else if (packageData.pickupAddress?.coordinates) {
+    warehouseCoords = packageData.pickupAddress.coordinates;
+  }
+
+  // Try to extract delivery coordinates
+  if (packageData.receiver?.address?.coordinates?.coordinates) {
+    deliveryCoords = packageData.receiver.address.coordinates.coordinates;
+  } else if (packageData.deliveryAddress?.coordinates) {
+    deliveryCoords = packageData.deliveryAddress.coordinates;
+  }
+
+  // Map state
+  let map = null;
+  let routeCoordinates = [];
+  let vehicleMarker = null;
+  let markers = [];
+  let animationId = null;
+  let trafficVisible = true;
+  let vehicleInfoVisible = false;
+  let currentProgress = packageData.trackingData?.vehicleProgress || 0;
+  let currentSpeed = packageData.trackingData?.speed || 50;
+  let totalRouteDistance = packageData.route?.totalDistance ? packageData.route.totalDistance / 1000 : 0;
+  let directDistance = 0;
+
+  // Initialize Map - FIXED VERSION
+  function initMap() {
+    console.log('Initializing map with token:', mapboxToken ? 'Token exists' : 'No token');
+
+    if (!mapboxToken || mapboxToken === '') {
+      console.error('Mapbox token is missing!');
+      showFallbackMap();
+      return;
+    }
+
     mapboxgl.accessToken = mapboxToken;
-    const map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: currentCoords,
-      zoom: 10
-    });
 
-    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    try {
+      map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: warehouseCoords,
+        zoom: 12,
+        attributionControl: false
+      });
 
-    // Global variables
-    let routeCoordinates = [];
-    let vehicleMarker = null;
-    let checkpointsSource = null;
-    let animationId = null;
+      // Add navigation controls
+      map.addControl(new mapboxgl.NavigationControl({
+        showCompass: true,
+        showZoom: true
+      }), 'top-right');
 
-    // Map load event
-    map.on('load', async () => {
-      try {
-        // Add traffic layers
-        addTrafficLayers();
+      map.addControl(new mapboxgl.AttributionControl({
+        compact: true
+      }), 'bottom-right');
 
-        // Fetch route
-        const routeGeometry = await fetchRouteGeometry(startCoords, endCoords);
-        routeCoordinates = routeGeometry.coordinates;
+      // When map loads
+      map.on('load', function() {
+        console.log('Map loaded successfully');
+        initializeMapFeatures();
+      });
 
-        // Draw route
-        drawRouteLine(routeGeometry);
+      // Error handling
+      map.on('error', function(e) {
+        console.error('Map error:', e.error);
+        showFallbackMap();
+      });
 
-        // Add markers
-        addStaticMarkers(startCoords, endCoords);
-        addCheckpointsAsLayers();
+    } catch (error) {
+      console.error('Failed to initialize map:', error);
+      showFallbackMap();
+    }
+  }
 
-        // Create vehicle marker
-        vehicleMarker = createVehicleMarker(currentCoords);
+  // Initialize map features
+  async function initializeMapFeatures() {
+    try {
+      // First, add basic markers
+      addBasicMarkers();
 
-        // Start animation
-        startVehicleAnimation();
-        fitMapToRoute(routeCoordinates);
-
-      } catch (error) {
-        console.error('Map initialization error:', error);
-        drawFallbackRoute(startCoords, endCoords);
+      // Calculate direct distance
+      if (isValidCoordinates(warehouseCoords) && isValidCoordinates(deliveryCoords)) {
+        directDistance = calculateDirectDistance(warehouseCoords, deliveryCoords);
+        updateDirectDistanceDisplay(directDistance);
       }
-    });
 
-    // Fetch route geometry
-    async function fetchRouteGeometry(start, end) {
-      const profile = 'mapbox/driving-traffic'; // Traffic-aware routing
-      const coordinates = `${start[0]},${start[1]};${end[0]},${end[1]}`;
+      // Try to get route
+      if (packageData.route?.geometry?.coordinates) {
+        // Use existing route geometry if available
+        routeCoordinates = packageData.route.geometry.coordinates;
+        drawRoute(packageData.route.geometry);
+      } else {
+        // Generate route
+        const routeGeometry = await generateRoute();
+        if (routeGeometry) {
+          routeCoordinates = routeGeometry.coordinates;
+          drawRoute(routeGeometry);
+        } else {
+          // Draw straight line as fallback
+          drawStraightLineRoute();
+        }
+      }
+
+      // Calculate route distance
+      if (routeCoordinates.length > 0) {
+        const routeDistance = turf.length(turf.lineString(routeCoordinates), { units: 'kilometers' });
+        totalRouteDistance = routeDistance;
+        updateDistanceDisplay(routeDistance);
+      }
+
+      // Add vehicle marker
+      addVehicleMarker();
+
+      // Add waypoints if available
+      if (packageData.trackingData?.waypoints) {
+        addWaypointMarkers();
+      }
+
+      // Fit map to show everything
+      fitMapToRoute();
+
+      // Start animation if in transit
+      if (packageData.status === 'in_transit' && currentProgress < 100) {
+        setTimeout(() => {
+          startVehicleAnimation();
+        }, 1000);
+      }
+
+      // Update vehicle position indicator
+      updateVehiclePositionIndicator();
+
+    } catch (error) {
+      console.error('Error initializing map features:', error);
+      showFallbackRoute();
+    }
+  }
+
+  // Generate route using Mapbox Directions API
+  async function generateRoute() {
+    try {
+      if (!isValidCoordinates(warehouseCoords) || !isValidCoordinates(deliveryCoords)) {
+        throw new Error('Invalid coordinates');
+      }
+
+      const profile = 'mapbox/driving';
+      const coordinates = `${warehouseCoords[0]},${warehouseCoords[1]};${deliveryCoords[0]},${deliveryCoords[1]}`;
       const url = `https://api.mapbox.com/directions/v5/${profile}/${coordinates}?geometries=geojson&overview=full&access_token=${mapboxToken}`;
+
+      console.log('Fetching route from:', url);
 
       const response = await fetch(url);
       const data = await response.json();
-      return data.routes[0].geometry;
-    }
 
-    // Add traffic layers
-    function addTrafficLayers() {
-      // Add real-time traffic source
-      map.addSource('mapbox-traffic', {
-        'type': 'vector',
-        'url': 'mapbox://mapbox.mapbox-traffic-v1'
-      });
-
-      // Traffic flow layer
-      map.addLayer({
-        'id': 'traffic-flow',
-        'type': 'line',
-        'source': 'mapbox-traffic',
-        'source-layer': 'traffic',
-        'paint': {
-          'line-color': [
-            'case',
-            ['==', ['get', 'congestion'], 'low'], '#10b981',    // Green
-            ['==', ['get', 'congestion'], 'moderate'], '#f59e0b', // Yellow
-            ['==', ['get', 'congestion'], 'heavy'], '#ef4444',   // Red
-            ['==', ['get', 'congestion'], 'severe'], '#dc2626',  // Dark red
-            '#64748b' // Default grey
-          ],
-          'line-width': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            10, 2,
-            16, 5
-          ],
-          'line-opacity': 0.7
-        }
-      });
-
-      // Traffic incidents layer
-      map.addLayer({
-        'id': 'traffic-incidents',
-        'type': 'circle',
-        'source': 'mapbox-traffic',
-        'source-layer': 'traffic',
-        'paint': {
-          'circle-radius': 5,
-          'circle-color': '#ef4444',
-          'circle-opacity': 0.8,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
-        }
-      });
-    }
-
-    // Draw route line
-    function drawRouteLine(geometry) {
-      map.addSource('route', {
-        type: 'geojson',
-        data: { type: 'Feature', geometry }
-      });
-
-      map.addLayer({
-        id: 'route-line',
-        type: 'line',
-        source: 'route',
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: {
-          'line-color': '#667eea',
-          'line-width': 5,
-          'line-opacity': 0.9
-        }
-      });
-
-      // Add route outline for better visibility
-      map.addLayer({
-        id: 'route-line-outline',
-        type: 'line',
-        source: 'route',
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: {
-          'line-color': '#1e293b',
-          'line-width': 7,
-          'line-opacity': 0.3
-        }
-      }, 'route-line');
-    }
-
-    // Add static markers
-    function addStaticMarkers(start, end) {
-      // Start marker
-      const startEl = document.createElement('div');
-      startEl.className = 'checkpoint-marker';
-      startEl.innerHTML = '<i class="fas fa-play-circle" style="color: #10b981; font-size: 24px;"></i>';
-
-      new mapboxgl.Marker(startEl)
-        .setLngLat(start)
-        .setPopup(new mapboxgl.Popup().setHTML(`
-            <h6 class="fw-bold text-dark">Pickup Location</h6>
-            <p>${packageData.pickupAddress}</p>
-          `))
-        .addTo(map);
-
-      // End marker
-      const endEl = document.createElement('div');
-      endEl.className = 'checkpoint-marker';
-      endEl.innerHTML = '<i class="fas fa-flag-checkered" style="color: #ef4444; font-size: 24px;"></i>';
-
-      new mapboxgl.Marker(endEl)
-        .setLngLat(end)
-        .setPopup(new mapboxgl.Popup().setHTML(`
-            <h6  class="fw-bold text-dark">Delivery Destination</h6>
-            <p>${packageData.deliveryAddress}</p>
-          `))
-        .addTo(map);
-    }
-
-    // Add checkpoints as Mapbox layers
-    function addCheckpointsAsLayers() {
-      const waypoints = packageData.trackingData?.waypoints || [];
-      
-      // Create GeoJSON features for checkpoints
-      const checkpointFeatures = waypoints.map((wp, idx) => {
-        const coords = wp.coordinates || calculatePointAlongRoute(routeCoordinates, (idx + 1) / (waypoints.length + 1));
-        return {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: coords
-          },
-          properties: {
-            name: wp.name,
-            type: wp.type,
-            arrived: wp.arrived,
-            index: idx
-          }
-        };
-      });
-
-      // Add checkpoint source
-      map.addSource('checkpoints', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: checkpointFeatures
-        }
-      });
-
-      // Add checkpoint circles
-      map.addLayer({
-        id: 'checkpoints-layer',
-        type: 'circle',
-        source: 'checkpoints',
-        paint: {
-          'circle-radius': 8,
-          'circle-color': [
-            'case',
-            ['==', ['get', 'arrived'], true], '#10b981', // Green for arrived
-            '#f59e0b' // Yellow for pending
-          ],
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#ffffff',
-          'circle-opacity': 0.9
-        }
-      });
-
-      // Add checkpoint labels
-      map.addLayer({
-        id: 'checkpoints-labels',
-        type: 'symbol',
-        source: 'checkpoints',
-        layout: {
-          'text-field': ['get', 'name'],
-          'text-size': 12,
-          'text-offset': [0, 1.5],
-          'text-anchor': 'top'
-        },
-        paint: {
-          'text-color': '#1e293b',
-          'text-halo-color': '#ffffff',
-          'text-halo-width': 2
-        }
-      });
-
-      checkpointsSource = 'checkpoints';
-    }
-
-    // Create vehicle marker
-    function createVehicleMarker(coords) {
-      const vehicleEl = document.createElement('div');
-      vehicleEl.className = 'vehicle-marker';
-      vehicleEl.innerHTML = '<i class="fas fa-truck text-white"></i>';
-
-      return new mapboxgl.Marker(vehicleEl)
-        .setLngLat(coords)
-        .setPopup(new mapboxgl.Popup().setHTML(`
-            <h6>Delivery Vehicle</h6>
-            <p>Status: ${packageData.status.replace('_', ' ').toUpperCase()}</p>
-            <p>Progress: ${packageData.trackingData?.vehicleProgress || 0}%</p>
-       
-          `))
-        .addTo(map);
-    }
-
-    // Start vehicle animation
-    function startVehicleAnimation() {
-      if (!routeCoordinates.length) return;
-
-      const progress = packageData.trackingData?.vehicleProgress || 0;
-      const totalSteps = routeCoordinates.length;
-      let currentStep = Math.floor((progress / 100) * (totalSteps - 1));
-
-      vehicleMarker.setLngLat(routeCoordinates[currentStep]);
-
-      if (currentStep < totalSteps - 1) {
-        animationId = setInterval(() => {
-          if (currentStep >= totalSteps - 1) {
-            clearInterval(animationId);
-            vehicleMarker.getElement().querySelector('i').className = 'fas fa-check-circle';
-            return;
-          }
-
-          currentStep = Math.min(currentStep + 1, totalSteps - 1);
-          vehicleMarker.setLngLat(routeCoordinates[currentStep]);
-
-          const currentProgress = Math.min((currentStep / (totalSteps - 1)) * 100, 100);
-          document.querySelector('.progress-fill').style.width = `${currentProgress}%`;
-
-        }, 3000);
-      }
-    }
-
-    // Fit map to route
-    function fitMapToRoute(coords) {
-      const bounds = new mapboxgl.LngLatBounds();
-      coords.forEach(coord => bounds.extend(coord));
-      map.fitBounds(bounds, { padding: 80, duration: 2000 });
-    }
-
-    // Fallback route
-    function drawFallbackRoute(start, end) {
-      map.addSource('fallback-route', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          geometry: { type: 'LineString', coordinates: [start, end] }
-        }
-      });
-
-      map.addLayer({
-        id: 'fallback-route-line',
-        type: 'line',
-        source: 'fallback-route',
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#667eea', 'line-width': 4, 'line-opacity': 0.7 }
-      });
-
-      addStaticMarkers(start, end);
-      fitMapToRoute([start, end]);
-    }
-
-    // Calculate point along route
-    function calculatePointAlongRoute(routeCoords, percentage) {
-      if (!routeCoords || routeCoords.length < 2) return startCoords;
-
-      const totalDistance = turf.length(turf.lineString(routeCoords));
-      const targetDistance = totalDistance * Math.min(percentage, 0.99);
-
-      let accumulated = 0;
-      for (let i = 0; i < routeCoords.length - 1; i++) {
-        const segment = turf.length(turf.lineString([routeCoords[i], routeCoords[i + 1]]));
-        if (accumulated + segment >= targetDistance) {
-          const segmentPercentage = (targetDistance - accumulated) / segment;
-          return [
-            routeCoords[i][0] + (routeCoords[i + 1][0] - routeCoords[i][0]) * segmentPercentage,
-            routeCoords[i][1] + (routeCoords[i + 1][1] - routeCoords[i][1]) * segmentPercentage
-          ];
-        }
-        accumulated += segment;
-      }
-      return routeCoords[routeCoords.length - 1];
-    }
-
-    // UI Functions
-    function toggleCheckpoints() {
-      const visibility = map.getLayoutProperty('checkpoints-layer', 'visibility');
-      const newVisibility = visibility === 'visible' ? 'none' : 'visible';
-      map.setLayoutProperty('checkpoints-layer', 'visibility', newVisibility);
-      map.setLayoutProperty('checkpoints-labels', 'visibility', newVisibility);
-    }
-
-    function toggleTraffic() {
-      const trafficVisibility = map.getLayoutProperty('traffic-flow', 'visibility');
-      const newVisibility = trafficVisibility === 'visible' ? 'none' : 'visible';
-      map.setLayoutProperty('traffic-flow', 'visibility', newVisibility);
-      map.setLayoutProperty('traffic-incidents', 'visibility', newVisibility);
-    }
-
-    function centerMap() {
-      if (routeCoordinates.length > 0) {
-        fitMapToRoute(routeCoordinates);
+      if (data.routes && data.routes.length > 0) {
+        return data.routes[0].geometry;
       } else {
-        const bounds = new mapboxgl.LngLatBounds();
-        bounds.extend(startCoords);
-        bounds.extend(endCoords);
-        map.fitBounds(bounds, { padding: 80, duration: 1000 });
+        throw new Error('No route found');
       }
+    } catch (error) {
+      console.error('Route generation failed:', error);
+      return null;
+    }
+  }
+
+  // Add basic markers
+  function addBasicMarkers() {
+    // Clear existing markers
+    markers.forEach(marker => marker.remove());
+    markers = [];
+
+    // Create custom marker elements
+    const warehouseMarkerEl = createMarkerElement('warehouse');
+    const deliveryMarkerEl = createMarkerElement('delivery');
+
+    // Add warehouse marker
+    const warehouseMarker = new mapboxgl.Marker(warehouseMarkerEl)
+      .setLngLat(warehouseCoords)
+      .setPopup(createPopup('Pickup Location', packageData.warehouse?.name || 'Warehouse'))
+      .addTo(map);
+    markers.push(warehouseMarker);
+
+    // Add delivery marker
+    const deliveryMarker = new mapboxgl.Marker(deliveryMarkerEl)
+      .setLngLat(deliveryCoords)
+      .setPopup(createPopup('Delivery Location', packageData.receiver?.name || 'Recipient'))
+      .addTo(map);
+    markers.push(deliveryMarker);
+  }
+
+  // Create marker element
+  function createMarkerElement(type) {
+    const el = document.createElement('div');
+    el.className = `map-marker ${type}-marker`;
+
+    if (type === 'warehouse') {
+      el.innerHTML = '<i class="fas fa-warehouse"></i>';
+    } else if (type === 'delivery') {
+      el.innerHTML = '<i class="fas fa-flag-checkered"></i>';
+    } else if (type === 'vehicle') {
+      el.innerHTML = '<i class="fas fa-truck"></i>';
     }
 
-    function toggleCollapse(element) {
-      const content = element.nextElementSibling;
-      const icon = element.querySelector('i');
+    return el;
+  }
 
-      content.classList.toggle('show');
-      icon.classList.toggle('fa-chevron-down');
-      icon.classList.toggle('fa-chevron-up');
-    }
+  // Create popup
+  function createPopup(title, content) {
+    return new mapboxgl.Popup({ offset: 25 })
+      .setHTML(`
+        <div class="p-2">
+          <h6 class="fw-bold mb-1">${title}</h6>
+          <p class="mb-0 small">${content}</p>
+        </div>
+      `);
+  }
 
-    // Add traffic toggle button to existing controls
-    setTimeout(() => {
-      const mapControls = document.querySelector('.map-container-modern .d-flex.gap-2');
-      if (mapControls) {
-        const trafficBtn = document.createElement('button');
-        trafficBtn.className = 'btn btn-modern btn-modern-outline btn-sm';
-        trafficBtn.onclick = toggleTraffic;
-        trafficBtn.innerHTML = '<i class="fas fa-traffic-light me-1"></i>Traffic';
-        mapControls.appendChild(trafficBtn);
+  // Draw route on map
+  function drawRoute(geometry) {
+    // Add route source
+    map.addSource('route', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        geometry: geometry
       }
-    }, 1000);
-
-    // Expose functions
-    window.toggleCheckpoints = toggleCheckpoints;
-    window.centerMap = centerMap;
-    window.toggleCollapse = toggleCollapse;
-    window.toggleTraffic = toggleTraffic;
-
-    // Clean up
-    window.addEventListener('beforeunload', () => {
-      if (animationId) clearInterval(animationId);
     });
-  </script>
+
+    // Route line
+    map.addLayer({
+      id: 'route-line',
+      type: 'line',
+      source: 'route',
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': '#667eea',
+        'line-width': 4,
+        'line-opacity': 0.7
+      }
+    });
+  }
+
+  // Draw straight line as fallback route
+  function drawStraightLineRoute() {
+    routeCoordinates = [warehouseCoords, deliveryCoords];
+
+    map.addSource('route', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: routeCoordinates
+        }
+      }
+    });
+
+    map.addLayer({
+      id: 'route-line',
+      type: 'line',
+      source: 'route',
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': '#94a3b8',
+        'line-width': 3,
+        'line-opacity': 0.5,
+        'line-dasharray': [2, 2]
+      }
+    });
+  }
+
+  // Add vehicle marker
+  function addVehicleMarker() {
+    const currentPosition = calculateCurrentPosition();
+
+    const vehicleMarkerEl = createMarkerElement('vehicle');
+    vehicleMarker = new mapboxgl.Marker(vehicleMarkerEl)
+      .setLngLat(currentPosition)
+      .addTo(map);
+
+    // Make clickable
+    vehicleMarkerEl.addEventListener('click', () => {
+      toggleVehicleInfo();
+    });
+  }
+
+  // Calculate current vehicle position
+  function calculateCurrentPosition() {
+    if (!routeCoordinates.length || currentProgress <= 0) {
+      return warehouseCoords;
+    }
+
+    if (currentProgress >= 100) {
+      return deliveryCoords;
+    }
+
+    try {
+      if (routeCoordinates.length < 2) {
+        return warehouseCoords;
+      }
+
+      // Simple linear interpolation
+      const progressRatio = currentProgress / 100;
+      const index = Math.floor((routeCoordinates.length - 1) * progressRatio);
+      const nextIndex = Math.min(index + 1, routeCoordinates.length - 1);
+
+      const coord1 = routeCoordinates[index];
+      const coord2 = routeCoordinates[nextIndex];
+
+      if (!coord1 || !coord2) {
+        return warehouseCoords;
+      }
+
+      const remainingProgress = (progressRatio * (routeCoordinates.length - 1)) - index;
+
+      return [
+        coord1[0] + (coord2[0] - coord1[0]) * remainingProgress,
+        coord1[1] + (coord2[1] - coord1[1]) * remainingProgress
+      ];
+    } catch (error) {
+      console.error('Position calculation error:', error);
+      return warehouseCoords;
+    }
+  }
+
+  // Start vehicle animation
+  function startVehicleAnimation() {
+    if (!routeCoordinates.length || currentProgress >= 100) return;
+
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+    }
+
+    const startTime = Date.now();
+    const startProgress = currentProgress;
+    const duration = 30000; // 30 seconds for full animation
+
+    function animate() {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      currentProgress = startProgress + (100 - startProgress) * progress;
+
+      // Update vehicle position
+      const currentPosition = calculateCurrentPosition();
+      vehicleMarker.setLngLat(currentPosition);
+
+      // Update UI
+      updateAllProgressUI(currentProgress);
+
+      if (progress < 1) {
+        animationId = requestAnimationFrame(animate);
+      } else {
+        currentProgress = 100;
+        updateAllProgressUI(100);
+      }
+    }
+
+    animationId = requestAnimationFrame(animate);
+  }
+
+  // Update all progress UI
+  function updateAllProgressUI(progress) {
+    // Update progress bar
+    const progressFill = document.getElementById('progressFill');
+    if (progressFill) {
+      progressFill.style.width = `${progress}%`;
+    }
+
+    // Update percentage
+    const progressPercentage = document.getElementById('progressPercentage');
+    if (progressPercentage) {
+      progressPercentage.textContent = `${Math.round(progress)}%`;
+    }
+
+    // Update distances
+    updateDistanceDisplay(progress);
+
+    // Update vehicle position indicator
+    updateVehiclePositionIndicator();
+  }
+
+  // Update distance display
+  function updateDistanceDisplay(progress) {
+    const completedEl = document.getElementById('completedDistance');
+    const remainingEl = document.getElementById('remainingDistance');
+
+    if (completedEl && remainingEl && totalRouteDistance > 0) {
+      const completed = (totalRouteDistance * progress / 100).toFixed(1);
+      const remaining = (totalRouteDistance - parseFloat(completed)).toFixed(1);
+
+      completedEl.textContent = `${completed} km`;
+      remainingEl.textContent = `${remaining} km`;
+    }
+  }
+
+  // Update vehicle position indicator
+  function updateVehiclePositionIndicator() {
+    const vehicleIndicator = document.getElementById('vehiclePositionIndicator');
+    const distanceLineFill = document.getElementById('distanceLineFill');
+
+    if (vehicleIndicator && distanceLineFill) {
+      distanceLineFill.style.width = `${currentProgress}%`;
+    }
+  }
+
+  // Calculate direct distance
+  function calculateDirectDistance(coords1, coords2) {
+    try {
+      return turf.distance(
+        turf.point(coords1),
+        turf.point(coords2),
+        { units: 'kilometers' }
+      );
+    } catch (error) {
+      console.error('Distance calculation error:', error);
+      return 0;
+    }
+  }
+
+  // Update direct distance display
+  function updateDirectDistanceDisplay(distance) {
+    const directDistanceEl = document.getElementById('directDistance');
+    if (directDistanceEl) {
+      directDistanceEl.textContent = `${distance.toFixed(1)} km`;
+    }
+  }
+
+  // Fit map to route
+  function fitMapToRoute() {
+    try {
+      const bounds = new mapboxgl.LngLatBounds();
+
+      // Extend bounds to include all coordinates
+      if (routeCoordinates.length > 0) {
+        routeCoordinates.forEach(coord => bounds.extend(coord));
+      } else {
+        bounds.extend(warehouseCoords);
+        bounds.extend(deliveryCoords);
+      }
+
+      map.fitBounds(bounds, {
+        padding: 100,
+        duration: 1500
+      });
+    } catch (error) {
+      console.error('Fit bounds error:', error);
+    }
+  }
+
+
+
+  // Show fallback map (static image or simple div)
+  function showFallbackMap() {
+    const mapContainer = document.getElementById('map');
+    if (mapContainer) {
+      mapContainer.innerHTML = `
+        <div style="width: 100%; height: 100%; background: #f0f4f8; display: flex; align-items: center; justify-content: center; border-radius: 16px;">
+          <div style="text-align: center;">
+            <i class="fas fa-map-marked-alt" style="font-size: 48px; color: #94a3b8; margin-bottom: 16px;"></i>
+            <h5 style="color: #64748b; margin-bottom: 8px;">Map Unavailable</h5>
+            <p style="color: #94a3b8; font-size: 14px;">Static route visualization is displayed below</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Show fallback route
+  function showFallbackRoute() {
+    drawStraightLineRoute();
+    addBasicMarkers();
+    addVehicleMarker();
+    fitMapToRoute();
+  }
+
+  // Validate coordinates
+  function isValidCoordinates(coords) {
+    return Array.isArray(coords) &&
+           coords.length === 2 &&
+           !isNaN(coords[0]) &&
+           !isNaN(coords[1]) &&
+           Math.abs(coords[0]) <= 180 &&
+           Math.abs(coords[1]) <= 90;
+  }
+
+  // UI Control Functions
+  function zoomIn() {
+    if (map) map.zoomIn();
+  }
+
+  function zoomOut() {
+    if (map) map.zoomOut();
+  }
+
+  function centerMap() {
+    if (map) fitMapToRoute();
+  }
+
+  function toggleTraffic() {
+    if (!map) return;
+
+    trafficVisible = !trafficVisible;
+    const visibility = trafficVisible ? 'visible' : 'none';
+
+    if (map.getLayer('traffic-flow')) {
+      map.setLayoutProperty('traffic-flow', 'visibility', visibility);
+    }
+
+    const trafficBtn = document.querySelector('[onclick="toggleTraffic()"]');
+    if (trafficBtn) {
+      trafficBtn.innerHTML = trafficVisible ? '<i class="fas fa-car"></i>' :
+        '<i class="fas fa-car" style="opacity: 0.5"></i>';
+    }
+  }
+
+  function toggleVehicleInfo() {
+    vehicleInfoVisible = !vehicleInfoVisible;
+    const vehiclePanel = document.getElementById('vehicleInfoPanel');
+
+    if (vehiclePanel) {
+      vehiclePanel.classList.toggle('show', vehicleInfoVisible);
+    }
+  }
+
+  function showDriverLocation() {
+    if (map && vehicleMarker) {
+      map.flyTo({
+        center: vehicleMarker.getLngLat(),
+        zoom: 14,
+        duration: 1000
+      });
+      toggleVehicleInfo();
+    }
+  }
+
+  function showOtherDeliveries() {
+    alert('Showing other deliveries for this driver');
+  }
+
+  function shareTracking() {
+    const trackingUrl = window.location.href;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Package Tracking',
+        text: `Track my package: ${packageData.trackingId}`,
+        url: trackingUrl
+      });
+    } else {
+      navigator.clipboard.writeText(trackingUrl).then(() => {
+        alert('Tracking link copied to clipboard!');
+      });
+    }
+  }
+
+  // Simulate delivery progress
+  function simulateProgress() {
+    if (currentProgress >= 100) {
+      currentProgress = 0;
+    }
+
+    currentProgress += 10;
+    if (currentProgress > 100) currentProgress = 100;
+
+    // Update vehicle position
+    const currentPosition = calculateCurrentPosition();
+    if (vehicleMarker) {
+      vehicleMarker.setLngLat(currentPosition);
+    }
+
+    // Update UI
+    updateAllProgressUI(currentProgress);
+
+    // Update ETA
+    updateDynamicETA(currentProgress);
+  }
+
+  // Update dynamic ETA
+  function updateDynamicETA(progress) {
+    const dynamicETA = document.getElementById('dynamicETA');
+    if (!dynamicETA) return;
+
+    if (progress >= 100) {
+      dynamicETA.textContent = 'Arrived';
+      return;
+    }
+
+    const remainingDistance = totalRouteDistance * (1 - progress / 100);
+    const etaHours = remainingDistance / (currentSpeed || 50);
+    const etaTime = new Date(Date.now() + etaHours * 3600000);
+
+    dynamicETA.textContent = etaTime.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+
+  function toggleCollapse(header) {
+  const allSections = document.querySelectorAll('.collapsible-section');
+  
+  allSections.forEach(section => {
+    if(section.querySelector('.collapsible-header') !== header) {
+      section.classList.remove('active');
+    }
+  });
+
+  const parentSection = header.parentElement;
+  parentSection.classList.toggle('active');
+}
+
+  // Initialize map when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing map...');
+    initMap();
+  });
+
+
+
+  // Expose functions globally
+  window.zoomIn = zoomIn;
+  window.zoomOut = zoomOut;
+  window.centerMap = centerMap;
+  window.toggleTraffic = toggleTraffic;
+  window.toggleVehicleInfo = toggleVehicleInfo;
+  window.showDriverLocation = showDriverLocation;
+  window.showOtherDeliveries = showOtherDeliveries;
+  window.shareTracking = shareTracking;
+  window.simulateProgress = simulateProgress;
+</script>

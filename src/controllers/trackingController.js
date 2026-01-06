@@ -482,8 +482,23 @@ class TrackingController {
           .join(", ");
       }
 
+      // Get ETA hours from the delivery/package object
+      const etaHours = packageData.etaHours || 2; // fallback 2 hours if missing
+
+      // Compute etaDisplay safely
+      let etaDisplay = "N/A";
+      if (!isNaN(etaHours)) {
+        const now = new Date();
+        const etaTime = new Date(now.getTime() + etaHours * 3600000);
+        etaDisplay = etaTime.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
       // Render EJS with fully matched dynamic data
       return res.render("pages/tracking-results", {
+        etaDisplay,
         title: `Tracking #${trackingId} - ExpressLog`,
         page: "tracking-results",
         delivery: packageData,

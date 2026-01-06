@@ -4,149 +4,483 @@
 <style>
   .auth-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle background pattern */
+  .auth-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(
+        circle at 15% 50%,
+        rgba(13, 110, 253, 0.05) 0%,
+        transparent 20%
+      ),
+      radial-gradient(
+        circle at 85% 30%,
+        rgba(32, 201, 151, 0.05) 0%,
+        transparent 20%
+      );
+    z-index: 0;
   }
 
   .auth-card {
-    background: white;
-    border-radius: 16px;
-    padding: 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 48px 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.8) inset,
+      0 20px 60px rgba(255, 255, 255, 0.5) inset;
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
-  .auth-logo {
-    text-align: center;
-    margin-bottom: 30px;
+  .auth-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.9) inset,
+      0 20px 60px rgba(255, 255, 255, 0.6) inset;
   }
 
   .auth-title {
     text-align: center;
-    margin-bottom: 30px;
-    color: #1f2937;
+    margin-bottom: 32px;
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 1.75rem;
+    position: relative;
+  }
+
+  .auth-title::after {
+    content: "";
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: linear-gradient(90deg, #0d6efd, #20c997);
+    border-radius: 2px;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    display: block;
   }
 
   .form-control {
-    border-radius: 8px;
-    padding: 12px 16px;
-    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 2px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
   }
 
   .form-control:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: #0d6efd;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+  }
+
+  .form-control::placeholder {
+    color: #94a3b8;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s ease;
+  }
+
+  .password-toggle:hover {
+    color: #0d6efd;
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
     border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
+    border-radius: 10px;
+    padding: 16px 24px;
     font-weight: 600;
+    font-size: 1rem;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.2);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 12px 25px rgba(13, 110, 253, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-primary::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+  }
+
+  .btn-primary:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(0, 0);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(20, 20);
+      opacity: 0;
+    }
+  }
+
+  .form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .form-check-input {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid #cbd5e1;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+  }
+
+  .form-check-label {
+    font-size: 0.9rem;
+    color: #475569;
+    cursor: pointer;
   }
 
   .auth-footer {
     text-align: center;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #e5e7eb;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    font-size: 0.9rem;
+  }
+
+  .auth-footer a {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .auth-footer a:hover {
+    color: #0b5ed7;
+    text-decoration: underline;
   }
 
   .alert {
-    border-radius: 8px;
+    border-radius: 10px;
     border: none;
-    padding: 12px 16px;
-    margin-bottom: 20px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .alert-danger {
+    background: linear-gradient(
+      135deg,
+      rgba(239, 68, 68, 0.1),
+      rgba(220, 38, 38, 0.05)
+    );
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #dc2626;
+  }
+
+  .alert-success {
+    background: linear-gradient(
+      135deg,
+      rgba(16, 185, 129, 0.1),
+      rgba(5, 150, 105, 0.05)
+    );
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #059669;
+  }
+
+  .input-group {
+    position: relative;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1rem;
+    pointer-events: none;
+  }
+
+  .input-with-icon {
+    padding-left: 46px !important;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .auth-card {
+      padding: 32px 24px;
+      max-width: 340px;
+    }
+
+    .auth-title {
+      font-size: 1.5rem;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .logo-icon i {
+      font-size: 20px;
+    }
+  }
+
+  /* Loading animation */
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+    vertical-align: -2px;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Floating animation for card */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .auth-card {
+    animation: float 6s ease-in-out infinite;
   }
 </style>
 
 <div class="auth-container">
   <div class="auth-card">
-    <div class="auth-logo">
-      <h3 class="fw-bold text-primary">Express Delivery</h3>
-      <p class="text-muted">Admin Portal</p>
-    </div>
-
-    <h2 class="auth-title h4 fw-bold">Sign In to Dashboard</h2>
-
-    <% if (error && error.length > 0) { %>
-    <div class="alert alert-danger">
-      <i class="fas fa-exclamation-circle me-2"></i>
-      <%= error %>
-    </div>
-    <% } %> <% if (success && success.length > 0) { %>
-    <div class="alert alert-success">
-      <i class="fas fa-check-circle me-2"></i>
-      <%= success %>
-    </div>
-    <% } %>
-
-    <form action="/auth/login" method="POST">
-      <div class="mb-3">
+    <h2 class="auth-title">Administrator Access</h2>
+    <form action="/auth/login" method="POST" id="loginForm">
+      <div class="mb-4">
         <label for="email" class="form-label">Email Address</label>
-        <input
-          type="email"
-          class="form-control"
-          id="email"
-          name="email"
-          placeholder="Enter your email"
-          required
-        />
+        <div class="input-group">
+          <i class="fas fa-envelope input-icon"></i>
+          <input
+            type="email"
+            class="form-control input-with-icon"
+            id="email"
+            name="email"
+            placeholder="email"
+            required
+            autocomplete="email"
+            autofocus
+          />
+        </div>
       </div>
 
       <div class="mb-4">
         <label for="password" class="form-label">Password</label>
-        <input
-          type="password"
-          class="form-control"
-          id="password"
-          name="password"
-          placeholder="Enter your password"
-          required
-        />
+        <div class="input-group">
+          <i class="fas fa-lock input-icon"></i>
+          <input
+            type="password"
+            class="form-control input-with-icon"
+            id="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          />
+          <button type="button" class="password-toggle" id="passwordToggle">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
       </div>
 
-      <button type="submit" class="btn btn-primary w-100 mb-3">
-        <i class="fas fa-sign-in-alt me-2"></i>Sign In
-      </button>
-
-      <div class="form-check mb-3">
+      <div class="form-check mb-4">
         <input
           class="form-check-input"
           type="checkbox"
           id="remember"
           name="remember"
         />
-        <label class="form-check-label small text-muted" for="remember">
-          Remember me
+        <label class="form-check-label" for="remember">
+          Keep me signed in for 30 days
         </label>
       </div>
-    </form>
 
-    <div class="auth-footer">
-      <p class="small text-muted mb-2">
-        Demo Credentials:<br />
-        <strong>superadmin@expressdelivery.com</strong> /
-        <strong>Admin123!</strong>
-      </p>
-      <p class="small text-muted mb-0">
-        Don't have an account?
-        <a href="/auth/register" class="text-primary text-decoration-none"
-          >Contact superadmin</a
-        >
-      </p>
-    </div>
+      <button type="submit" class="btn btn-primary w-100 mb-4" id="loginButton">
+        <i class="fas fa-sign-in-alt me-2"></i>Sign In to Dashboard
+      </button>
+    </form>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Password toggle functionality
+    const passwordToggle = document.getElementById("passwordToggle");
+    const passwordInput = document.getElementById("password");
+
+    if (passwordToggle && passwordInput) {
+      passwordToggle.addEventListener("click", function () {
+        const type =
+          passwordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        passwordInput.setAttribute("type", type);
+        this.innerHTML =
+          type === "password"
+            ? '<i class="fas fa-eye"></i>'
+            : '<i class="fas fa-eye-slash"></i>';
+      });
+    }
+
+    // Form submission handling
+    const loginForm = document.getElementById("loginForm");
+    const loginButton = document.getElementById("loginButton");
+
+    if (loginForm && loginButton) {
+      loginForm.addEventListener("submit", function (e) {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        if (!email || !password) {
+          return; // Let browser handle required validation
+        }
+
+        // Show loading state
+        const originalContent = loginButton.innerHTML;
+        loginButton.innerHTML =
+          '<span class="loading-spinner"></span>Authenticating...';
+        loginButton.disabled = true;
+
+        // Re-enable after 3 seconds if still loading (fallback)
+        setTimeout(() => {
+          if (loginButton.disabled) {
+            loginButton.innerHTML = originalContent;
+            loginButton.disabled = false;
+          }
+        }, 3000);
+      });
+    }
+
+    // Add focus effects
+    const inputs = document.querySelectorAll(".form-control");
+    inputs.forEach((input) => {
+      input.addEventListener("focus", function () {
+        this.parentElement.querySelector(".input-icon").style.color = "#0d6efd";
+      });
+
+      input.addEventListener("blur", function () {
+        this.parentElement.querySelector(".input-icon").style.color = "#94a3b8";
+      });
+    });
+
+    // Auto-capitalize first letter of email (for names)
+    const emailInput = document.getElementById("email");
+    if (emailInput) {
+      emailInput.addEventListener("blur", function () {
+        const value = this.value.trim();
+        if (value && !value.includes("@")) {
+          // If it looks like a name, capitalize first letter
+          const parts = value.split(" ");
+          if (parts.length > 0) {
+            const capitalized = parts
+              .map(
+                (part) =>
+                  part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+              )
+              .join(" ");
+            this.value = capitalized;
+          }
+        }
+      });
+    }
+
+    // Add enter key support
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && document.activeElement.tagName === "INPUT") {
+        const form = document.querySelector("form");
+        if (form) {
+          const submitButton = form.querySelector('button[type="submit"]');
+          if (submitButton) {
+            submitButton.click();
+          }
+        }
+      }
+    });
+  });
+</script>
