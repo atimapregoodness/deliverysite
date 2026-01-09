@@ -20,7 +20,7 @@
     );
     color: white;
     overflow: hidden;
-    padding: 5rem 0;
+    padding: 2rem 0;
   }
 
   .hero-section-mobile::before {
@@ -212,24 +212,16 @@
     border-radius: 50px;
     font-size: 0.85rem;
     font-weight: 600;
-    background: linear-gradient(
-      135deg,
-      rgba(13, 110, 253, 0.15),
-      rgba(110, 66, 193, 0.15)
-    );
-    color: var(--primary-color);
+    background: #f8f9fa;
+    color: #181818;
   }
 
   .status-indicator::before {
     content: "";
-    width: 8px;    
+    width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: linear-gradient(
-      135deg,
-      var(--primary-color),
-      var(--secondary-color)
-    );
+    background: #28a745;
     animation: statusPulse 2s infinite;
   }
 
@@ -414,7 +406,7 @@
               <small class="text-muted">Next Patrol Dispatch</small>
               <div class="fw-bold">00:15:30</div>
             </div>
-            <span class="status-indicator text-light">Active</span>
+            <span class="status-indicator">Active</span>
           </div>
         </div>
       </div>

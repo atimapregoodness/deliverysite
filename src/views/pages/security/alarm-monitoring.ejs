@@ -1,67 +1,458 @@
 <%- layout('layouts/main') %>
-<title>Alarm Monitoring | Shield Logistics Security</title>
+<title>Alarm Monitoring Center | Shield Logistics Security Solutions</title>
 
 <style>
-  .hero-section {
-    background: linear-gradient(
-        rgba(108, 117, 125, 0.9),
-        rgba(108, 117, 125, 0.95)
-      ),
-      url("https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&q=80&w=2071")
-        center/cover;
-    color: white;
+  :root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6f42c1;
+    --monitoring-blue: rgba(13, 110, 253, 0.95);
+    --monitoring-purple: rgba(110, 66, 193, 0.92);
+    --glass-bg: rgba(255, 255, 255, 0.9);
   }
 
-  .monitoring-center {
+  /* Animated Network Grid Background */
+  .hero-section-monitoring {
     position: relative;
+    background: linear-gradient(
+      135deg,
+      var(--monitoring-blue),
+      var(--monitoring-purple)
+    );
+    color: white;
     overflow: hidden;
-    border-radius: 12px;
+    padding: 2rem 0;
   }
 
-  .monitoring-center:before {
+  /* Data Grid Network */
+  .hero-section-monitoring::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(13, 110, 253, 0.1), transparent);
+    background-image: 
+      /* Primary grid */ linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px
+      ),
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      /* Secondary diagonal grid */
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 20px,
+          rgba(255, 255, 255, 0.02) 20px,
+          rgba(255, 255, 255, 0.02) 40px
+        ),
+      /* Signal pathways */
+        repeating-linear-gradient(
+          135deg,
+          transparent,
+          transparent 15px,
+          rgba(255, 255, 255, 0.03) 15px,
+          rgba(255, 255, 255, 0.03) 30px
+        );
+    background-size: 60px 60px, 60px 60px, 80px 80px, 50px 50px;
+    animation: gridFlow 40s linear infinite;
+    opacity: 0.5;
+  }
+
+  @keyframes gridFlow {
+    0% {
+      background-position: 0 0, 0 0, 0 0, 0 0;
+    }
+    100% {
+      background-position: 120px 60px, 60px 120px, 80px 80px, 50px 50px;
+    }
+  }
+
+  /* Animated Signal Dots */
+  .hero-section-monitoring::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(
+        circle at 15% 25%,
+        rgba(255, 255, 255, 0.6) 0%,
+        transparent 3%
+      ),
+      radial-gradient(
+        circle at 70% 85%,
+        rgba(255, 255, 255, 0.5) 0%,
+        transparent 4%
+      ),
+      radial-gradient(
+        circle at 85% 35%,
+        rgba(255, 255, 255, 0.4) 0%,
+        transparent 2.5%
+      ),
+      radial-gradient(
+        circle at 25% 75%,
+        rgba(255, 255, 255, 0.5) 0%,
+        transparent 3.5%
+      ),
+      radial-gradient(
+        circle at 55% 45%,
+        rgba(255, 255, 255, 0.3) 0%,
+        transparent 2%
+      );
+    animation: signalPulse 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes signalPulse {
+    0% {
+      opacity: 0.2;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0.6;
+      transform: scale(1.02);
+    }
+  }
+
+  /* Scanning Line Animation */
+  .scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
+    animation: scan 5s linear infinite;
+    z-index: 2;
+  }
+
+  @keyframes scan {
+    0% {
+      top: 0%;
+    }
+    100% {
+      top: 100%;
+    }
+  }
+
+  /* Signal Path Animation */
+  .signal-path {
+    position: absolute;
+    width: 2px;
+    height: 100px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
+    top: -100px;
+    animation: signalTransmit 8s infinite ease-in-out;
+  }
+
+  .signal-path-1 {
+    left: 20%;
+    animation-delay: 0s;
+  }
+  .signal-path-2 {
+    left: 50%;
+    animation-delay: 2s;
+  }
+  .signal-path-3 {
+    left: 80%;
+    animation-delay: 4s;
+  }
+
+  @keyframes signalTransmit {
+    0% {
+      top: -100px;
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      top: 100%;
+      opacity: 0;
+    }
+  }
+
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* Modern Monitoring Center Card */
+  .monitoring-center-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .monitoring-center-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+  }
+
+  /* Status Indicator */
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .status-indicator::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #20c997;
+    animation: statusPulse 2s infinite;
+  }
+
+  @keyframes statusPulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.2);
+    }
+  }
+
+  /* Stats Cards */
+  .stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Gradient Badges */
+  .badge-monitoring {
+    background: linear-gradient(
+      135deg,
+      rgba(13, 110, 253, 0.2),
+      rgba(110, 66, 193, 0.2)
+    );
+    color: white;
+    font-weight: 600;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-section-monitoring {
+      padding: 3rem 0;
+    }
+
+    .signal-path {
+      display: none;
+    }
   }
 </style>
 
-<section class="hero-section py-5">
-  <div class="container py-5">
+<!-- Hero Section -->
+<section class="hero-section-monitoring">
+  <div class="container position-relative" style="z-index: 2">
     <div class="row align-items-center">
       <div class="col-lg-7">
-        <h1 class="display-4 fw-bold mb-4">24/7 Alarm Monitoring Center</h1>
-        <p class="lead mb-4">
-          Our UL-certified monitoring center provides instant response to
-          security alerts, connecting you directly to emergency services when
-          seconds count.
+        <h1 class="display-4 fw-bold mb-4">
+          UL-Certified<br />
+          <span class="text-warning">Alarm Monitoring Center</span>
+        </h1>
+
+        <p class="lead mb-4" style="max-width: 600px">
+          Our Five Diamond certified monitoring center provides
+          <span class="fw-bold">instantaneous response</span> to security alerts
+          with direct connections to emergency services. When seconds count, our
+          AI-enhanced verification reduces false dispatches by 94%.
         </p>
 
-        <div class="d-flex align-items-center gap-4">
-          <div class="text-center">
-            <div class="display-6 fw-bold">60<small>s</small></div>
-            <small>Average Response Time</small>
+        <!-- Live Status -->
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <span class="status-indicator">
+            <i class="fas fa-satellite-dish me-1"></i>
+            <span>System Status: <strong>OPERATIONAL</strong></span>
+          </span>
+          <span class="badge-monitoring px-3 py-2">
+            <i class="fas fa-shield-alt me-1"></i>
+            UL 827 & NFPA 72 Compliant
+          </span>
+          <span class="badge-monitoring px-3 py-2">
+            <i class="fas fa-bolt me-1"></i>
+            Dual-Path Redundant Communications
+          </span>
+        </div>
+
+        <!-- Performance Stats -->
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="stat-card text-center">
+              <div class="display-5 fw-bold mb-2">
+                <span class="counter" data-target="60">0</span><small>s</small>
+              </div>
+              <small>Average Verified Response Time</small>
+              <div class="progress mt-2" style="height: 4px">
+                <div class="progress-bar bg-success" style="width: 95%"></div>
+              </div>
+            </div>
           </div>
-          <div class="text-center">
-            <div class="display-6 fw-bold">99.97%</div>
-            <small>Uptime Guarantee</small>
+          <div class="col-md-4">
+            <div class="stat-card text-center">
+              <div class="display-5 fw-bold mb-2">
+                <span class="counter" data-target="99.97">0</span>%
+              </div>
+              <small>Uptime Guarantee (SLA)</small>
+              <div class="progress mt-2" style="height: 4px">
+                <div class="progress-bar bg-info" style="width: 99.9%"></div>
+              </div>
+            </div>
           </div>
-          <div class="text-center">
-            <div class="display-6 fw-bold">24/7</div>
-            <small>Monitoring</small>
+          <div class="col-md-4">
+            <div class="stat-card text-center">
+              <div class="display-5 fw-bold mb-2">
+                <span class="counter" data-target="24">0</span>/7
+              </div>
+              <small>Trained Monitoring Specialists</small>
+              <div class="progress mt-2" style="height: 4px">
+                <div class="progress-bar bg-warning" style="width: 100%"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="col-lg-5">
-        <div class="monitoring-center p-4">
-          <img
-            src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&q=80&w=2071"
-            class="img-fluid rounded-3"
-            alt="Monitoring Center"
-          />
+
+      <div class="col-lg-5 mt-5 mt-lg-0">
+        <!-- Monitoring Center Visualization -->
+        <div class="p-4 glass-card">
+          <div class="text-center mb-4">
+            <div class="feature-icon d-inline-flex text-dark">
+              <i class="fas fa-tv"></i>
+            </div>
+            <h4 class="fw-bold mt-3 text-dark">Live Command Center View</h4>
+            <p class="text-muted small">AI-enhanced monitoring interface</p>
+          </div>
+
+          <!-- Simulated Monitoring Interface -->
+          <div
+            class="monitoring-interface bg-dark rounded-3 p-3"
+            style="height: 250px"
+          >
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <span
+                  class="status-indicator"
+                  style="background: rgba(32, 201, 151, 0.2)"
+                >
+                  <span>ACTIVE MONITORS: 12</span>
+                </span>
+              </div>
+              <small class="text-success">
+                <i class="fas fa-circle fa-xs me-1"></i>All Systems Normal
+              </small>
+            </div>
+
+            <!-- Simulated Signal Grid -->
+            <div class="row g-2">
+              <div class="col-3">
+                <div class="bg-primary bg-opacity-25 rounded p-2 text-center">
+                  <small>Zone 1</small>
+                  <div class="text-success mt-1">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="bg-primary bg-opacity-25 rounded p-2 text-center">
+                  <small>Zone 2</small>
+                  <div class="text-success mt-1">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="bg-warning bg-opacity-25 rounded p-2 text-center">
+                  <small>Zone 3</small>
+                  <div class="text-warning mt-1">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="bg-primary bg-opacity-25 rounded p-2 text-center">
+                  <small>Zone 4</small>
+                  <div class="text-success mt-1">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Signal Activity -->
+            <div class="mt-4">
+              <div class="d-flex justify-content-between mb-1">
+                <small>Signal Activity</small>
+                <small>92% Normal</small>
+              </div>
+              <div class="progress" style="height: 6px">
+                <div class="progress-bar bg-success" style="width: 92%"></div>
+                <div class="progress-bar bg-warning" style="width: 8%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Info -->
+          <div class="row mt-4 g-2">
+            <div class="col-6">
+              <div class="bg-light rounded p-2 text-center">
+                <small class="text-muted d-block">Response Ready</small>
+                <small class="fw-bold text-success"
+                  ><i class="fas fa-check me-1"></i>Yes</small
+                >
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -127,3 +518,66 @@
     </div>
   </div>
 </section>
+<script>
+  // Animated counter for stats
+  document.addEventListener("DOMContentLoaded", function () {
+    const counters = document.querySelectorAll(".counter");
+
+    counters.forEach((counter) => {
+      const target = parseFloat(counter.getAttribute("data-target"));
+      const increment = target / 100;
+      let current = 0;
+
+      const updateCounter = () => {
+        if (current < target) {
+          current += increment;
+          if (current > target) current = target;
+
+          if (target % 1 === 0) {
+            counter.textContent = Math.floor(current);
+          } else {
+            counter.textContent = current.toFixed(2);
+          }
+
+          setTimeout(updateCounter, 20);
+        }
+      };
+
+      // Start when in viewport
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            updateCounter();
+            observer.unobserve(entry.target);
+          }
+        });
+      });
+
+      observer.observe(counter);
+    });
+
+    // Simulate signal activity
+    const signalZones = document.querySelectorAll(
+      ".monitoring-interface .col-3"
+    );
+    setInterval(() => {
+      const randomZone = Math.floor(Math.random() * signalZones.length);
+      const zone = signalZones[randomZone];
+      const icon = zone.querySelector("i");
+
+      if (icon.classList.contains("fa-check-circle")) {
+        icon.classList.remove("fa-check-circle", "text-success");
+        icon.classList.add("fa-exclamation-triangle", "text-warning");
+        zone.classList.remove("bg-primary");
+        zone.classList.add("bg-warning");
+      } else {
+        setTimeout(() => {
+          icon.classList.remove("fa-exclamation-triangle", "text-warning");
+          icon.classList.add("fa-check-circle", "text-success");
+          zone.classList.remove("bg-warning");
+          zone.classList.add("bg-primary");
+        }, 2000);
+      }
+    }, 8000);
+  });
+</script>

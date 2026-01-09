@@ -128,3 +128,14 @@ p {
     font-size: 1.1rem;
   }
 }
+
+#specsAccordion .accordion-body,
+#specsAccordion .accordion-body li,
+#specsAccordion .accordion-body strong {
+  color: #212529 !important;
+}
+
+/* Ensure badges have white text */
+#specsAccordion .accordion-body .badge {
+  color: white !important;
+}
