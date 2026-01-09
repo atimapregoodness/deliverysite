@@ -1,0 +1,129 @@
+<%- layout('layouts/main') %>
+<title>Alarm Monitoring | Shield Logistics Security</title>
+
+<style>
+  .hero-section {
+    background: linear-gradient(
+        rgba(108, 117, 125, 0.9),
+        rgba(108, 117, 125, 0.95)
+      ),
+      url("https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&q=80&w=2071")
+        center/cover;
+    color: white;
+  }
+
+  .monitoring-center {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  .monitoring-center:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(13, 110, 253, 0.1), transparent);
+  }
+</style>
+
+<section class="hero-section py-5">
+  <div class="container py-5">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <h1 class="display-4 fw-bold mb-4">24/7 Alarm Monitoring Center</h1>
+        <p class="lead mb-4">
+          Our UL-certified monitoring center provides instant response to
+          security alerts, connecting you directly to emergency services when
+          seconds count.
+        </p>
+
+        <div class="d-flex align-items-center gap-4">
+          <div class="text-center">
+            <div class="display-6 fw-bold">60<small>s</small></div>
+            <small>Average Response Time</small>
+          </div>
+          <div class="text-center">
+            <div class="display-6 fw-bold">99.97%</div>
+            <small>Uptime Guarantee</small>
+          </div>
+          <div class="text-center">
+            <div class="display-6 fw-bold">24/7</div>
+            <small>Monitoring</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="monitoring-center p-4">
+          <img
+            src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&q=80&w=2071"
+            class="img-fluid rounded-3"
+            alt="Monitoring Center"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Comprehensive Monitoring Solutions</h2>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h4 class="fw-bold">
+              <i class="fas fa-bell text-warning me-3"></i>Intrusion Detection
+            </h4>
+            <p>
+              Immediate response to unauthorized entry with verified alarm
+              protocols and police dispatch coordination.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h4 class="fw-bold">
+              <i class="fas fa-fire text-danger me-3"></i>Fire & Smoke Detection
+            </h4>
+            <p>
+              Early warning fire detection with direct fire department
+              notification and emergency evacuation coordination.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h4 class="fw-bold">
+              <i class="fas fa-tint text-info me-3"></i>Environmental Monitoring
+            </h4>
+            <p>
+              Water leak, freeze, and environmental hazard detection to prevent
+              property damage.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h4 class="fw-bold">
+              <i class="fas fa-heartbeat text-danger me-3"></i>Medical Alert
+            </h4>
+            <p>
+              24/7 medical emergency monitoring with direct ambulance dispatch
+              and contact notification.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

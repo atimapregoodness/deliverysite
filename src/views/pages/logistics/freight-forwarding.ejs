@@ -1,0 +1,138 @@
+<%- layout('layouts/main') %>
+<title>Freight Forwarding | Shield Logistics</title>
+
+<style>
+  .hero-section {
+    background: linear-gradient(
+        rgba(13, 110, 253, 0.9),
+        rgba(13, 110, 253, 0.95)
+      ),
+      url("https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2070")
+        center/cover;
+    color: white;
+  }
+
+  .transport-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+</style>
+
+<section class="hero-section py-5">
+  <div class="container py-5">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-4">
+          Global Freight Forwarding Services
+        </h1>
+        <p class="lead mb-4">
+          End-to-end freight management with customs clearance, cargo insurance,
+          and real-time tracking across air, sea, and land transportation.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3">
+          <span class="badge bg-light text-primary px-3 py-2">Air Freight</span>
+          <span class="badge bg-light text-primary px-3 py-2"
+            >Ocean Freight</span
+          >
+          <span class="badge bg-light text-primary px-3 py-2"
+            >Road Transport</span
+          >
+          <span class="badge bg-light text-primary px-3 py-2"
+            >Rail Freight</span
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Comprehensive Freight Solutions</h2>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="d-flex align-items-start">
+          <div class="transport-icon bg-primary text-white">
+            <i class="fas fa-plane"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold">Air Freight Services</h4>
+            <p>
+              Express air cargo solutions with same-day or next-flight-out
+              options for time-sensitive shipments.
+            </p>
+            <ul>
+              <li>Express delivery (1-3 days)</li>
+              <li>Charter flights available</li>
+              <li>Temperature-controlled options</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex align-items-start">
+          <div class="transport-icon bg-info text-white">
+            <i class="fas fa-ship"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold">Ocean Freight Services</h4>
+            <p>
+              Cost-effective sea freight with FCL and LCL options, port-to-port
+              or door-to-door delivery.
+            </p>
+            <ul>
+              <li>Full Container Load (FCL)</li>
+              <li>Less than Container Load (LCL)</li>
+              <li>Refrigerated containers</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex align-items-start">
+          <div class="transport-icon bg-success text-white">
+            <i class="fas fa-truck"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold">Road Freight Services</h4>
+            <p>
+              Regional and cross-border road transportation with specialized
+              equipment for various cargo types.
+            </p>
+            <ul>
+              <li>TL (Truckload) services</li>
+              <li>LTL (Less than Truckload)</li>
+              <li>Dangerous goods transport</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex align-items-start">
+          <div class="transport-icon bg-warning text-white">
+            <i class="fas fa-train"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold">Rail Freight Services</h4>
+            <p>
+              Eco-friendly rail transport for bulk commodities and intermodal
+              shipping solutions.
+            </p>
+            <ul>
+              <li>Intermodal containers</li>
+              <li>Bulk commodity transport</li>
+              <li>Cross-border rail services</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

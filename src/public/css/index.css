@@ -1,3 +1,20 @@
+/* Base Styles
+========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-family-sans);
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-feature-settings: "kern" 1;
+  font-feature-settings: "kern" 1;
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   font-family: var(--font-family-sans);
@@ -9,4 +26,103 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 1. Define new CSS variables for fonts */
+:root {
+  --font-family-sans: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-family-heading: "Poppins", var(--font-family-sans);
+  /* Your existing color variables (--primary-color, etc.) remain here */
+}
+
+/* 2. Apply the fonts to your site */
+body {
+  font-family: var(--font-family-sans); /* Roboto becomes the default */
+  /* Your existing body styles remain */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.display-4,
+.hero-title,
+.section-title,
+.fw-bold,
+.nav-link,
+.btn {
+  font-family: var(--font-family-heading); /* Poppins for all headings & bold elements */
+}
+
+/* 3. Example: Enhance your Hero Title */
+.hero-title {
+  font-family: var(--font-family-heading);
+  font-weight: 700; /* Use Poppins' bold weight */
+  letter-spacing: -0.5px; /* Optional: Tighter letter-spacing for headlines */
+}
+
+/* 4. Example: Ensure body text is optimal */
+.lead,
+.card-text,
+p {
+  font-family: var(--font-family-sans);
+  font-weight: 400;
+  line-height: 1.6; /* Good line-height improves readability */
+}
+
+/* Additional styles for all pages */
+.bg-gray-800 {
+  background-color: #2d3748;
+}
+
+.bg-primary-subtle {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.bg-success-subtle {
+  background-color: rgba(25, 135, 84, 0.1);
+}
+
+.bg-warning-subtle {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.bg-danger-subtle {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.bg-info-subtle {
+  background-color: rgba(13, 202, 240, 0.1);
+}
+
+.text-purple {
+  color: #6f42c1;
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .display-4 {
+    font-size: 2.5rem;
+  }
+  .lead {
+    font-size: 1.1rem;
+  }
 }

@@ -1,0 +1,101 @@
+<%- layout('layouts/main') %>
+<title>Cold Chain Logistics | Shield Logistics</title>
+
+<style>
+  .hero-section {
+    background: linear-gradient(
+        rgba(32, 201, 151, 0.9),
+        rgba(32, 201, 151, 0.95)
+      ),
+      url("https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&q=80&w=2025")
+        center/cover;
+    color: white;
+  }
+
+  .temperature-card {
+    background: linear-gradient(135deg, #e6f7f2, #ffffff);
+    border-left: 4px solid #20c997;
+  }
+</style>
+
+<section class="hero-section py-5">
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-4">Temperature-Controlled Logistics</h1>
+        <p class="lead mb-4">
+          End-to-end cold chain solutions for pharmaceuticals, food, and other
+          temperature-sensitive products with constant monitoring and
+          validation.
+        </p>
+
+        <div class="row mt-4">
+          <div class="col-md-3">
+            <div class="text-center">
+              <i class="fas fa-snowflake fa-2x mb-3"></i>
+              <h6>Frozen (-20°C)</h6>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <i class="fas fa-thermometer-half fa-2x mb-3"></i>
+              <h6>Refrigerated (2-8°C)</h6>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <i class="fas fa-temperature-low fa-2x mb-3"></i>
+              <h6>Controlled (15-25°C)</h6>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <i class="fas fa-clipboard-check fa-2x mb-3"></i>
+              <h6>GDP Compliant</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Cold Chain Services</h2>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="temperature-card p-4 rounded-3 h-100">
+          <h4 class="fw-bold mb-3">
+            <i class="fas fa-pills text-info me-3"></i>Pharmaceutical Logistics
+          </h4>
+          <p>
+            GDP-compliant transportation and storage for vaccines, biologics,
+            and temperature-sensitive medications.
+          </p>
+          <ul>
+            <li>Validated cold storage facilities</li>
+            <li>Temperature data logging</li>
+            <li>Emergency protocols</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="temperature-card p-4 rounded-3 h-100">
+          <h4 class="fw-bold mb-3">
+            <i class="fas fa-utensils text-success me-3"></i>Food & Beverage
+          </h4>
+          <p>
+            HACCP-compliant cold chain for perishable foods, dairy products, and
+            fresh produce.
+          </p>
+          <ul>
+            <li>Blast freezing capabilities</li>
+            <li>Cross-contamination prevention</li>
+            <li>Quick turnaround times</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,134 @@
+<%- layout('layouts/main') %>
+<title>Last-Mile Delivery | Shield Logistics</title>
+
+<style>
+  .hero-section {
+    background: linear-gradient(
+        rgba(111, 66, 193, 0.9),
+        rgba(111, 66, 193, 0.95)
+      ),
+      url("https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&q=80&w=2025")
+        center/cover;
+    color: white;
+  }
+
+  .delivery-card {
+    border-top: 4px solid #6f42c1;
+    transition: transform 0.3s ease;
+  }
+
+  .delivery-card:hover {
+    transform: translateY(-5px);
+  }
+</style>
+
+<section class="hero-section py-5">
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-4">Last-Mile Delivery Solutions</h1>
+        <p class="lead mb-4">
+          Fast, reliable final-mile delivery with real-time tracking, flexible
+          time slots, and professional handling for customer satisfaction.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3">
+          <span class="badge bg-light text-purple px-3 py-2">
+            <i class="fas fa-clock me-1"></i>Same-Day Delivery
+          </span>
+          <span class="badge bg-light text-purple px-3 py-2">
+            <i class="fas fa-calendar-alt me-1"></i>Scheduled Delivery
+          </span>
+          <span class="badge bg-light text-purple px-3 py-2">
+            <i class="fas fa-box-open me-1"></i>White Glove Service
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Delivery Options</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="delivery-card card h-100 shadow-sm">
+          <div class="card-body p-4">
+            <div class="mb-3">
+              <i class="fas fa-bolt fa-2x text-warning"></i>
+            </div>
+            <h5 class="fw-bold">Express Delivery</h5>
+            <p>
+              Same-day or next-day delivery for urgent shipments with guaranteed
+              time windows.
+            </p>
+            <ul class="list-unstyled">
+              <li>
+                <i class="fas fa-check text-success me-2"></i>2-4 hour delivery
+              </li>
+              <li>
+                <i class="fas fa-check text-success me-2"></i>Real-time tracking
+              </li>
+              <li>
+                <i class="fas fa-check text-success me-2"></i>Signature required
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="delivery-card card h-100 shadow-sm">
+          <div class="card-body p-4">
+            <div class="mb-3">
+              <i class="fas fa-calendar-alt fa-2x text-primary"></i>
+            </div>
+            <h5 class="fw-bold">Scheduled Delivery</h5>
+            <p>
+              Choose your preferred delivery date and time window for
+              convenience.
+            </p>
+            <ul class="list-unstyled">
+              <li>
+                <i class="fas fa-check text-success me-2"></i>Choose date & time
+              </li>
+              <li>
+                <i class="fas fa-check text-success me-2"></i>Advance
+                notifications
+              </li>
+              <li>
+                <i class="fas fa-check text-success me-2"></i>Rescheduling
+                options
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="delivery-card card h-100 shadow-sm">
+          <div class="card-body p-4">
+            <div class="mb-3">
+              <i class="fas fa-hands-helping fa-2x text-success"></i>
+            </div>
+            <h5 class="fw-bold">White Glove Service</h5>
+            <p>
+              Premium delivery with unpacking, assembly, and installation
+              services.
+            </p>
+            <ul class="list-unstyled">
+              <li>
+                <i class="fas fa-check text-success me-2"></i>Room of choice
+              </li>
+              <li>
+                <i class="fas fa-check text-success me-2"></i>Assembly & setup
+              </li>
+              <li>
+                <i class="fas fa-check text-success me-2"></i>Packaging removal
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

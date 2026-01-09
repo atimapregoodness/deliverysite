@@ -1,0 +1,120 @@
+<%- layout('layouts/main') %>
+<title>Cybersecurity | Shield Logistics Security</title>
+
+<style>
+  .hero-section {
+    background: linear-gradient(
+        rgba(111, 66, 193, 0.9),
+        rgba(111, 66, 193, 0.95)
+      ),
+      url("https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2070")
+        center/cover;
+    color: white;
+  }
+
+  .cyber-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .cyber-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
+  }
+</style>
+
+<section class="hero-section py-5">
+  <div class="container py-5">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-4">
+          Enterprise Cybersecurity Solutions
+        </h1>
+        <p class="lead mb-4">
+          Protect your digital assets with our comprehensive cybersecurity
+          services, from penetration testing to 24/7 threat monitoring and
+          incident response.
+        </p>
+
+        <div class="row g-3">
+          <div class="col-md-3">
+            <div class="cyber-card rounded-3 p-3 text-center">
+              <i class="fas fa-shield-alt fa-2x mb-2"></i>
+              <h6>Threat Protection</h6>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="cyber-card rounded-3 p-3 text-center">
+              <i class="fas fa-search fa-2x mb-2"></i>
+              <h6>Vulnerability Assessment</h6>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="cyber-card rounded-3 p-3 text-center">
+              <i class="fas fa-user-shield fa-2x mb-2"></i>
+              <h6>Access Control</h6>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="cyber-card rounded-3 p-3 text-center">
+              <i class="fas fa-history fa-2x mb-2"></i>
+              <h6>Incident Response</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-dark text-white">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Our Cybersecurity Services</h2>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="card bg-gray-800 border-0 h-100">
+          <div class="card-body p-4">
+            <div class="mb-3">
+              <i class="fas fa-bug fa-2x text-warning"></i>
+            </div>
+            <h4 class="fw-bold">Penetration Testing</h4>
+            <p>
+              Simulated cyber attacks to identify security vulnerabilities
+              before criminals can exploit them.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="card bg-gray-800 border-0 h-100">
+          <div class="card-body p-4">
+            <div class="mb-3">
+              <i class="fas fa-eye fa-2x text-info"></i>
+            </div>
+            <h4 class="fw-bold">24/7 SOC Monitoring</h4>
+            <p>
+              Security Operations Center monitoring for real-time threat
+              detection and response.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="card bg-gray-800 border-0 h-100">
+          <div class="card-body p-4">
+            <div class="mb-3">
+              <i class="fas fa-graduation-cap fa-2x text-success"></i>
+            </div>
+            <h4 class="fw-bold">Security Training</h4>
+            <p>
+              Employee training programs to prevent phishing attacks and improve
+              security awareness.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

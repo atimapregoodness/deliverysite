@@ -1,0 +1,177 @@
+<%- layout('layouts/main') %>
+<title>About Us | Shield Logistics</title>
+
+<style>
+  .hero-section {
+    background: linear-gradient(
+        rgba(13, 110, 253, 0.9),
+        rgba(13, 110, 253, 0.95)
+      ),
+      url("https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=2067")
+        center/cover;
+    color: white;
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+
+  .timeline:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #0d6efd;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .timeline-item:before {
+    content: "";
+    position: absolute;
+    left: -36px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #0d6efd;
+    border: 3px solid white;
+  }
+</style>
+
+<section class="hero-section py-5">
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-4">About Shield Logistics</h1>
+        <p class="lead mb-4">
+          Founded in 2005, Shield Logistics has grown from a regional delivery
+          service into a global logistics and security powerhouse, trusted by
+          thousands of businesses worldwide.
+        </p>
+
+        <div class="d-flex align-items-center gap-4">
+          <div>
+            <h3 class="fw-bold">50,000+</h3>
+            <p>Business Clients</p>
+          </div>
+          <div>
+            <h3 class="fw-bold">142</h3>
+            <p>Countries Served</p>
+          </div>
+          <div>
+            <h3 class="fw-bold">1,200+</h3>
+            <p>Employees</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <h2 class="fw-bold mb-4">Our Story</h2>
+        <p class="text-muted mb-4">
+          What started as a small package delivery service in Chicago has
+          evolved into an integrated logistics and security solutions provider
+          operating across six continents.
+        </p>
+        <p class="text-muted">
+          Our growth has been driven by a commitment to innovation, customer
+          service, and adapting to the changing needs of global commerce. Today,
+          we combine cutting-edge technology with decades of industry experience
+          to deliver solutions that truly make a difference.
+        </p>
+      </div>
+      <div class="col-lg-6">
+        <div class="timeline">
+          <div class="timeline-item">
+            <h5 class="fw-bold">2005</h5>
+            <p>Founded as Shield Delivery Services in Chicago, IL</p>
+          </div>
+          <div class="timeline-item">
+            <h5 class="fw-bold">2010</h5>
+            <p>Expanded to 10 states and added warehousing services</p>
+          </div>
+          <div class="timeline-item">
+            <h5 class="fw-bold">2015</h5>
+            <p>
+              Launched international shipping and rebranded to Shield Logistics
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h5 class="fw-bold">2018</h5>
+            <p>
+              Acquired SecureGuard Inc. and entered the security services market
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h5 class="fw-bold">2023</h5>
+            <p>
+              Achieved ISO 9001:2023 certification and expanded to 142 countries
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Our Core Values</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4 text-center">
+            <div class="mb-3">
+              <i class="fas fa-shield-alt fa-3x text-primary"></i>
+            </div>
+            <h5 class="fw-bold">Reliability</h5>
+            <p class="text-muted">
+              We deliver on our promises, every time. Our clients trust us with
+              their most valuable assets.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4 text-center">
+            <div class="mb-3">
+              <i class="fas fa-bolt fa-3x text-warning"></i>
+            </div>
+            <h5 class="fw-bold">Speed</h5>
+            <p class="text-muted">
+              In logistics and security, speed matters. We optimize every
+              process for maximum efficiency.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4 text-center">
+            <div class="mb-3">
+              <i class="fas fa-eye fa-3x text-success"></i>
+            </div>
+            <h5 class="fw-bold">Transparency</h5>
+            <p class="text-muted">
+              Clear communication and real-time tracking keep our clients
+              informed at every step.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

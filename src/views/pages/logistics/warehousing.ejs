@@ -1,0 +1,123 @@
+<%- layout('layouts/main') %>
+<title>Warehousing | Shield Logistics</title>
+
+<style>
+  .hero-section {
+    background: linear-gradient(rgba(25, 135, 84, 0.9), rgba(25, 135, 84, 0.95)),
+      url("https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2070")
+        center/cover;
+    color: white;
+  }
+
+  .warehouse-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .warehouse-card:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+<section class="hero-section py-5">
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-4">Smart Warehousing Solutions</h1>
+        <p class="lead mb-4">
+          State-of-the-art warehouse facilities with advanced inventory
+          management, automated systems, and strategic locations for optimal
+          distribution.
+        </p>
+
+        <div class="row mt-4">
+          <div class="col-md-3">
+            <div class="text-center">
+              <h2 class="fw-bold">58</h2>
+              <p>Warehouse Locations</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h2 class="fw-bold">5M+</h2>
+              <p>Square Feet</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h2 class="fw-bold">99.9%</h2>
+              <p>Inventory Accuracy</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h2 class="fw-bold">24/7</h2>
+              <p>Security Monitoring</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Warehouse Services</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="warehouse-card card h-100 shadow-sm">
+          <img
+            src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2070"
+            class="card-img-top"
+            alt="Distribution Center"
+            style="height: 200px; object-fit: cover"
+          />
+          <div class="card-body">
+            <h5 class="fw-bold">Distribution Centers</h5>
+            <p>
+              Strategic locations near major transportation hubs for efficient
+              distribution nationwide.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="warehouse-card card h-100 shadow-sm">
+          <img
+            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=2067"
+            class="card-img-top"
+            alt="Cold Storage"
+            style="height: 200px; object-fit: cover"
+          />
+          <div class="card-body">
+            <h5 class="fw-bold">Temperature-Controlled</h5>
+            <p>
+              Climate-controlled facilities for pharmaceuticals, food, and
+              temperature-sensitive products.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="warehouse-card card h-100 shadow-sm">
+          <img
+            src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1973"
+            class="card-img-top"
+            alt="Bonded Warehouse"
+            style="height: 200px; object-fit: cover"
+          />
+          <div class="card-body">
+            <h5 class="fw-bold">Bonded Warehouses</h5>
+            <p>
+              Customs-bonded storage for international shipments with deferred
+              duty payments.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

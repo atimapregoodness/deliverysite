@@ -1,0 +1,664 @@
+<%- layout('layouts/main') %>
+<title>Mobile Patrols | Shield Logistics Security Solutions</title>
+
+<style>
+  :root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6f42c1;
+    --primary-light: rgba(13, 110, 253, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.88);
+    --glass-border: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Animated Route Visualization with Gradient */
+  .hero-section-mobile {
+    position: relative;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    color: white;
+    overflow: hidden;
+    padding: 5rem 0;
+  }
+
+  .hero-section-mobile::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(
+        90deg,
+        transparent 50%,
+        rgba(255, 255, 255, 0.1) 50%
+      ),
+      linear-gradient(transparent 50%, rgba(255, 255, 255, 0.1) 50%),
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 255, 255, 0.05) 10px,
+        rgba(255, 255, 255, 0.05) 20px
+      ),
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 200px 200px, 40px 40px, 40px 40px;
+    animation: patrolMove 40s linear infinite;
+    opacity: 0.4;
+  }
+
+  @keyframes patrolMove {
+    0% {
+      background-position: 0 0, 0 0, 0 0, 0 0;
+    }
+    100% {
+      background-position: 100px 100px, 100px 100px, 200px 200px, 40px 40px;
+    }
+  }
+
+  .hero-section-mobile::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(
+        circle at 20% 30%,
+        rgba(255, 255, 255, 0.3) 0%,
+        transparent 3%
+      ),
+      radial-gradient(
+        circle at 70% 80%,
+        rgba(255, 255, 255, 0.25) 0%,
+        transparent 4%
+      ),
+      radial-gradient(
+        circle at 40% 60%,
+        rgba(255, 255, 255, 0.2) 0%,
+        transparent 2.5%
+      ),
+      radial-gradient(
+        circle at 85% 40%,
+        rgba(255, 255, 255, 0.25) 0%,
+        transparent 3.5%
+      );
+    animation: dotPulse 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes dotPulse {
+    0% {
+      opacity: 0.3;
+    }
+    100% {
+      opacity: 0.6;
+    }
+  }
+
+  /* Moving Patrol Vehicle Indicator */
+  .patrol-indicator {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.8) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    top: 30%;
+    left: 15%;
+    animation: patrolRoute 25s linear infinite;
+    z-index: 1;
+  }
+
+  @keyframes patrolRoute {
+    0% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(300px, 150px);
+    }
+    50% {
+      transform: translate(600px, 0);
+    }
+    75% {
+      transform: translate(300px, -150px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  /* Modern Stats Display with Gradient */
+  .stats-badge {
+    background: linear-gradient(
+      135deg,
+      rgba(13, 110, 253, 0.2),
+      rgba(110, 66, 193, 0.2)
+    );
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Enhanced Patrol Cards with Gradient Border */
+  .patrol-card-enhanced {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+  }
+
+  .patrol-card-enhanced::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+  }
+
+  .patrol-card-enhanced:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(13, 110, 253, 0.15);
+  }
+
+  /* Feature Icons with Gradient */
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .feature-icon:hover {
+    transform: rotate(10deg) scale(1.1);
+  }
+
+  /* Patrol Status Indicator with Gradient */
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: linear-gradient(
+      135deg,
+      rgba(13, 110, 253, 0.15),
+      rgba(110, 66, 193, 0.15)
+    );
+    color: var(--primary-color);
+  }
+
+  .status-indicator::before {
+    content: "";
+    width: 8px;    
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    animation: statusPulse 2s infinite;
+  }
+
+  @keyframes statusPulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.2);
+    }
+  }
+
+  /* Real-time Map Preview with Gradient */
+  .map-preview {
+    height: 200px;
+    border-radius: 12px;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .map-preview::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.1) 1px,
+        transparent 1px
+      ),
+      linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Gradient Badges */
+  .badge-gradient {
+    background: linear-gradient(
+      135deg,
+      rgba(13, 110, 253, 0.1),
+      rgba(110, 66, 193, 0.1)
+    );
+    color: var(--primary-color);
+  }
+
+  /* Gradient Text */
+  .text-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gradient Background Utility */
+  .bg-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+  }
+
+  /* Gradient Border Utility */
+  .border-gradient {
+    border-image: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--secondary-color)
+      )
+      1;
+  }
+
+  @media (max-width: 768px) {
+    .hero-section-mobile {
+      padding: 3rem 0;
+    }
+
+    .patrol-indicator {
+      display: none;
+    }
+  }
+</style>
+
+<!-- Background Patrol Indicator
+<div class="patrol-indicator"></div> -->
+
+<!-- Hero Section -->
+<section class="hero-section-mobile">
+  <div class="container position-relative" style="z-index: 2">
+    <div class="row align-items-centers">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-4">
+          Dynamic Mobile<br />
+          <span class="text-warning">Security Patrols</span>
+        </h1>
+
+        <p class="lead mb-4" style="max-width: 600px">
+          AI-optimized randomized patrol patterns with
+          <span class="fw-bold">real-time GPS tracking</span> and immediate
+          response capabilities. Maximum security coverage with intelligent
+          route optimization.
+        </p>
+
+        <!-- Live Status Indicators -->
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <span class="stats-badge">
+            <i class="fas fa-satellite"></i>
+            <span>Live GPS Tracking</span>
+          </span>
+          <span class="stats-badge">
+            <i class="fas fa-shield-alt"></i>
+            <span>Armed Response Available</span>
+          </span>
+          <span class="status-indicator">
+            <span>Active Patrols: 42</span>
+          </span>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mt-5 pt-4">
+          <div class="col-md-3 col-6">
+            <div class="text-center">
+              <div class="h2 fw-bold text-white">24/7</div>
+              <small class="opacity-75">Patrol Coverage</small>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="text-center">
+              <div class="h2 fw-bold text-white">< 12min</div>
+              <small class="opacity-75">Avg. Response Time</small>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="text-center">
+              <div class="h2 fw-bold text-white">98.5%</div>
+              <small class="opacity-75">Deterrence Rate</small>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="text-center">
+              <div class="h2 fw-bold text-white">500+</div>
+              <small class="opacity-75">Daily Checkpoints</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 mt-5 mt-lg-0">
+        <!-- Live Map Preview -->
+        <div class="map-preview position-relative">
+          <div
+            class="position-absolute top-50 start-50 translate-middle text-center text-white"
+          >
+            <div class="bg-dark bg-opacity-50 rounded-3 p-3 d-inline-block">
+              <i class="fas fa-map-marked-alt fa-2x mb-3"></i>
+              <h5 class="mb-2">Live Patrol View</h5>
+              <p class="small mb-0 opacity-75">
+                Active routes displayed in real-time
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Patrol Schedule -->
+        <div class="glass-card p-3 mt-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small class="text-muted">Next Patrol Dispatch</small>
+              <div class="fw-bold">00:15:30</div>
+            </div>
+            <span class="status-indicator text-light">Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Key Features -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto text-center">
+        <span class="badge badge-gradient px-3 py-2 mb-3">
+          <i class="fas fa-cogs me-2"></i>Advanced Patrol Technology
+        </span>
+        <h2 class="fw-bold mb-3">
+          Intelligent Mobile<br />
+          <span class="text-gradient">Security Solutions</span>
+        </h2>
+        <p class="text-muted">
+          AI-driven route optimization and real-time incident response
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="text-center p-4">
+          <div class="feature-icon mx-auto">
+            <i class="fas fa-car-alt"></i>
+          </div>
+          <h4 class="fw-bold mb-3">GPS Tracked Vehicles</h4>
+          <p class="text-muted">
+            Real-time vehicle tracking with geofencing and automated check-in
+            alerts.
+          </p>
+          <div class="mt-3">
+            <span class="badge badge-gradient">Live Updates</span>
+            <span class="badge badge-gradient ms-2">Route History</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="text-center p-4">
+          <div class="feature-icon mx-auto">
+            <i class="fas fa-random"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Randomized Routes</h4>
+          <p class="text-muted">
+            AI-powered unpredictable patrol patterns to prevent security
+            predictability.
+          </p>
+          <div class="mt-3">
+            <span class="badge badge-gradient">AI-Optimized</span>
+            <span class="badge badge-gradient ms-2">Unpredictable</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="text-center p-4">
+          <div class="feature-icon mx-auto">
+            <i class="fas fa-bell"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Instant Alert System</h4>
+          <p class="text-muted">
+            Immediate incident reporting with photo/video documentation and
+            police integration.
+          </p>
+          <div class="mt-3">
+            <span class="badge badge-gradient">Real-time</span>
+            <span class="badge badge-gradient ms-2">Multi-channel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Patrol Services -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="patrol-card-enhanced card h-100 shadow-sm p-4">
+          <div class="feature-icon" style="margin: 0 0 1.5rem 0">
+            <i class="fas fa-home"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Residential Patrols</h4>
+          <p class="text-muted mb-3">
+            Regular checks of gated communities, apartment complexes, and
+            residential areas with detailed digital activity logs and homeowner
+            notifications.
+          </p>
+          <div class="mt-3 pt-3 border-top">
+            <small class="text-muted d-block mb-2">
+              <i class="fas fa-clock text-gradient me-1"></i>
+              Standard: 4-6 patrols per night
+            </small>
+            <small class="text-muted">
+              <i class="fas fa-shield-alt text-gradient me-1"></i>
+              Includes perimeter checks
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="patrol-card-enhanced card h-100 shadow-sm p-4">
+          <div class="feature-icon" style="margin: 0 0 1.5rem 0">
+            <i class="fas fa-warehouse"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Commercial Patrols</h4>
+          <p class="text-muted mb-3">
+            After-hours security checks for business parks, retail centers, and
+            office buildings with thermal imaging and access point verification.
+          </p>
+          <div class="mt-3 pt-3 border-top">
+            <small class="text-muted d-block mb-2">
+              <i class="fas fa-camera text-gradient me-1"></i>
+              Thermal imaging available
+            </small>
+            <small class="text-muted">
+              <i class="fas fa-file-signature text-gradient me-1"></i>
+              Digital report generation
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="patrol-card-enhanced card h-100 shadow-sm p-4">
+          <div class="feature-icon" style="margin: 0 0 1.5rem 0">
+            <i class="fas fa-hard-hat"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Construction Patrols</h4>
+          <p class="text-muted mb-3">
+            High-frequency protection for construction sites and vacant
+            properties with equipment verification, trespass prevention, and
+            material audits.
+          </p>
+          <div class="mt-3 pt-3 border-top">
+            <small class="text-muted d-block mb-2">
+              <i class="fas fa-tools text-gradient me-1"></i>
+              Equipment inventory checks
+            </small>
+            <small class="text-muted">
+              <i class="fas fa-video text-gradient me-1"></i>
+              Motion-activated recording
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Coverage Map CTA -->
+    <div class="row mt-5 pt-5">
+      <div class="col-12">
+        <div
+          class="glass-card p-5 text-center"
+          style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)"
+        >
+          <h3 class="fw-bold mb-3 text-gradient">
+            View Our Live Patrol Coverage
+          </h3>
+          <p class="text-muted mb-4">
+            See real-time patrol locations and coverage areas across the city
+          </p>
+          <a
+            href="#live-map"
+            class="btn btn-primary btn-lg px-5 bg-gradient border-0"
+          >
+            <i class="fas fa-map me-2"></i>Access Live Map
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const patrolIndicator = document.querySelector(".patrol-indicator");
+
+    if (patrolIndicator) {
+      window.addEventListener("scroll", function () {
+        const scrollPosition = window.scrollY;
+        const speed = 0.5;
+        patrolIndicator.style.transform = `translateY(${
+          scrollPosition * speed
+        }px)`;
+      });
+    }
+
+    function updatePatrolTimer() {
+      const timerElement = document.querySelector(".glass-card .fw-bold");
+      if (!timerElement) return;
+
+      let time = timerElement.textContent;
+      let parts = time.split(":");
+      let hours = parseInt(parts[0]);
+      let minutes = parseInt(parts[1]);
+      let seconds = parseInt(parts[2]);
+
+      seconds--;
+
+      if (seconds < 0) {
+        seconds = 59;
+        minutes--;
+
+        if (minutes < 0) {
+          minutes = 59;
+          hours--;
+
+          if (hours < 0) {
+            hours = 23;
+          }
+        }
+      }
+
+      timerElement.textContent =
+        `${hours.toString().padStart(2, "0")}:` +
+        `${minutes.toString().padStart(2, "0")}:` +
+        `${seconds.toString().padStart(2, "0")}`;
+    }
+
+    setInterval(updatePatrolTimer, 1000);
+
+    const patrolCards = document.querySelectorAll(".patrol-card-enhanced");
+    patrolCards.forEach((card) => {
+      card.addEventListener("mouseenter", function () {
+        const icon = this.querySelector(".feature-icon");
+        if (icon) {
+          icon.style.transform = "rotate(-10deg) scale(1.15)";
+        }
+      });
+
+      card.addEventListener("mouseleave", function () {
+        const icon = this.querySelector(".feature-icon");
+        if (icon) {
+          icon.style.transform = "";
+        }
+      });
+    });
+  });
+</script>

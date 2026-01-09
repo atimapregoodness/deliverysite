@@ -1,0 +1,1084 @@
+<%- layout('layouts/main') %>
+<title>Contact Us | Shield Logistics</title>
+
+<style>
+  :root {
+    --primary-color: #0d6efd;
+    --primary-dark: #0b5ed7;
+    --secondary-color: #6f42c1;
+    --accent-color: #20c997;
+    --dark-color: #212529;
+    --light-color: #f8f9fa;
+    --gray-color: #6c757d;
+  }
+
+  .hero-section {
+    background: linear-gradient(
+        rgba(13, 110, 253, 0.92),
+        rgba(111, 66, 193, 0.95)
+      ),
+      url("https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&q=80&w=2070")
+        center/cover;
+    color: white;
+    padding: 100px 0;
+  }
+
+  .contact-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .contact-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(13, 110, 253, 0.15);
+  }
+
+  .contact-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-control-custom {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .form-control-custom:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  }
+
+  .btn-submit {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-submit:hover {
+    background: linear-gradient(135deg, var(--primary-dark), #5a32a3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25);
+  }
+
+  .map-container {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    height: 400px;
+  }
+
+  .map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .office-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .office-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .badge-pill {
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .emergency-badge {
+    background: linear-gradient(135deg, #dc3545, #b02a37);
+    color: white;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+  }
+
+  .social-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .social-icon:hover {
+    transform: translateY(-3px);
+    opacity: 0.9;
+  }
+
+  .working-hours {
+    background: linear-gradient(
+      135deg,
+      rgba(13, 110, 253, 0.05),
+      rgba(32, 201, 151, 0.05)
+    );
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .feature-badge {
+    background: rgba(32, 201, 151, 0.1);
+    color: #20c997;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 60px 0;
+    }
+
+    .display-4 {
+      font-size: 2.5rem;
+    }
+
+    .contact-icon {
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb bg-transparent p-0 mb-3">
+            <li class="breadcrumb-item">
+              <a href="/" class="text-white-50">Home</a>
+            </li>
+            <li class="breadcrumb-item active text-white" aria-current="page">
+              Contact Us
+            </li>
+          </ol>
+        </nav>
+
+        <h1 class="display-4 fw-bold mb-4">
+          Get in Touch with Shield Logistics
+        </h1>
+        <p class="lead mb-4">
+          We're here to help 24/7. Whether you need logistics support, security
+          solutions, or have general inquiries, our team is ready to assist you.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 align-items-center">
+          <span class="badge-pill bg-light text-primary">
+            <i class="fas fa-clock me-2"></i>24/7 Support
+          </span>
+          <span class="badge-pill bg-light text-primary">
+            <i class="fas fa-headset me-2"></i>Quick Response
+          </span>
+          <span class="badge-pill emergency-badge">
+            <i class="fas fa-exclamation-triangle me-2"></i>Emergency: +1 (312)
+            555-9111
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Cards Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="contact-card h-100">
+          <div class="card-body p-4">
+            <div class="contact-icon bg-primary">
+              <i class="fas fa-headset"></i>
+            </div>
+            <h4 class="fw-bold mb-3">General Inquiries</h4>
+            <p class="text-muted mb-4">
+              For questions about our services, company information, or
+              partnership opportunities.
+            </p>
+
+            <div class="mb-3">
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-phone-alt text-primary me-2"></i>Phone
+              </h6>
+              <p class="mb-0">+1 (800) 555-SHIELD</p>
+              <p class="text-muted small">Toll-free (US & Canada)</p>
+            </div>
+
+            <div class="mb-3">
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-envelope text-primary me-2"></i>Email
+              </h6>
+              <p class="mb-0">info@shieldlogistics.com</p>
+            </div>
+
+            <div>
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-clock text-primary me-2"></i>Hours
+              </h6>
+              <p class="mb-0">Monday - Friday: 8:00 AM - 8:00 PM EST</p>
+              <p class="text-muted small">Saturday: 9:00 AM - 5:00 PM EST</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="contact-card h-100">
+          <div class="card-body p-4">
+            <div class="contact-icon bg-success">
+              <i class="fas fa-truck"></i>
+            </div>
+            <h4 class="fw-bold mb-3">Logistics Support</h4>
+            <p class="text-muted mb-4">
+              For shipping, tracking, delivery issues, and logistics service
+              inquiries.
+            </p>
+
+            <div class="mb-3">
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-phone-alt text-success me-2"></i>Phone
+              </h6>
+              <p class="mb-0">+1 (800) 555-LOGISTICS</p>
+              <p class="text-muted small">24/7 Logistics Support</p>
+            </div>
+
+            <div class="mb-3">
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-envelope text-success me-2"></i>Email
+              </h6>
+              <p class="mb-0">support@shieldlogistics.com</p>
+              <p class="text-muted small">For existing shipments</p>
+            </div>
+
+            <div>
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-satellite-dish text-success me-2"></i>Quick
+                Track
+              </h6>
+              <p class="mb-2">Need to track a delivery?</p>
+              <a href="/track" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-location-dot me-2"></i>Track Now
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="contact-card h-100">
+          <div class="card-body p-4">
+            <div class="contact-icon bg-warning">
+              <i class="fas fa-user-shield"></i>
+            </div>
+            <h4 class="fw-bold mb-3">Security Services</h4>
+            <p class="text-muted mb-4">
+              For security guard services, system installation, monitoring, and
+              security consultations.
+            </p>
+
+            <div class="mb-3">
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-phone-alt text-warning me-2"></i>Phone
+              </h6>
+              <p class="mb-0">+1 (800) 555-SECURE</p>
+              <p class="text-muted small">Security Services Hotline</p>
+            </div>
+
+            <div class="mb-3">
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-envelope text-warning me-2"></i>Email
+              </h6>
+              <p class="mb-0">security@shieldlogistics.com</p>
+            </div>
+
+            <div>
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-shield-alt text-warning me-2"></i>Emergency
+                Response
+              </h6>
+              <p class="mb-0">+1 (312) 555-9111</p>
+              <p class="text-muted small">24/7 Emergency Security Response</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Form & Office Locations -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Contact Form -->
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <h2 class="fw-bold mb-4">Send Us a Message</h2>
+            <p class="text-muted mb-4">
+              Fill out the form below and our team will get back to you within 2
+              business hours.
+            </p>
+
+            <form id="contactForm" novalidate>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="firstName" class="form-label fw-semibold"
+                    >First Name *</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control form-control-custom"
+                    id="firstName"
+                    required
+                  />
+                  <div class="invalid-feedback">
+                    Please enter your first name.
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="lastName" class="form-label fw-semibold"
+                    >Last Name *</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control form-control-custom"
+                    id="lastName"
+                    required
+                  />
+                  <div class="invalid-feedback">
+                    Please enter your last name.
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="email" class="form-label fw-semibold"
+                    >Email Address *</label
+                  >
+                  <input
+                    type="email"
+                    class="form-control form-control-custom"
+                    id="email"
+                    required
+                  />
+                  <div class="invalid-feedback">
+                    Please enter a valid email address.
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="phone" class="form-label fw-semibold"
+                    >Phone Number</label
+                  >
+                  <input
+                    type="tel"
+                    class="form-control form-control-custom"
+                    id="phone"
+                  />
+                </div>
+
+                <div class="col-12">
+                  <label for="department" class="form-label fw-semibold"
+                    >Department *</label
+                  >
+                  <select
+                    class="form-select form-control-custom"
+                    id="department"
+                    required
+                  >
+                    <option value="" selected disabled>
+                      Select department...
+                    </option>
+                    <option value="general">General Inquiry</option>
+                    <option value="logistics">Logistics & Shipping</option>
+                    <option value="security">Security Services</option>
+                    <option value="sales">Sales & Business</option>
+                    <option value="support">Technical Support</option>
+                    <option value="billing">Billing & Invoices</option>
+                  </select>
+                  <div class="invalid-feedback">
+                    Please select a department.
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <label for="subject" class="form-label fw-semibold"
+                    >Subject *</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control form-control-custom"
+                    id="subject"
+                    required
+                  />
+                  <div class="invalid-feedback">Please enter a subject.</div>
+                </div>
+
+                <div class="col-12">
+                  <label for="message" class="form-label fw-semibold"
+                    >Message *</label
+                  >
+                  <textarea
+                    class="form-control form-control-custom"
+                    id="message"
+                    rows="5"
+                    required
+                  ></textarea>
+                  <div class="invalid-feedback">Please enter your message.</div>
+                </div>
+
+                <div class="col-12">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="newsletter"
+                      checked
+                    />
+                    <label class="form-check-label small" for="newsletter">
+                      Subscribe to our newsletter for updates on logistics and
+                      security solutions
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-12 mt-4">
+                  <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-paper-plane me-2"></i>Send Message
+                  </button>
+                  <div class="form-text text-muted mt-2">
+                    * Required fields. We respect your privacy and will never
+                    share your information.
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Office Locations & Social -->
+      <div class="col-lg-5">
+        <!-- Headquarters -->
+        <div class="office-card mb-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-primary bg-opacity-10 rounded-3 p-2 me-3">
+              <i class="fas fa-building text-primary fs-4"></i>
+            </div>
+            <div>
+              <h4 class="fw-bold mb-0">Corporate Headquarters</h4>
+              <small class="text-muted">Global Operations Center</small>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="fw-bold mb-2">
+              <i class="fas fa-map-marker-alt text-primary me-2"></i>Address
+            </h6>
+            <p class="mb-0">
+              123 Logistics Plaza, Suite 500<br />
+              Chicago, IL 60601<br />
+              United States
+            </p>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="fw-bold mb-2">
+              <i class="fas fa-phone-alt text-primary me-2"></i>Phone
+            </h6>
+            <p class="mb-0">+1 (312) 555-0100</p>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="fw-bold mb-2">
+              <i class="fas fa-envelope text-primary me-2"></i>Email
+            </h6>
+            <p class="mb-0">hq@shieldlogistics.com</p>
+          </div>
+
+          <div>
+            <h6 class="fw-bold mb-2">
+              <i class="fas fa-clock text-primary me-2"></i>Office Hours
+            </h6>
+            <div class="working-hours">
+              <p class="mb-1">
+                <strong>Weekdays:</strong> 8:00 AM - 8:00 PM EST
+              </p>
+              <p class="mb-1">
+                <strong>Saturday:</strong> 9:00 AM - 5:00 PM EST
+              </p>
+              <p class="mb-0">
+                <strong>Sunday:</strong> Emergency support only
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regional Offices -->
+        <div class="office-card mb-4">
+          <h5 class="fw-bold mb-3">Regional Offices</h5>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="p-3 border rounded-3">
+                <h6 class="fw-bold mb-1">New York</h6>
+                <p class="small text-muted mb-1">+1 (212) 555-0200</p>
+                <span class="feature-badge">Logistics Hub</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 border rounded-3">
+                <h6 class="fw-bold mb-1">Los Angeles</h6>
+                <p class="small text-muted mb-1">+1 (213) 555-0300</p>
+                <span class="feature-badge">West Coast HQ</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 border rounded-3">
+                <h6 class="fw-bold mb-1">London</h6>
+                <p class="small text-muted mb-1">+44 20 5555 0400</p>
+                <span class="feature-badge">EMEA Region</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 border rounded-3">
+                <h6 class="fw-bold mb-1">Singapore</h6>
+                <p class="small text-muted mb-1">+65 6555 0500</p>
+                <span class="feature-badge">Asia-Pacific</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Media -->
+        <div class="office-card">
+          <h5 class="fw-bold mb-3">Connect With Us</h5>
+          <p class="text-muted mb-3">
+            Follow us for updates, logistics tips, and industry insights.
+          </p>
+
+          <div class="d-flex flex-wrap">
+            <a href="#" class="social-icon bg-primary mb-2" title="LinkedIn">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a
+              href="#"
+              class="social-icon bg-twitter mb-2"
+              style="background-color: #1da1f2"
+              title="Twitter"
+            >
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a
+              href="#"
+              class="social-icon bg-facebook mb-2"
+              style="background-color: #1877f2"
+              title="Facebook"
+            >
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a
+              href="#"
+              class="social-icon bg-instagram mb-2"
+              style="background: linear-gradient(45deg, #405de6, #e1306c)"
+              title="Instagram"
+            >
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a
+              href="#"
+              class="social-icon bg-youtube mb-2"
+              style="background-color: #ff0000"
+              title="YouTube"
+            >
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+
+          <div class="mt-3 pt-3 border-top">
+            <p class="small text-muted mb-1">Want to join our team?</p>
+            <a href="/company/careers" class="btn btn-outline-primary btn-sm">
+              <i class="fas fa-briefcase me-2"></i>View Career Opportunities
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Map Section -->
+<section class="py-5 bg-dark text-white">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="fw-bold mb-3">Global Network Locations</h2>
+        <p class="lead opacity-75">
+          With offices and operations centers across 142 countries, we're always
+          nearby when you need us.
+        </p>
+      </div>
+    </div>
+
+    <div class="map-container mb-4">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.575865386949!2d-87.62979892343651!3d41.87811387122037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x880e2cbee269f58d%3A0x4b1cda24cf51f7fd!2sChicago%2C%20IL%2C%20USA!5e0!3m2!1sen!2s!4v1701711070645!5m2!1sen!2s"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      >
+      </iframe>
+    </div>
+
+    <div class="row text-center">
+      <div class="col-md-3">
+        <div class="p-3">
+          <i class="fas fa-globe-americas fa-2x mb-3 text-primary"></i>
+          <h4 class="fw-bold">142</h4>
+          <p class="opacity-75 mb-0">Countries</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-3">
+          <i class="fas fa-building fa-2x mb-3 text-primary"></i>
+          <h4 class="fw-bold">58</h4>
+          <p class="opacity-75 mb-0">Office Locations</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-3">
+          <i class="fas fa-warehouse fa-2x mb-3 text-primary"></i>
+          <h4 class="fw-bold">312</h4>
+          <p class="opacity-75 mb-0">Warehouses</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-3">
+          <i class="fas fa-users fa-2x mb-3 text-primary"></i>
+          <h4 class="fw-bold">1,200+</h4>
+          <p class="opacity-75 mb-0">Employees Worldwide</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Frequently Asked Questions</h2>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="accordion" id="faqAccordion">
+          <div class="accordion-item border-0 mb-3">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed rounded-3"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#faq1"
+              >
+                <i class="fas fa-shipping-fast me-3 text-primary"></i>
+                How quickly will you respond to my inquiry?
+              </button>
+            </h2>
+            <div
+              id="faq1"
+              class="accordion-collapse collapse"
+              data-bs-parent="#faqAccordion"
+            >
+              <div class="accordion-body">
+                <p>We pride ourselves on quick response times:</p>
+                <ul>
+                  <li>
+                    <strong>General inquiries:</strong> Within 2 business hours
+                  </li>
+                  <li>
+                    <strong>Logistics support:</strong> Within 30 minutes (24/7)
+                  </li>
+                  <li>
+                    <strong>Security emergencies:</strong> Immediate response
+                  </li>
+                  <li>
+                    <strong>Email responses:</strong> Within 4 business hours
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item border-0 mb-3">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed rounded-3"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#faq2"
+              >
+                <i class="fas fa-clock me-3 text-primary"></i>
+                What are your customer service hours?
+              </button>
+            </h2>
+            <div
+              id="faq2"
+              class="accordion-collapse collapse"
+              data-bs-parent="#faqAccordion"
+            >
+              <div class="accordion-body">
+                <p>Our support varies by department:</p>
+                <ul>
+                  <li>
+                    <strong>General inquiries:</strong> Mon-Fri 8 AM-8 PM EST,
+                    Sat 9 AM-5 PM EST
+                  </li>
+                  <li>
+                    <strong>Logistics support:</strong> 24/7 for tracking and
+                    delivery issues
+                  </li>
+                  <li>
+                    <strong>Security services:</strong> 24/7 emergency hotline
+                  </li>
+                  <li>
+                    <strong>Sales & business:</strong> Mon-Fri 9 AM-6 PM EST
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item border-0 mb-3">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed rounded-3"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#faq3"
+              >
+                <i class="fas fa-dollar-sign me-3 text-primary"></i>
+                How do I request a quote for services?
+              </button>
+            </h2>
+            <div
+              id="faq3"
+              class="accordion-collapse collapse"
+              data-bs-parent="#faqAccordion"
+            >
+              <div class="accordion-body">
+                <p>There are several ways to get a quote:</p>
+                <ol>
+                  <li>
+                    Fill out our contact form above with your requirements
+                  </li>
+                  <li>Call our sales department at +1 (800) 555-SHIELD</li>
+                  <li>Email quotes@shieldlogistics.com with details</li>
+                  <li>Use our online calculator for standard shipping rates</li>
+                </ol>
+                <p>Most quotes are provided within 24 hours of request.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="accordion" id="faqAccordion2">
+          <div class="accordion-item border-0 mb-3">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed rounded-3"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#faq4"
+              >
+                <i class="fas fa-shield-alt me-3 text-primary"></i>
+                How do I report a security concern?
+              </button>
+            </h2>
+            <div
+              id="faq4"
+              class="accordion-collapse collapse"
+              data-bs-parent="#faqAccordion2"
+            >
+              <div class="accordion-body">
+                <p>For security concerns, please contact us immediately:</p>
+                <ul>
+                  <li>
+                    <strong>Emergency security:</strong> +1 (312) 555-9111
+                    (24/7)
+                  </li>
+                  <li><strong>Non-emergency:</strong> +1 (800) 555-SECURE</li>
+                  <li><strong>Email:</strong> security@shieldlogistics.com</li>
+                  <li>
+                    <strong>Online portal:</strong>
+                    <a href="/security/report" class="text-decoration-none"
+                      >Submit security report</a
+                    >
+                  </li>
+                </ul>
+                <p class="mb-0">
+                  <strong>Note:</strong> For immediate threats or emergencies,
+                  always call 911 first, then call us.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item border-0 mb-3">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed rounded-3"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#faq5"
+              >
+                <i class="fas fa-truck me-3 text-primary"></i>
+                How do I track my shipment?
+              </button>
+            </h2>
+            <div
+              id="faq5"
+              class="accordion-collapse collapse"
+              data-bs-parent="#faqAccordion2"
+            >
+              <div class="accordion-body">
+                <p>You can track your shipment in several ways:</p>
+                <ol>
+                  <li>
+                    Use our
+                    <a href="/track" class="text-decoration-none"
+                      >online tracking tool</a
+                    >
+                  </li>
+                  <li>Call our logistics support: +1 (800) 555-LOGISTICS</li>
+                  <li>
+                    Email tracking@shieldlogistics.com with your tracking number
+                  </li>
+                  <li>Use our mobile app (available on iOS and Android)</li>
+                </ol>
+                <p>
+                  Tracking numbers are typically in the format:
+                  DEL-XXXXXXXX-XXXX
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item border-0 mb-3">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed rounded-3"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#faq6"
+              >
+                <i class="fas fa-file-contract me-3 text-primary"></i>
+                How can I become a business partner?
+              </button>
+            </h2>
+            <div
+              id="faq6"
+              class="accordion-collapse collapse"
+              data-bs-parent="#faqAccordion2"
+            >
+              <div class="accordion-body">
+                <p>We welcome partnership inquiries from:</p>
+                <ul>
+                  <li>Other logistics companies</li>
+                  <li>Security service providers</li>
+                  <li>Technology partners</li>
+                  <li>Supply chain specialists</li>
+                  <li>Enterprise clients</li>
+                </ul>
+                <p>
+                  Please email partnerships@shieldlogistics.com or call our
+                  business development team at +1 (800) 555-PARTNER.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="py-5 bg-gradient-primary text-white">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h2 class="fw-bold mb-3">Need Immediate Assistance?</h2>
+        <p class="mb-0 opacity-90">
+          Our team is standing by to help with any urgent logistics or security
+          needs.
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <a href="tel:+13125559111" class="btn btn-light btn-lg px-4">
+          <i class="fas fa-phone-alt me-2"></i>Call Emergency: (312) 555-9111
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Form validation
+    const form = document.getElementById("contactForm");
+    const phoneInput = document.getElementById("phone");
+
+    // Phone number formatting
+    if (phoneInput) {
+      phoneInput.addEventListener("input", function (e) {
+        let value = e.target.value.replace(/\D/g, "");
+        if (value.length > 3 && value.length <= 6) {
+          value = "(" + value.substring(0, 3) + ") " + value.substring(3);
+        } else if (value.length > 6) {
+          value =
+            "(" +
+            value.substring(0, 3) +
+            ") " +
+            value.substring(3, 6) +
+            "-" +
+            value.substring(6, 10);
+        }
+        e.target.value = value.substring(0, 14);
+      });
+    }
+
+    // Form submission
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Check form validity
+      if (!form.checkValidity()) {
+        e.stopPropagation();
+        form.classList.add("was-validated");
+        return;
+      }
+
+      // Get form data
+      const formData = {
+        firstName: document.getElementById("firstName").value,
+        lastName: document.getElementById("lastName").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        department: document.getElementById("department").value,
+        subject: document.getElementById("subject").value,
+        message: document.getElementById("message").value,
+        newsletter: document.getElementById("newsletter").checked,
+      };
+
+      // Show loading state
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML =
+        '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending...';
+      submitBtn.disabled = true;
+
+      // Simulate form submission (replace with actual AJAX call)
+      setTimeout(() => {
+        // Show success message
+        const alertDiv = document.createElement("div");
+        alertDiv.className =
+          "alert alert-success alert-dismissible fade show mt-4";
+        alertDiv.innerHTML = `
+          <div class="d-flex">
+            <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+            <div>
+              <h5 class="alert-heading">Message Sent Successfully!</h5>
+              <p class="mb-0">Thank you, ${formData.firstName}. We've received your message and will get back to you within 2 business hours.</p>
+              <p class="small mb-0 mt-2">A confirmation email has been sent to ${formData.email}</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+
+        form.parentNode.insertBefore(alertDiv, form.nextSibling);
+
+        // Reset form
+        form.reset();
+        form.classList.remove("was-validated");
+
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+
+        // Auto-dismiss success message after 10 seconds
+        setTimeout(() => {
+          const bsAlert = new bootstrap.Alert(alertDiv);
+          bsAlert.close();
+        }, 10000);
+      }, 1500);
+    });
+
+    // Department change handler
+    const departmentSelect = document.getElementById("department");
+    if (departmentSelect) {
+      departmentSelect.addEventListener("change", function () {
+        const subjectField = document.getElementById("subject");
+        if (subjectField.value === "") {
+          const dept = this.options[this.selectedIndex].text;
+          subjectField.value = `Inquiry about ${dept} services`;
+        }
+      });
+    }
+
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(
+      document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>

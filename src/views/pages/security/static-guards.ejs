@@ -1,0 +1,989 @@
+<%- layout('layouts/main') %>
+<title>Static Security Guards | Shield Logistics Security Solutions</title>
+
+<style>
+  :root {
+    --primary-color: #0d6efd;
+    --primary-dark: #0b5ed7;
+    --secondary-color: #6f42c1;
+    --accent-color: #20c997;
+    --dark-color: #212529;
+    --light-color: #f8f9fa;
+    --glass-bg: rgba(255, 255, 255, 0.88);
+    --glass-border: rgba(255, 255, 255, 0.25);
+    --security-red: #dc3545;
+    --security-green: #198754;
+    --security-blue: #0d6efd;
+    --security-purple: #6f42c1;
+  }
+
+  /* Advanced Background Pattern */
+  .security-bg {
+    background-image: radial-gradient(
+        circle at 15% 50%,
+        rgba(13, 109, 253, 0.08) 0%,
+        transparent 25%
+      ),
+      radial-gradient(
+        circle at 85% 30%,
+        rgba(110, 66, 193, 0.06) 0%,
+        transparent 25%
+      ),
+      linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background-attachment: fixed;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Security Grid Pattern Overlay */
+  .security-bg::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(
+        rgba(13, 110, 253, 0.03) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(13, 110, 253, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* Animated Shield Background Element */
+  .shield-bg-element {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(
+      circle,
+      rgba(13, 110, 253, 0.05) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    top: 10%;
+    right: 5%;
+    animation: pulse-shield 4s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  @keyframes pulse-shield {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.8;
+    }
+  }
+
+  /* Modern Glass Effect */
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05), 0 5px 15px rgba(0, 0, 0, 0.03),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .hero-section-security {
+    position: relative;
+    background: linear-gradient(135deg, #0d6efd 0%, #6f42c1 100%);
+    color: white;
+    overflow: hidden;
+    padding: 5rem 0;
+  }
+
+  .hero-section-security::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: 
+    /* Base wave layer */ radial-gradient(
+        circle at 20% 80%,
+        rgba(255, 255, 255, 0.15) 0%,
+        transparent 25%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 25%
+      ),
+      /* Animated wave layers */
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.03) 2px,
+          rgba(255, 255, 255, 0.03) 4px
+        ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.05) 2px,
+        rgba(255, 255, 255, 0.05) 6px
+      );
+    opacity: 0.7;
+    animation: waveShift 20s linear infinite alternate;
+  }
+
+  @keyframes waveShift {
+    0% {
+      background-position: 0 0, 0 0, 0 0;
+    }
+    100% {
+      background-position: 30px 30px, -30px -30px, 60px 120px;
+    }
+  }
+
+  /* Security Badges */
+  .security-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .badge-sia {
+    background: linear-gradient(
+      135deg,
+      rgba(32, 201, 151, 0.9),
+      rgba(32, 201, 151, 0.7)
+    );
+  }
+
+  .badge-vetted {
+    background: linear-gradient(
+      135deg,
+      rgba(13, 110, 253, 0.9),
+      rgba(13, 110, 253, 0.7)
+    );
+  }
+
+  .badge-24 {
+    background: linear-gradient(
+      135deg,
+      rgba(108, 117, 125, 0.9),
+      rgba(108, 117, 125, 0.7)
+    );
+  }
+
+  /* Advanced Service Cards */
+  .service-card-advanced {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    height: 100%;
+  }
+
+  .service-card-advanced::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+  }
+
+  .service-icon-advanced {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+  }
+
+  /* Security Level Indicators */
+  .security-level {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .security-level::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--security-green);
+  }
+
+  .security-level.critical::before {
+    background: var(--security-red);
+  }
+
+  .security-level.high::before {
+    background: #fd7e14;
+  }
+
+  .security-level.medium::before {
+    background: #ffc107;
+  }
+
+  /* Training Timeline */
+  .training-timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .training-timeline::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--primary-color), transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+  }
+
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -2.25rem;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+  }
+
+  /* Stats Counter */
+  .stat-counter {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  /* Floating Elements */
+  .floating-element-security {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(13, 110, 253, 0.08) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .floating-element-1 {
+    top: 15%;
+    left: 5%;
+    animation: float-security 25s ease-in-out infinite;
+  }
+
+  .floating-element-2 {
+    bottom: 20%;
+    right: 10%;
+    animation: float-security 30s ease-in-out infinite reverse;
+  }
+
+  @keyframes float-security {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(20px, 20px) rotate(90deg);
+    }
+    50% {
+      transform: translate(0, 40px) rotate(180deg);
+    }
+    75% {
+      transform: translate(-20px, 20px) rotate(270deg);
+    }
+  }
+
+  /* Security Compliance Grid */
+  .compliance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .compliance-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    border: 1px solid rgba(13, 110, 253, 0.1);
+  }
+
+  .compliance-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    color: white;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  /* CTA Section */
+  .cta-section-security {
+    background: linear-gradient(135deg, #212529, #343a40);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section-security::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(
+        circle at 20% 80%,
+        rgba(13, 110, 253, 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        rgba(110, 66, 193, 0.1) 0%,
+        transparent 50%
+      );
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .stat-counter {
+      font-size: 2.5rem;
+    }
+
+    .compliance-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .floating-element-security {
+      display: none;
+    }
+  }
+</style>
+
+<!-- Background Elements -->
+<div class="shield-bg-element"></div>
+<div class="floating-element-security floating-element-1"></div>
+<div class="floating-element-security floating-element-2"></div>
+
+<!-- Hero Section -->
+<section class="hero-section-security">
+  <div class="container position-relative" style="z-index: 1">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-4">
+          Elite Static Security<br />
+          <span class="text-warning">Guard Services</span>
+        </h1>
+
+        <p class="lead mb-4" style="max-width: 600px">
+          Professionally vetted, SIA-licensed security personnel providing
+          <span class="fw-bold">24/7 physical protection</span> for corporate,
+          industrial, and high-value assets. Advanced threat assessment and
+          immediate response capabilities.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <span class="security-badge badge-sia">
+            <i class="fas fa-shield-check"></i>
+            SIA Licensed
+          </span>
+          <span class="security-badge badge-vetted">
+            <i class="fas fa-user-check"></i>
+            Level 3 Vetting
+          </span>
+          <span class="security-badge badge-24">
+            <i class="fas fa-clock"></i>
+            24/7/365 Coverage
+          </span>
+          <span
+            class="security-badge"
+            style="
+              background: linear-gradient(
+                135deg,
+                rgba(220, 53, 69, 0.9),
+                rgba(220, 53, 69, 0.7)
+              );
+            "
+          >
+            <i class="fas fa-first-aid"></i>
+            First Aid Certified
+          </span>
+        </div>
+      </div>
+
+      <div class="col-lg-4 text-center mt-5 mt-lg-0">
+        <div class="glass-card p-4">
+          <div class="service-icon-advanced mx-auto">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <h4 class="fw-bold mb-3 text-dark">Immediate Deployment</h4>
+          <p class="text-muted mb-3">
+            Security personnel ready within 24 hours
+          </p>
+          <div class="d-flex justify-content-center gap-3">
+            <div class="text-center">
+              <div class="stat-counter">500+</div>
+              <small class="text-muted">Trained Guards</small>
+            </div>
+            <div class="text-center">
+              <div class="stat-counter">99.7%</div>
+              <small class="text-muted">Reliability Rate</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Critical Security Features -->
+<section class="py-5 security-bg">
+  <div class="container position-relative" style="z-index: 1">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto text-center">
+        <span
+          class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3"
+        >
+          <i class="fas fa-star me-2"></i>Enterprise-Grade Security
+        </span>
+        <h2 class="fw-bold mb-3">
+          Advanced Static Guard<br />
+          <span class="text-primary">Security Solutions</span>
+        </h2>
+        <p class="text-muted fs-5">
+          Multi-layered protection strategies tailored to your specific risk
+          profile
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="glass-card service-card-advanced h-100 p-4">
+          <div class="service-icon-advanced">
+            <i class="fas fa-building"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Corporate Security</h4>
+          <p class="text-muted mb-3">
+            Executive protection and access control for office complexes, data
+            centers, and corporate headquarters.
+          </p>
+
+          <div class="security-level critical">VIP Protection Details</div>
+          <div class="security-level high">Access Control Systems</div>
+          <div class="security-level">Emergency Response Protocols</div>
+
+          <div class="mt-4 pt-3 border-top">
+            <small class="text-muted">
+              <i class="fas fa-clock text-primary me-1"></i>
+              Minimum 3 guards per 8-hour shift
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="glass-card service-card-advanced h-100 p-4">
+          <div class="service-icon-advanced">
+            <i class="fas fa-industry"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Industrial Protection</h4>
+          <p class="text-muted mb-3">
+            Perimeter security and asset protection for manufacturing plants,
+            warehouses, and construction sites.
+          </p>
+
+          <div class="security-level critical">Hazardous Material Security</div>
+          <div class="security-level high">Night Patrol Protocols</div>
+          <div class="security-level">Vehicle Access Control</div>
+
+          <div class="mt-4 pt-3 border-top">
+            <small class="text-muted">
+              <i class="fas fa-shield-alt text-primary me-1"></i>
+              Armed response available
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="glass-card service-card-advanced h-100 p-4">
+          <div class="service-icon-advanced">
+            <i class="fas fa-store"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Retail & Event Security</h4>
+          <p class="text-muted mb-3">
+            Crowd management and loss prevention for retail centers, events, and
+            public gatherings.
+          </p>
+
+          <div class="security-level high">Undercover Surveillance</div>
+          <div class="security-level">Crowd Control Certification</div>
+          <div class="security-level">Conflict De-escalation</div>
+
+          <div class="mt-4 pt-3 border-top">
+            <small class="text-muted">
+              <i class="fas fa-video text-primary me-1"></i>
+              CCTV monitoring integration
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Security Stats -->
+    <div class="row mt-5 pt-5">
+      <div class="col-12">
+        <div class="glass-card p-4">
+          <div class="row g-4 text-center">
+            <div class="col-md-3">
+              <div class="stat-counter">2,500+</div>
+              <p class="text-muted mb-0">Security Hours/Month</p>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-counter">15min</div>
+              <p class="text-muted mb-0">Average Response Time</p>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-counter">0</div>
+              <p class="text-muted mb-0">Major Security Breaches</p>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-counter">100%</div>
+              <p class="text-muted mb-0">Client Retention</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Training & Certification -->
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <span
+          class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 mb-3"
+        >
+          <i class="fas fa-graduation-cap me-2"></i>Training Excellence
+        </span>
+        <h2 class="fw-bold mb-4">
+          Rigorous Training &<br />
+          <span class="text-primary">Certification Process</span>
+        </h2>
+        <p class="text-muted mb-4">
+          Our guards undergo a comprehensive 240-hour training program,
+          exceeding industry standards by 40%. Continuous assessment ensures
+          peak performance.
+        </p>
+
+        <div class="training-timeline">
+          <div class="timeline-item">
+            <h5 class="fw-bold mb-2">
+              Phase 1: Foundation Training (80 hours)
+            </h5>
+            <p class="text-muted mb-0">
+              SIA licensing preparation, legal powers, conflict management, and
+              emergency first response.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <h5 class="fw-bold mb-2">
+              Phase 2: Specialized Skills (100 hours)
+            </h5>
+            <p class="text-muted mb-0">
+              Advanced surveillance techniques, report writing, access control
+              systems, and client-specific protocols.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <h5 class="fw-bold mb-2">Phase 3: Field Assessment (60 hours)</h5>
+            <p class="text-muted mb-0">
+              Supervised field deployment, scenario-based testing, and final
+              competency evaluation.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="glass-card p-4">
+          <h4 class="fw-bold mb-4">Security Clearance Levels</h4>
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Level 1: Basic Vetting</span>
+              <span class="fw-bold text-primary">100%</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-primary" style="width: 100%"></div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Level 2: Enhanced Check</span>
+              <span class="fw-bold text-primary">87%</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-primary" style="width: 87%"></div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Level 3: Counter-Terrorism Check</span>
+              <span class="fw-bold text-primary">42%</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-primary" style="width: 42%"></div>
+            </div>
+            <small class="text-muted">For high-security sites only</small>
+          </div>
+
+          <div class="alert alert-primary mt-4">
+            <i class="fas fa-info-circle me-2"></i>
+            All guards undergo quarterly reassessment and annual
+            recertification.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Compliance & Certifications -->
+<section class="py-5 security-bg">
+  <div class="container position-relative" style="z-index: 1">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="fw-bold mb-3">Industry Compliance & Certifications</h2>
+        <p class="text-muted">
+          Adherence to national and international security standards
+        </p>
+      </div>
+    </div>
+
+    <div class="compliance-grid">
+      <div class="compliance-item">
+        <div class="compliance-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold mb-1">SIA Approved Contractor</h6>
+          <p class="text-muted small mb-0">License No. 12345-ACS</p>
+        </div>
+      </div>
+
+      <div class="compliance-item">
+        <div class="compliance-icon">
+          <i class="fas fa-file-contract"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold mb-1">ISO 9001:2015 Certified</h6>
+          <p class="text-muted small mb-0">Quality Management System</p>
+        </div>
+      </div>
+
+      <div class="compliance-item">
+        <div class="compliance-icon">
+          <i class="fas fa-user-secret"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold mb-1">GDPR Compliant Operations</h6>
+          <p class="text-muted small mb-0">Data Protection Certified</p>
+        </div>
+      </div>
+
+      <div class="compliance-item">
+        <div class="compliance-icon">
+          <i class="fas fa-handshake"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold mb-1">ACS Pacesetter Status</h6>
+          <p class="text-muted small mb-0">Exceeds Industry Standards</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Technology Integration -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="glass-card p-4">
+          <div class="row align-items-center">
+            <div class="col-lg-8">
+              <h4 class="fw-bold mb-3">Integrated Security Technology</h4>
+              <p class="text-muted mb-0">
+                Our static guards work seamlessly with AI surveillance,
+                biometric access systems, and real-time monitoring platforms for
+                comprehensive protection.
+              </p>
+            </div>
+            <div class="col-lg-4 text-lg-end"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section-security py-5">
+  <div class="container position-relative text-white" style="z-index: 1">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h2 class="fw-bold mb-3">Ready to Secure Your Premises?</h2>
+        <p class="mb-4 opacity-75" style="max-width: 600px">
+          Contact our security consultants for a comprehensive risk assessment
+          and customized static guard deployment plan.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-envelope fa-2x text-warning me-3"></i>
+            <div>
+              <small class="opacity-75">Security Operations</small>
+              <div class="h4 fw-bold mb-0">ops@shieldlogistics.com</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 mt-4 mt-lg-0">
+        <div
+          class="glass-card p-4 bg-dark bg-opacity-50 border-light border-opacity-25"
+        >
+          <h5 class="fw-bold mb-3">Request Security Assessment</h5>
+          <form id="contact-form">
+            <div class="mb-3">
+              <input
+                type="text"
+                class="form-control bg-dark bg-opacity-25 border-light border-opacity-25 text-white"
+                placeholder="Organization Name"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <input
+                type="email"
+                class="form-control bg-dark bg-opacity-25 border-light border-opacity-25 text-white"
+                placeholder="Contact Email"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <select
+                class="form-select bg-dark bg-opacity-25 border-light border-opacity-25 text-white"
+                required
+              >
+                <option value="">Security Requirement</option>
+                <option value="corporate">Corporate Security</option>
+                <option value="industrial">Industrial Protection</option>
+                <option value="retail">Retail Security</option>
+                <option value="event">Event Security</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-warning w-100 fw-bold">
+              <i class="fas fa-user-shield me-2"></i>Request Assessment
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Enhanced security page interactions
+  document.addEventListener("DOMContentLoaded", function () {
+    // Animate stats counters
+    const statCounters = document.querySelectorAll(".stat-counter");
+
+    statCounters.forEach((counter) => {
+      const target = parseInt(counter.textContent);
+      const suffix = counter.textContent.replace(/[0-9]/g, "");
+      const duration = 2000;
+      const step = target / (duration / 16);
+      let current = 0;
+
+      const updateCounter = () => {
+        current += step;
+        if (current < target) {
+          counter.textContent = Math.floor(current) + suffix;
+          setTimeout(updateCounter, 16);
+        } else {
+          counter.textContent = target + suffix;
+        }
+      };
+
+      // Start animation when in viewport
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            updateCounter();
+            observer.unobserve(entry.target);
+          }
+        });
+      });
+
+      observer.observe(counter);
+    });
+
+    // Security level tooltips
+    const securityLevels = document.querySelectorAll(".security-level");
+    securityLevels.forEach((level) => {
+      level.addEventListener("mouseenter", function () {
+        const levelType = this.classList.contains("critical")
+          ? "Critical"
+          : this.classList.contains("high")
+          ? "High"
+          : this.classList.contains("medium")
+          ? "Medium"
+          : "Standard";
+
+        // Create tooltip
+        const tooltip = document.createElement("div");
+        tooltip.className = "position-absolute bg-dark text-white p-2 rounded";
+        tooltip.innerHTML = `<small>${levelType} Priority - Requires specialized training</small>`;
+        tooltip.style.zIndex = "1000";
+
+        const rect = this.getBoundingClientRect();
+        tooltip.style.top = rect.top - 40 + "px";
+        tooltip.style.left = rect.left + "px";
+
+        document.body.appendChild(tooltip);
+        this._tooltip = tooltip;
+      });
+
+      level.addEventListener("mouseleave", function () {
+        if (this._tooltip) {
+          this._tooltip.remove();
+        }
+      });
+    });
+
+    // Form submission
+    const contactForm = document.getElementById("contact-form");
+    if (contactForm) {
+      contactForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // Show success message
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        submitBtn.disabled = true;
+
+        // Simulate API call
+        setTimeout(() => {
+          const alertDiv = document.createElement("div");
+          alertDiv.className = "alert alert-success mt-3";
+          alertDiv.innerHTML = `
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Security assessment requested!</strong> Our team will contact you within 2 hours.
+            <div class="mt-2 small">Reference: SEC-${Date.now()
+              .toString()
+              .slice(-8)}</div>
+          `;
+
+          this.insertBefore(alertDiv, this.firstChild);
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+          this.reset();
+
+          // Remove alert after 5 seconds
+          setTimeout(() => alertDiv.remove(), 5000);
+        }, 1500);
+      });
+    }
+
+    // Add smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute("href");
+        if (targetId === "#") return;
+
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: "smooth",
+          });
+        }
+      });
+    });
+  });
+</script>
