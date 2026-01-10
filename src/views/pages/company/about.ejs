@@ -1,74 +1,385 @@
 <%- layout('layouts/main') %>
-<title>About Us | Shield Logistics</title>
+<title>About Shield Logistics | Global Supply Chain & Security Solutions</title>
 
 <style>
   .hero-section {
     background: linear-gradient(
-        rgba(13, 110, 253, 0.9),
-        rgba(13, 110, 253, 0.95)
+        135deg,
+        rgba(13, 110, 253, 0.92) 0%,
+        rgba(32, 83, 213, 0.95) 100%
       ),
-      url("https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=2067")
-        center/cover;
+      url("/assets/images/cover_2.avif") center/cover;
     color: white;
-  }
-
-  .timeline {
     position: relative;
-    padding-left: 30px;
+    overflow: hidden;
   }
 
-  .timeline:before {
+  .hero-section::after {
     content: "";
     position: absolute;
+    bottom: 0;
     left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-5px);
+  }
+
+  .timeline-advanced {
+    position: relative;
+    padding: 2rem 0;
+  }
+
+  .timeline-line {
+    position: absolute;
+    left: 50%;
     top: 0;
     bottom: 0;
-    width: 2px;
-    background: #0d6efd;
+    width: 4px;
+    background: linear-gradient(180deg, #0d6efd, #00c9ff);
+    transform: translateX(-50%);
+    z-index: 1;
   }
 
   .timeline-item {
     position: relative;
-    margin-bottom: 2rem;
+    margin-bottom: 4rem;
+    width: 45%;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
   }
 
-  .timeline-item:before {
-    content: "";
+  .timeline-item:nth-child(odd) {
+    left: 0;
+    padding-right: 60px;
+    text-align: right;
+  }
+
+  .timeline-item:nth-child(even) {
+    left: 55%;
+    padding-left: 60px;
+  }
+
+  .timeline-dot {
     position: absolute;
-    left: -36px;
-    top: 5px;
-    width: 12px;
-    height: 12px;
+    top: 0;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: #0d6efd;
-    border: 3px solid white;
+    border: 4px solid white;
+    box-shadow: 0 0 0 4px #0d6efd;
+    z-index: 2;
+  }
+
+  .timeline-item:nth-child(odd) .timeline-dot {
+    right: -12px;
+  }
+
+  .timeline-item:nth-child(even) .timeline-dot {
+    left: -12px;
+  }
+
+  .timeline-year {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0d6efd;
+    margin-bottom: 0.5rem;
+  }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .value-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    height: 100%;
+    border: 1px solid rgba(13, 110, 253, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .value-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0d6efd, #00c9ff);
+  }
+
+  .value-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(13, 110, 253, 0.15);
+  }
+
+  .value-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd 0%, #00c9ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2rem;
+  }
+
+  .global-presence {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .global-presence::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0d6efd, #00c9ff);
+  }
+
+  .map-container {
+    position: relative;
+    height: 400px;
+    background: #1a1a2e;
+    overflow: hidden;
+  }
+
+  .map-point {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #0d6efd;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #0d6efd;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+    }
+  }
+
+  .leadership-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .leadership-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(13, 110, 253, 0.15);
+  }
+
+  .leadership-img {
+    height: 300px;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .certification-badge {
+    background: linear-gradient(135deg, #0d6efd 0%, #00c9ff 100%);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0.25rem;
+  }
+
+  .mission-section {
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+    border-radius: 20px;
+    padding: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mission-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0d6efd, #00c9ff);
+  }
+
+  .vision-statement {
+    font-size: 1.5rem;
+    font-weight: 300;
+    font-style: italic;
+    color: #333;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .vision-statement::before {
+    content: '"';
+    position: absolute;
+    left: 0;
+    top: -1rem;
+    font-size: 4rem;
+    color: #0d6efd;
+    opacity: 0.3;
+    font-family: Georgia, serif;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #2053d5 100%);
+    color: white;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #00c9ff, #92fe9d);
+  }
+
+  .partner-logo {
+    height: 60px;
+    filter: grayscale(1);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+  }
+
+  .partner-logo:hover {
+    filter: grayscale(0);
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  .award-badge {
+    background: rgba(255, 215, 0, 0.1);
+    border: 2px solid gold;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .counter-item {
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .counter-value {
+    font-size: 3rem;
+    font-weight: bold;
+    /* background: linear-gradient(135deg, #0d6efd, #00c9ff); */
+
+    background: #ffffff;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 </style>
 
-<section class="hero-section py-5">
-  <div class="container py-5">
-    <div class="row">
+<section class="hero-section py-4">
+  <div class="container">
+    <div class="row align-items-center">
       <div class="col-lg-8">
-        <h1 class="display-4 fw-bold mb-4">About Shield Logistics</h1>
+        <div class="mb-4">
+          <span
+            class="badge bg-white text-primary px-4 py-2 rounded-pill d-inline-flex align-items-center mb-3"
+          >
+            <i class="fas fa-globe-americas me-2"></i> GLOBAL LOGISTICS LEADER
+            SINCE 2005
+          </span>
+        </div>
+        <h1 class="display-4 fw-bold mb-4">
+          Redefining Global Supply Chain Excellence
+        </h1>
         <p class="lead mb-4">
-          Founded in 2005, Shield Logistics has grown from a regional delivery
-          service into a global logistics and security powerhouse, trusted by
-          thousands of businesses worldwide.
+          Shield Logistics stands at the forefront of international logistics
+          and security solutions, delivering unparalleled reliability,
+          innovation, and intelligence-driven supply chain orchestration across
+          150+ countries.
         </p>
 
-        <div class="d-flex align-items-center gap-4">
-          <div>
-            <h3 class="fw-bold">50,000+</h3>
-            <p>Business Clients</p>
+        <div class="row g-4 mt-5">
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h3 class="counter-value" data-count="75000">0</h3>
+              <p class="mb-0">Enterprise Clients</p>
+            </div>
           </div>
-          <div>
-            <h3 class="fw-bold">142</h3>
-            <p>Countries Served</p>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h3 class="counter-value" data-count="150">0</h3>
+              <p class="mb-0">Countries Served</p>
+            </div>
           </div>
-          <div>
-            <h3 class="fw-bold">1,200+</h3>
-            <p>Employees</p>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h3 class="counter-value" data-count="5200">0</h3>
+              <p class="mb-0">Global Employees</p>
+            </div>
           </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h3 class="counter-value" data-count="99.7">0</h3>
+              <p class="mb-0">On-Time Delivery %</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 mt-5 mt-lg-0">
+        <div class="award-badge">
+          <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+          <h5 class="fw-bold mb-2">Global Logistics Excellence Award 2023</h5>
+          <p class="small mb-0">
+            Recognized as Industry Leader in Supply Chain Innovation
+          </p>
         </div>
       </div>
     </div>
@@ -79,45 +390,102 @@
   <div class="container">
     <div class="row align-items-center">
       <div class="col-lg-6 mb-5 mb-lg-0">
-        <h2 class="fw-bold mb-4">Our Story</h2>
+        <h2 class="fw-bold mb-4">
+          Our Evolution: From Regional Carrier to Global Powerhouse
+        </h2>
         <p class="text-muted mb-4">
-          What started as a small package delivery service in Chicago has
-          evolved into an integrated logistics and security solutions provider
-          operating across six continents.
+          What began as a regional delivery service in Chicago has transformed
+          into an integrated global logistics and security solutions provider
+          operating across six continents. Our journey reflects a relentless
+          pursuit of innovation, operational excellence, and customer-centric
+          solutions.
         </p>
         <p class="text-muted">
-          Our growth has been driven by a commitment to innovation, customer
-          service, and adapting to the changing needs of global commerce. Today,
-          we combine cutting-edge technology with decades of industry experience
-          to deliver solutions that truly make a difference.
+          Through strategic acquisitions, technological innovation, and an
+          unwavering commitment to service excellence, Shield Logistics has
+          redefined industry standards, delivering intelligent supply chain
+          solutions that drive business growth and resilience for Fortune 500
+          companies and emerging enterprises alike.
         </p>
+
+        <div class="row mt-5">
+          <div class="col-6">
+            <div class="counter-item">
+              <h3 class="counter-value" data-count="18">0</h3>
+              <p class="text-muted">Years of Excellence</p>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="counter-item">
+              <h3 class="counter-value" data-count="12">0</h3>
+              <p class="text-muted">Strategic Acquisitions</p>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="col-lg-6">
-        <div class="timeline">
-          <div class="timeline-item">
-            <h5 class="fw-bold">2005</h5>
-            <p>Founded as Shield Delivery Services in Chicago, IL</p>
-          </div>
-          <div class="timeline-item">
-            <h5 class="fw-bold">2010</h5>
-            <p>Expanded to 10 states and added warehousing services</p>
-          </div>
-          <div class="timeline-item">
-            <h5 class="fw-bold">2015</h5>
-            <p>
-              Launched international shipping and rebranded to Shield Logistics
+        <div class="timeline-advanced">
+          <div class="timeline-line"></div>
+
+          <div class="timeline-item" style="animation-delay: 0.1s">
+            <div class="timeline-dot"></div>
+            <div class="timeline-year">2005</div>
+            <h5 class="fw-bold mb-2">Foundation & Vision</h5>
+            <p class="text-muted">
+              Established as Shield Delivery Services in Chicago with 5 vehicles
+              and 12 employees, focusing on secure document transportation.
             </p>
           </div>
-          <div class="timeline-item">
-            <h5 class="fw-bold">2018</h5>
-            <p>
-              Acquired SecureGuard Inc. and entered the security services market
+
+          <div class="timeline-item" style="animation-delay: 0.3s">
+            <div class="timeline-dot"></div>
+            <div class="timeline-year">2010</div>
+            <h5 class="fw-bold mb-2">National Expansion</h5>
+            <p class="text-muted">
+              Expanded operations to 28 states, introduced
+              temperature-controlled logistics, and achieved ISO 9001
+              certification.
             </p>
           </div>
-          <div class="timeline-item">
-            <h5 class="fw-bold">2023</h5>
-            <p>
-              Achieved ISO 9001:2023 certification and expanded to 142 countries
+
+          <div class="timeline-item" style="animation-delay: 0.5s">
+            <div class="timeline-dot"></div>
+            <div class="timeline-year">2015</div>
+            <h5 class="fw-bold mb-2">Global Transformation</h5>
+            <p class="text-muted">
+              Rebranded to Shield Logistics, launched international operations
+              across 50 countries, and developed proprietary tracking platform.
+            </p>
+          </div>
+
+          <div class="timeline-item" style="animation-delay: 0.7s">
+            <div class="timeline-dot"></div>
+            <div class="timeline-year">2018</div>
+            <h5 class="fw-bold mb-2">Security Integration</h5>
+            <p class="text-muted">
+              Acquired SecureGuard Inc., integrating advanced security protocols
+              and establishing the Shield Security Division.
+            </p>
+          </div>
+
+          <div class="timeline-item" style="animation-delay: 0.9s">
+            <div class="timeline-dot"></div>
+            <div class="timeline-year">2021</div>
+            <h5 class="fw-bold mb-2">Digital Transformation</h5>
+            <p class="text-muted">
+              Launched AI-powered logistics platform, expanded to 120 countries,
+              and received Global Logistics Excellence Award.
+            </p>
+          </div>
+
+          <div class="timeline-item" style="animation-delay: 1.1s">
+            <div class="timeline-dot"></div>
+            <div class="timeline-year">2023</div>
+            <h5 class="fw-bold mb-2">Industry Leadership</h5>
+            <p class="text-muted">
+              Achieved carbon-neutral operations, expanded to 150 countries, and
+              recognized as Top 3 Global Logistics Provider.
             </p>
           </div>
         </div>
@@ -128,50 +496,303 @@
 
 <section class="py-5 bg-light">
   <div class="container">
-    <h2 class="fw-bold text-center mb-5">Our Core Values</h2>
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-3">Our Guiding Principles</h2>
+      <p class="text-muted lead">
+        The foundation of our global success and customer trust
+      </p>
+    </div>
+
     <div class="row g-4">
       <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body p-4 text-center">
-            <div class="mb-3">
-              <i class="fas fa-shield-alt fa-3x text-primary"></i>
-            </div>
-            <h5 class="fw-bold">Reliability</h5>
-            <p class="text-muted">
-              We deliver on our promises, every time. Our clients trust us with
-              their most valuable assets.
-            </p>
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Uncompromising Security</h4>
+          <p class="text-muted">
+            We protect what matters most with military-grade security protocols,
+            real-time monitoring, and end-to-end encryption for every shipment,
+            ensuring absolute protection of assets and data.
+          </p>
+          <div class="mt-4">
+            <small class="text-primary fw-bold">
+              <i class="fas fa-check-circle me-1"></i> ISO 28000 Certified
+            </small>
           </div>
         </div>
       </div>
+
       <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body p-4 text-center">
-            <div class="mb-3">
-              <i class="fas fa-bolt fa-3x text-warning"></i>
-            </div>
-            <h5 class="fw-bold">Speed</h5>
-            <p class="text-muted">
-              In logistics and security, speed matters. We optimize every
-              process for maximum efficiency.
-            </p>
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Intelligent Innovation</h4>
+          <p class="text-muted">
+            We pioneer cutting-edge logistics technology, leveraging AI, machine
+            learning, and IoT to deliver predictive analytics, automated
+            optimization, and real-time supply chain intelligence.
+          </p>
+          <div class="mt-4">
+            <small class="text-primary fw-bold">
+              <i class="fas fa-check-circle me-1"></i> 15+ Technology Patents
+            </small>
           </div>
         </div>
       </div>
+
       <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body p-4 text-center">
-            <div class="mb-3">
-              <i class="fas fa-eye fa-3x text-success"></i>
-            </div>
-            <h5 class="fw-bold">Transparency</h5>
-            <p class="text-muted">
-              Clear communication and real-time tracking keep our clients
-              informed at every step.
-            </p>
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-handshake"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Partnership Excellence</h4>
+          <p class="text-muted">
+            We build strategic, long-term partnerships grounded in transparency,
+            mutual growth, and shared success, serving as an extension of our
+            clients' operations worldwide.
+          </p>
+          <div class="mt-4">
+            <small class="text-primary fw-bold">
+              <i class="fas fa-check-circle me-1"></i> 98% Client Retention
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-leaf"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Sustainable Operations</h4>
+          <p class="text-muted">
+            We lead the industry in environmental responsibility with
+            carbon-neutral operations, electric fleets, and sustainable
+            packaging solutions that minimize ecological impact.
+          </p>
+          <div class="mt-4">
+            <small class="text-primary fw-bold">
+              <i class="fas fa-check-circle me-1"></i> Carbon Neutral Since 2022
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Operational Agility</h4>
+          <p class="text-muted">
+            We adapt rapidly to market changes, geopolitical shifts, and supply
+            chain disruptions with flexible solutions, contingency planning, and
+            24/7 global command centers.
+          </p>
+          <div class="mt-4">
+            <small class="text-primary fw-bold">
+              <i class="fas fa-check-circle me-1"></i> 99.7% On-Time Delivery
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Global Expertise</h4>
+          <p class="text-muted">
+            Our team of 5,200+ logistics professionals combines decades of
+            industry experience with local market knowledge across 150
+            countries, delivering seamless global operations.
+          </p>
+          <div class="mt-4">
+            <small class="text-primary fw-bold">
+              <i class="fas fa-check-circle me-1"></i> 85% Management Tenure 5+
+              Years
+            </small>
           </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="mission-section mb-5">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <h2 class="fw-bold mb-4">Our Mission & Vision</h2>
+          <p class="text-muted mb-4">
+            To revolutionize global commerce through intelligent, secure, and
+            sustainable logistics solutions that empower businesses to thrive in
+            an interconnected world.
+          </p>
+          <div class="vision-statement mb-4">
+            We envision a world where supply chains are not just efficient, but
+            intelligent ecosystems that anticipate needs, mitigate risks, and
+            create value at every touchpoint.
+          </div>
+        </div>
+        <div class="col-lg-6 mt-4 mt-lg-0">
+          <div class="global-presence p-4">
+            <h5 class="fw-bold mb-4 text-center">
+              <i class="fas fa-globe-americas me-2"></i> Global Footprint
+            </h5>
+            <div class="map-container">
+              <!-- Simplified world map with strategic points -->
+              <div class="map-point" style="top: 30%; left: 25%"></div>
+              <!-- North America -->
+              <div class="map-point" style="top: 40%; left: 50%"></div>
+              <!-- Europe -->
+              <div class="map-point" style="top: 45%; left: 75%"></div>
+              <!-- Asia -->
+              <div class="map-point" style="top: 70%; left: 50%"></div>
+              <!-- Africa -->
+              <div class="map-point" style="top: 80%; left: 75%"></div>
+              <!-- Australia -->
+              <div class="map-point" style="top: 60%; left: 30%"></div>
+              <!-- South America -->
+
+              <div
+                class="text-center"
+                style="position: absolute; bottom: 20px; left: 0; right: 0"
+              >
+                <h3 class="fw-bold">150+ Countries</h3>
+                <p class="mb-0">12 Global Regional Headquarters</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mb-5">
+      <h3 class="fw-bold mb-3">Global Certifications & Accreditations</h3>
+      <p class="text-muted">
+        Meeting the highest international standards of quality and security
+      </p>
+    </div>
+
+    <div class="text-center mb-5">
+      <span class="certification-badge">ISO 9001:2023 Quality Management</span>
+      <span class="certification-badge"
+        >ISO 14001 Environmental Management</span
+      >
+      <span class="certification-badge">ISO 28000 Supply Chain Security</span>
+      <span class="certification-badge">C-TPAT Certified</span>
+      <span class="certification-badge"
+        >AEO (Authorized Economic Operator)</span
+      >
+      <span class="certification-badge">GDP Compliant</span>
+      <span class="certification-badge">IATA Accredited</span>
+      <span class="certification-badge">FIATA Member</span>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h3 class="fw-bold mb-3">Trusted by Global Leaders</h3>
+      <p class="text-muted">Partnering with industry leaders across sectors</p>
+    </div>
+
+    <div class="row g-4 align-items-center justify-content-center mb-5">
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/amazon.svg"
+          class="partner-logo"
+          alt="Amazon"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/siemens.svg"
+          class="partner-logo"
+          alt="Siemens"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/pfizer.svg"
+          class="partner-logo"
+          alt="Pfizer"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/apple.svg"
+          class="partner-logo"
+          alt="Apple"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/merck.svg"
+          class="partner-logo"
+          alt="Merck"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/toyota.svg"
+          class="partner-logo"
+          alt="Toyota"
+        />
+      </div>
+    </div>
+
+    <div class="cta-section p-5">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h3 class="fw-bold mb-3">Partner with Global Logistics Excellence</h3>
+          <p class="mb-0">
+            Join thousands of enterprises who trust Shield Logistics with their
+            most critical supply chain operations.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Counter animation
+  document.addEventListener("DOMContentLoaded", function () {
+    const counters = document.querySelectorAll(".counter-value");
+
+    counters.forEach((counter) => {
+      const target = parseInt(counter.getAttribute("data-count"));
+      const increment = target / 100;
+      let current = 0;
+
+      const updateCounter = () => {
+        current += increment;
+        if (current < target) {
+          counter.innerText = Math.ceil(current);
+          setTimeout(updateCounter, 20);
+        } else {
+          counter.innerText = target;
+        }
+      };
+
+      // Start counter when element is in viewport
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            updateCounter();
+            observer.unobserve(entry.target);
+          }
+        });
+      });
+
+      observer.observe(counter);
+    });
+  });
+</script>

@@ -1,47 +1,502 @@
 <%- layout('layouts/main') %>
-<title>Last-Mile Delivery | Shield Logistics</title>
+<title>Enterprise Last-Mile Delivery Solutions | Shield Logistics</title>
 
 <style>
   .hero-section {
     background: linear-gradient(
-        rgba(111, 66, 193, 0.9),
-        rgba(111, 66, 193, 0.95)
+        135deg,
+        rgba(111, 66, 193, 0.92) 0%,
+        rgba(76, 29, 149, 0.95) 100%
       ),
-      url("https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&q=80&w=2025")
-        center/cover;
+      url("/assets/images/cover_1.avif") center/cover;
+
     color: white;
+    position: relative;
+    overflow: hidden;
   }
 
   .delivery-card {
     border-top: 4px solid #6f42c1;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .delivery-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(111, 66, 193, 0.15) !important;
+  }
+
+  .tech-badge {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+  }
+
+  .stats-section {
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 2rem;
+    border-right: 1px solid rgba(111, 66, 193, 0.1);
+  }
+
+  .stat-item:last-child {
+    border-right: none;
+  }
+
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 1.8rem;
+  }
+
+  .tracking-demo {
+    background: #1a1a2e41;
+    backdrop-filter: blur(10px);
+    --webkit-backdrop-filter: blur(10px);
+    border-radius: 16px;
+    color: #f0f2ff;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .tracking-header {
+    background: #16213e;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #2d3748;
+  }
+
+  .tracking-progress {
+    height: 4px;
+    background: #2d3748;
+    border-radius: 2px;
+    margin: 2rem 0;
+    position: relative;
+  }
+
+  .tracking-progress::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 75%;
+    background: linear-gradient(90deg, #00c9ff, #92fe9d);
+    border-radius: 2px;
+  }
+
+  .integration-logo {
+    height: 50px;
+    filter: grayscale(1);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+  }
+
+  .integration-logo:hover {
+    filter: grayscale(0);
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  .security-badge {
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+
+  .ai-prediction {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .cta-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
   }
 </style>
 
 <section class="hero-section py-5">
   <div class="container py-5">
-    <div class="row">
-      <div class="col-lg-8">
-        <h1 class="display-4 fw-bold mb-4">Last-Mile Delivery Solutions</h1>
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="mb-4">
+          <span class="tech-badge d-inline-flex align-items-center mb-3">
+            <i class="fas fa-bolt me-2"></i> AI-POWERED LOGISTICS
+          </span>
+        </div>
+        <h1 class="display-4 fw-bold mb-4">
+          Intelligent Last-Mile Delivery Solutions
+        </h1>
         <p class="lead mb-4">
-          Fast, reliable final-mile delivery with real-time tracking, flexible
-          time slots, and professional handling for customer satisfaction.
+          Advanced final-mile delivery optimized with machine learning
+          algorithms, real-time predictive analytics, and automated route
+          optimization for maximum efficiency and customer satisfaction.
         </p>
 
-        <div class="d-flex flex-wrap gap-3">
-          <span class="badge bg-light text-purple px-3 py-2">
-            <i class="fas fa-clock me-1"></i>Same-Day Delivery
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <span
+            class="badge bg-white text-dark px-4 py-2 rounded-pill shadow-sm"
+          >
+            <i class="fas fa-robot text-primary me-2"></i>AI Route Optimization
           </span>
-          <span class="badge bg-light text-purple px-3 py-2">
-            <i class="fas fa-calendar-alt me-1"></i>Scheduled Delivery
+          <span
+            class="badge bg-white text-dark px-4 py-2 rounded-pill shadow-sm"
+          >
+            <i class="fas fa-shield-alt text-success me-2"></i>Enhanced Security
           </span>
-          <span class="badge bg-light text-purple px-3 py-2">
-            <i class="fas fa-box-open me-1"></i>White Glove Service
+          <span
+            class="badge bg-white text-dark px-4 py-2 rounded-pill shadow-sm"
+          >
+            <i class="fas fa-chart-line text-info me-2"></i>Real-Time Analytics
           </span>
+          <span
+            class="badge bg-white text-dark px-4 py-2 rounded-pill shadow-sm"
+          >
+            <i class="fas fa-plug text-warning me-2"></i>API Integration
+          </span>
+        </div>
+      </div>
+      <div class="col-lg-5 mt-5 mt-lg-0">
+        <div class="tracking-demo p-4">
+          <div class="tracking-header">
+            <h6 class="mb-0 text-light">
+              <i class="fas fa-shipping-fast me-2"></i>Live Delivery Tracking
+            </h6>
+            <small class="text-muted">SHIELD-TRACK-ID: #ST-789456123</small>
+          </div>
+          <div class="p-3">
+            <div class="d-flex justify-content-between mb-2">
+              <small class="text-success">Order Processed</small>
+              <small class="text-warning">In Transit</small>
+              <small class="text-light">Out for Delivery</small>
+              <small class="text-light">Delivered</small>
+            </div>
+            <div class="tracking-progress"></div>
+
+            <div class="text-center mb-3">
+              <div class="text-info mb-1">
+                <i class="fas fa-truck fa-2x"></i>
+              </div>
+              <h5 class="text-light">Driver: Michael Rodriguez</h5>
+              <small class="text-light">ETA: 25 minutes | 3.2 miles away</small>
+            </div>
+
+            <div class="bg-dark p-3 rounded">
+              <div class="d-flex justify-content-between mb-2">
+                <small class="text-muted">Vehicle</small>
+                <small class="text-light">Electric Van #EV-204</small>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <small class="text-muted">Temperature</small>
+                <small class="text-light">4°C (Climate Controlled)</small>
+              </div>
+              <div class="d-flex justify-content-between">
+                <small class="text-muted">Security</small>
+                <small class="text-success"
+                  ><i class="fas fa-lock me-1"></i>Tamper Seal Active</small
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5" id="solutions">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-3">Advanced Delivery Solutions</h2>
+      <p class="text-muted lead">
+        Tailored delivery options powered by cutting-edge technology
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="delivery-card card h-100 shadow-sm">
+          <div class="card-body p-4">
+            <div class="feature-icon">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <h5 class="fw-bold mb-3">AI-Optimized Express Delivery</h5>
+            <p>
+              Machine learning algorithms predict optimal routes in real-time,
+              reducing delivery times by 35% on average.
+            </p>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Dynamic ETA
+                adjustments
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Traffic &
+                weather adaptation
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Automated
+                contingency routing
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Priority
+                lane access
+              </li>
+            </ul>
+            <div class="mt-4">
+              <small class="text-muted"
+                ><i class="fas fa-clock me-1"></i> 2-4 hour delivery
+                window</small
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="delivery-card card h-100 shadow-sm">
+          <div class="card-body p-4">
+            <div class="feature-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <h5 class="fw-bold mb-3">Smart Scheduled Delivery</h5>
+            <p>
+              Intelligent scheduling system with predictive capacity planning
+              and automated customer notifications.
+            </p>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Predictive
+                capacity planning
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Automated
+                customer notifications
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Dynamic
+                time slot optimization
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Automated
+                rescheduling
+              </li>
+            </ul>
+            <div class="mt-4">
+              <small class="text-muted"
+                ><i class="fas fa-calendar me-1"></i> 15-minute precision
+                windows</small
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="delivery-card card h-100 shadow-sm">
+          <div class="card-body p-4">
+            <div class="feature-icon">
+              <i class="fas fa-hands-helping"></i>
+            </div>
+            <h5 class="fw-bold mb-3">Premium White Glove Service</h5>
+            <p>
+              Luxury delivery experience with certified handlers, specialized
+              equipment, and full installation services.
+            </p>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Certified
+                specialist handlers
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Specialized
+                equipment & vehicles
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Full
+                installation & configuration
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i
+                >Post-delivery quality inspection
+              </li>
+            </ul>
+            <div class="mt-4">
+              <small class="text-muted"
+                ><i class="fas fa-star me-1"></i> Premium service
+                guarantee</small
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="stats-section p-4 p-lg-5 mb-5">
+      <div class="row g-0">
+        <div class="col-md-3">
+          <div class="stat-item">
+            <h3 class="display-6 fw-bold text-primary">99.2%</h3>
+            <p class="text-muted">On-Time Delivery Rate</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <h3 class="display-6 fw-bold text-success">24/7</h3>
+            <p class="text-muted">Real-Time Tracking Coverage</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <h3 class="display-6 fw-bold text-warning">350+</h3>
+            <p class="text-muted">Cities Served</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <h3 class="display-6 fw-bold text-info">15min</h3>
+            <p class="text-muted">Average Window Precision</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h3 class="fw-bold mb-4">Advanced Security & Compliance</h3>
+        <p class="mb-4">
+          Our last-mile delivery solutions incorporate enterprise-grade security
+          protocols and compliance measures to protect your shipments and data.
+        </p>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="security-badge">
+              <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-fingerprint text-success me-2"></i>
+                <h6 class="mb-0">Biometric Verification</h6>
+              </div>
+              <p class="small mb-0">
+                Driver identity verification via biometric authentication for
+                sensitive deliveries.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="security-badge">
+              <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-lock text-primary me-2"></i>
+                <h6 class="mb-0">Tamper-Evident Seals</h6>
+              </div>
+              <p class="small mb-0">
+                Smart seals with GPS tracking that alert immediately if
+                compromised during transit.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="security-badge">
+              <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-shield-alt text-warning me-2"></i>
+                <h6 class="mb-0">GDPR & CCPA Compliant</h6>
+              </div>
+              <p class="small mb-0">
+                Full compliance with data protection regulations for all
+                customer information.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="security-badge">
+              <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-temperature-low text-info me-2"></i>
+                <h6 class="mb-0">Climate Monitoring</h6>
+              </div>
+              <p class="small mb-0">
+                Real-time temperature and humidity tracking for sensitive goods.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mt-5 mt-lg-0">
+        <div class="ai-prediction">
+          <h4 class="fw-bold mb-3">
+            <i class="fas fa-brain me-2"></i> Predictive Delivery Intelligence
+          </h4>
+          <p>
+            Our AI system analyzes hundreds of variables to predict and prevent
+            delivery issues before they occur.
+          </p>
+
+          <div class="mt-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Delivery Success Prediction</span>
+              <span class="fw-bold">94% Accuracy</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-success" style="width: 94%"></div>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2 mt-3">
+              <span>Route Optimization Efficiency</span>
+              <span class="fw-bold">35% Improvement</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-info" style="width: 87%"></div>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2 mt-3">
+              <span>Customer Satisfaction</span>
+              <span class="fw-bold">4.8/5 Rating</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-warning" style="width: 96%"></div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <small
+              ><i class="fas fa-lightbulb me-1"></i> AI continuously learns from
+              10,000+ daily deliveries</small
+            >
+          </div>
         </div>
       </div>
     </div>
@@ -50,82 +505,147 @@
 
 <section class="py-5">
   <div class="container">
-    <h2 class="fw-bold text-center mb-5">Delivery Options</h2>
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="delivery-card card h-100 shadow-sm">
-          <div class="card-body p-4">
-            <div class="mb-3">
-              <i class="fas fa-bolt fa-2x text-warning"></i>
-            </div>
-            <h5 class="fw-bold">Express Delivery</h5>
-            <p>
-              Same-day or next-day delivery for urgent shipments with guaranteed
-              time windows.
-            </p>
-            <ul class="list-unstyled">
-              <li>
-                <i class="fas fa-check text-success me-2"></i>2-4 hour delivery
-              </li>
-              <li>
-                <i class="fas fa-check text-success me-2"></i>Real-time tracking
-              </li>
-              <li>
-                <i class="fas fa-check text-success me-2"></i>Signature required
-              </li>
-            </ul>
-          </div>
+    <div class="text-center mb-5">
+      <h3 class="fw-bold mb-3">Enterprise Integrations</h3>
+      <p class="text-muted">
+        Seamlessly connect with your existing technology stack
+      </p>
+    </div>
+
+    <div class="row g-4 justify-content-center mb-5">
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/salesforce.svg"
+          class="integration-logo"
+          alt="Salesforce"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/sap.svg"
+          class="integration-logo"
+          alt="SAP"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/shopify.svg"
+          class="integration-logo"
+          alt="Shopify"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/microsoft.svg"
+          class="integration-logo"
+          alt="Microsoft"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/oracle.svg"
+          class="integration-logo"
+          alt="Oracle"
+        />
+      </div>
+      <div class="col-4 col-md-2 text-center">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/aws.svg"
+          class="integration-logo"
+          alt="AWS"
+        />
+      </div>
+    </div>
+
+    <div class="cta-section p-5" id="contact">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h3 class="fw-bold mb-3">
+            Ready to Transform Your Last-Mile Delivery?
+          </h3>
+          <p class="mb-0">
+            Schedule a personalized demo to see how our intelligent delivery
+            platform can reduce costs, improve efficiency, and enhance customer
+            satisfaction.
+          </p>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="delivery-card card h-100 shadow-sm">
-          <div class="card-body p-4">
-            <div class="mb-3">
-              <i class="fas fa-calendar-alt fa-2x text-primary"></i>
-            </div>
-            <h5 class="fw-bold">Scheduled Delivery</h5>
-            <p>
-              Choose your preferred delivery date and time window for
-              convenience.
-            </p>
-            <ul class="list-unstyled">
-              <li>
-                <i class="fas fa-check text-success me-2"></i>Choose date & time
-              </li>
-              <li>
-                <i class="fas fa-check text-success me-2"></i>Advance
-                notifications
-              </li>
-              <li>
-                <i class="fas fa-check text-success me-2"></i>Rescheduling
-                options
-              </li>
-            </ul>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-dark text-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-4 mb-4">
+        <h5 class="fw-bold mb-4">Delivery Technologies</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <i class="fas fa-check me-2 text-success"></i> IoT Smart Lockers
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check me-2 text-success"></i> Autonomous Delivery
+            Vehicles
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check me-2 text-success"></i> Drone Delivery Pilot
+            Program
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check me-2 text-success"></i> Electric Fleet
+            Management
+          </li>
+          <li>
+            <i class="fas fa-check me-2 text-success"></i> Blockchain Shipment
+            Verification
+          </li>
+        </ul>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <h5 class="fw-bold mb-4">Industry Specializations</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <i class="fas fa-pills me-2 text-info"></i> Pharmaceutical & Medical
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-laptop me-2 text-info"></i> Electronics &
+            Technology
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-tshirt me-2 text-info"></i> Retail & E-commerce
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-utensils me-2 text-info"></i> Food & Grocery
+          </li>
+          <li>
+            <i class="fas fa-industry me-2 text-info"></i> Manufacturing &
+            Industrial
+          </li>
+        </ul>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <h5 class="fw-bold mb-4">Sustainability Initiatives</h5>
+        <p>Our commitment to sustainable last-mile delivery:</p>
+        <div class="d-flex align-items-center mb-2">
+          <div class="me-3">
+            <i class="fas fa-leaf fa-2x text-success"></i>
+          </div>
+          <div>
+            <h6 class="mb-0">Carbon Neutral Delivery</h6>
+            <small class="text-muted"
+              >100% carbon offset for all deliveries</small
+            >
           </div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="delivery-card card h-100 shadow-sm">
-          <div class="card-body p-4">
-            <div class="mb-3">
-              <i class="fas fa-hands-helping fa-2x text-success"></i>
-            </div>
-            <h5 class="fw-bold">White Glove Service</h5>
-            <p>
-              Premium delivery with unpacking, assembly, and installation
-              services.
-            </p>
-            <ul class="list-unstyled">
-              <li>
-                <i class="fas fa-check text-success me-2"></i>Room of choice
-              </li>
-              <li>
-                <i class="fas fa-check text-success me-2"></i>Assembly & setup
-              </li>
-              <li>
-                <i class="fas fa-check text-success me-2"></i>Packaging removal
-              </li>
-            </ul>
+        <div class="d-flex align-items-center">
+          <div class="me-3">
+            <i class="fas fa-bolt fa-2x text-warning"></i>
+          </div>
+          <div>
+            <h6 class="mb-0">Electric Vehicle Fleet</h6>
+            <small class="text-muted"
+              >65% of our delivery fleet is electric</small
+            >
           </div>
         </div>
       </div>

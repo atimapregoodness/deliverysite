@@ -12,6 +12,7 @@ html {
   -webkit-font-feature-settings: "kern" 1;
   font-feature-settings: "kern" 1;
   scroll-behavior: smooth;
+  overflow-x: hidden !important;
 }
 body {
   margin: 0;
@@ -22,7 +23,7 @@ body {
   color: var(--gray-700);
   background-color: var(--gray-50);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
   -moz-osx-font-smoothing: grayscale;
 }
 

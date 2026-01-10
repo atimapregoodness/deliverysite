@@ -1,0 +1,618 @@
+<%# partials/loader.ejs - Advanced Smooth Loading Animation %>
+
+<style>
+  /* ===== BASE STYLES ===== */
+  .shield-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .shield-loader.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .shield-loader.hiding {
+    opacity: 0;
+  }
+
+  /* ===== LOADER CONTAINER ===== */
+  .loader-container {
+    text-align: center;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    opacity: 0;
+    animation: containerFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* ===== LOADER ANIMATION ===== */
+  .loader-wrapper {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .loader-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd 0%, #2053d5 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 40px rgba(13, 110, 253, 0.4),
+      inset 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+
+  .loader-circle::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent,
+      rgba(13, 110, 253, 0.2),
+      rgba(13, 110, 253, 0.4),
+      rgba(13, 110, 253, 0.6),
+      rgba(13, 110, 253, 0.8),
+      rgba(13, 110, 253, 1),
+      rgba(13, 110, 253, 0.8),
+      rgba(13, 110, 253, 0.6),
+      rgba(13, 110, 253, 0.4),
+      rgba(13, 110, 253, 0.2),
+      transparent
+    );
+    animation: rotate 3s linear infinite;
+    z-index: -1;
+  }
+
+  .loader-icon {
+    font-size: 2.5rem;
+    color: white;
+    animation: iconFloat 2s ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  /* ===== PARTICLES ===== */
+  .loader-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #00c9ff;
+    border-radius: 50%;
+    animation: particleFloat 3s ease-in-out infinite;
+    opacity: 0;
+  }
+
+  .particle:nth-child(1) {
+    top: 10%;
+    left: 20%;
+    animation-delay: 0s;
+  }
+
+  .particle:nth-child(2) {
+    top: 20%;
+    right: 15%;
+    animation-delay: 0.5s;
+  }
+
+  .particle:nth-child(3) {
+    bottom: 30%;
+    left: 25%;
+    animation-delay: 1s;
+  }
+
+  .particle:nth-child(4) {
+    bottom: 15%;
+    right: 20%;
+    animation-delay: 1.5s;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-container {
+    width: 320px;
+    max-width: 90%;
+    margin-top: 2rem;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .progress-bar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite linear;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0d6efd 0%, #00c9ff 50%, #92fe9d 100%);
+    width: 0%;
+    border-radius: 3px;
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
+  }
+
+  .progress-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    animation: shimmer 1.5s infinite linear;
+  }
+
+  .progress-text {
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .progress-label {
+    opacity: 0.9;
+  }
+
+  /* ===== DATA STREAM ===== */
+  .data-stream {
+    width: 300px;
+    max-width: 85%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(13, 110, 253, 0.3) 50%,
+      transparent 100%
+    );
+    margin-top: 2rem;
+    border-radius: 1px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .data-stream::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      rgba(13, 110, 253, 0.9),
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
+    animation: dataFlow 2s linear infinite;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes containerFadeIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 40px rgba(13, 110, 253, 0.4),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 60px rgba(13, 110, 253, 0.6),
+        inset 0 0 30px rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes iconFloat {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    33% {
+      transform: translateY(-5px) rotate(10deg);
+    }
+    66% {
+      transform: translateY(5px) rotate(-10deg);
+    }
+  }
+
+  @keyframes particleFloat {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 0;
+    }
+    50% {
+      transform: translateY(-20px) scale(1.5);
+      opacity: 1;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes dataFlow {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .loader-container {
+      padding: 2rem;
+      border-radius: 20px;
+    }
+
+    .loader-circle {
+      width: 80px;
+      height: 80px;
+    }
+
+    .loader-icon {
+      font-size: 2rem;
+    }
+
+    .progress-container {
+      width: 280px;
+    }
+
+    .data-stream {
+      width: 250px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .loader-container {
+      padding: 1.5rem;
+      border-radius: 16px;
+    }
+
+    .loader-circle {
+      width: 70px;
+      height: 70px;
+    }
+
+    .loader-icon {
+      font-size: 1.75rem;
+    }
+
+    .progress-container {
+      width: 240px;
+      margin-top: 1.5rem;
+    }
+
+    .progress-bar {
+      height: 5px;
+    }
+
+    .progress-text {
+      font-size: 0.8rem;
+    }
+
+    .data-stream {
+      width: 200px;
+      margin-top: 1.5rem;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .loader-container {
+      padding: 1rem;
+    }
+
+    .loader-circle {
+      width: 60px;
+      height: 60px;
+    }
+
+    .loader-icon {
+      font-size: 1.5rem;
+    }
+
+    .progress-container {
+      width: 200px;
+    }
+
+    .data-stream {
+      width: 180px;
+    }
+  }
+
+  /* ===== PREFERS-REDUCED-MOTION ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .loader-circle,
+    .loader-circle::before,
+    .loader-icon,
+    .particle,
+    .progress-fill::after,
+    .data-stream::before,
+    .progress-bar::before {
+      animation: none !important;
+    }
+
+    .loader-circle::before {
+      display: none;
+    }
+
+    .shield-loader {
+      transition: opacity 0.3s ease;
+    }
+
+    .progress-fill {
+      transition: width 0.3s ease;
+    }
+  }
+</style>
+
+<!-- HTML Structure -->
+<div class="shield-loader" id="shieldLoader">
+  <div class="loader-container">
+    <!-- Loader Wrapper -->
+    <div class="loader-wrapper">
+      <!-- Main Loader -->
+      <div class="loader-circle">
+        <i class="loader-icon fas fa-shipping-fast"></i>
+
+        <!-- Particles -->
+        <div class="loader-particles">
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text">
+        <span class="progress-label" id="progressLabel"
+          >Loading Secure Systems</span
+        >
+        <span id="progressPercent">0%</span>
+      </div>
+    </div>
+
+    <!-- Data Stream -->
+    <div class="data-stream"></div>
+  </div>
+</div>
+
+<!-- Enhanced JavaScript with Smooth Transitions -->
+<script>
+  (function () {
+    "use strict";
+
+    // DOM Elements
+    const loader = document.getElementById("shieldLoader");
+    const progressFill = document.getElementById("progressFill");
+    const progressPercent = document.getElementById("progressPercent");
+    const progressLabel = document.getElementById("progressLabel");
+
+    // Configuration
+    const config = {
+      duration: 2500,
+      minDuration: 1500,
+      messages: [
+        "Initializing Security",
+        "Loading Tracking Systems",
+        "Verifying Connections",
+        "Preparing Dashboard",
+        "System Ready",
+      ],
+    };
+
+    // State
+    let isActive = false;
+    let progress = 0;
+    let startTime = null;
+    let animationFrame = null;
+
+    // Show loader immediately (runs as soon as script loads)
+    function showImmediately() {
+      if (isActive) return;
+
+      isActive = true;
+      loader.classList.add("active");
+      startTime = Date.now();
+
+      // Start smooth progress animation
+      animateProgress();
+
+      // Start message rotation
+      startMessageRotation();
+
+      // Hide loader when page is fully loaded
+      window.addEventListener("load", handlePageLoad);
+    }
+
+    // Smooth progress animation using requestAnimationFrame
+    function animateProgress() {
+      const elapsed = Date.now() - startTime;
+      const targetProgress = Math.min(100, (elapsed / config.duration) * 100);
+
+      // Smooth easing function
+      progress += (targetProgress - progress) * 0.1;
+
+      // Update progress bar
+      progressFill.style.width = `${progress}%`;
+      progressPercent.textContent = `${Math.round(progress)}%`;
+
+      // Update label based on progress
+      const messageIndex = Math.min(
+        Math.floor(progress / (100 / config.messages.length)),
+        config.messages.length - 1
+      );
+      progressLabel.textContent = config.messages[messageIndex];
+
+      if (progress < 99.9) {
+        animationFrame = requestAnimationFrame(animateProgress);
+      } else {
+        // Wait for page load or minimum duration
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, config.minDuration - elapsedTime);
+
+        setTimeout(() => {
+          if (document.readyState === "complete") {
+            hide();
+          }
+        }, remainingTime);
+      }
+    }
+
+    // Start message rotation
+    function startMessageRotation() {
+      let messageIndex = 0;
+
+      setInterval(() => {
+        if (!isActive) return;
+
+        messageIndex = (messageIndex + 1) % config.messages.length;
+        progressLabel.textContent = config.messages[messageIndex];
+      }, 2000);
+    }
+
+    // Handle page load
+    function handlePageLoad() {
+      // Ensure minimum duration
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, config.minDuration - elapsed);
+
+      setTimeout(() => {
+        if (progress >= 100) {
+          hide();
+        } else {
+          // Force completion
+          progress = 100;
+          progressFill.style.width = "100%";
+          progressPercent.textContent = "100%";
+          progressLabel.textContent =
+            config.messages[config.messages.length - 1];
+
+          setTimeout(hide, 500);
+        }
+      }, remaining);
+    }
+
+    // Hide loader with smooth transition
+    function hide() {
+      if (!isActive) return;
+
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+
+      loader.classList.add("hiding");
+
+      setTimeout(() => {
+        loader.classList.remove("active", "hiding");
+        isActive = false;
+
+        // Clean up
+        window.removeEventListener("load", handlePageLoad);
+      }, 500);
+    }
+
+    // Public API
+    window.ShieldLoader = {
+      show: showImmediately,
+      hide: hide,
+    };
+
+    // Show loader immediately (before DOMContentLoaded)
+    showImmediately();
+
+    // Fallback: Hide if something goes wrong
+    setTimeout(() => {
+      if (isActive && document.readyState === "complete") {
+        hide();
+      }
+    }, config.duration + 1000);
+  })();
+</script>

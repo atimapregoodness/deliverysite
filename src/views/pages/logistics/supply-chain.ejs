@@ -1,51 +1,649 @@
 <%- layout('layouts/main') %>
-<title>Supply Chain Management | Shield Logistics</title>
+<title>Intelligent Supply Chain Management Solutions | Shield Logistics</title>
 
 <style>
   .hero-section {
     background: linear-gradient(
-        rgba(13, 110, 253, 0.9),
-        rgba(13, 110, 253, 0.95)
+        135deg,
+        rgba(13, 110, 253, 0.92) 0%,
+        rgba(32, 83, 213, 0.95) 100%
       ),
-      url("https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=2067")
-        center/cover;
+      url("/assets/images/cover_2.avif") center/cover;
     color: white;
+    position: relative;
+    overflow: hidden;
   }
 
-  .supply-chain-card {
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
+  .hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0d6efd, #00c9ff);
+    z-index: 2;
+  }
+
+  .chain-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(13, 110, 253, 0.1);
     transition: all 0.3s ease;
+    overflow: hidden;
   }
 
-  .supply-chain-card:hover {
+  .chain-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(13, 110, 253, 0.15) !important;
     border-color: #0d6efd;
-    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.1);
+  }
+
+  .chain-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd 0%, #00c9ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2rem;
+  }
+
+  .dashboard-section {
+    background: #0000005e;
+    backdrop-filter: blur(10px);
+    --webkit-backdrop-filter: blur(10px);
+    border-radius: 16px;
+    color: #f0f2ff;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .dashboard-header {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .metric-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .metric-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #0d6efd, #00c9ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .tech-badge {
+    background: linear-gradient(135deg, #0d6efd 0%, #00c9ff 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .process-flow {
+    position: relative;
+    padding: 2rem 0;
+  }
+
+  .flow-step {
+    text-align: center;
+    padding: 1.5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .flow-step::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #0d6efd 0%, #00c9ff 100%);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    z-index: -1;
+  }
+
+  .flow-step i {
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .flow-line {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0d6efd, #00c9ff);
+    z-index: 1;
+  }
+
+  .ai-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  .integration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+  }
+
+  .integration-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+  }
+
+  .integration-item:hover {
+    transform: scale(1.05);
+  }
+
+  .integration-item img {
+    max-height: 30px;
+    max-width: 100%;
+  }
+
+  .alert-panel {
+    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(255, 65, 108, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 65, 108, 0);
+    }
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, #0d6efd, #00c9ff);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+  }
+
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -34px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #0d6efd;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #0d6efd;
+  }
+
+  .kpi-indicator {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(
+      #20c997 0% 85%,
+      #ffc107 85% 95%,
+      #ff416c 95% 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
+  .kpi-inner {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0d6efd, #00c9ff);
   }
 </style>
 
-<section class="hero-section py-5">
-  <div class="container py-5">
-    <div class="row">
-      <div class="col-lg-8">
+<section class="hero-section py-3">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="mb-4">
+          <span class="tech-badge d-inline-flex align-items-center mb-3">
+            <i class="fas fa-brain me-2"></i> AI-DRIVEN SUPPLY CHAIN
+          </span>
+        </div>
         <h1 class="display-4 fw-bold mb-4">
-          End-to-End Supply Chain Solutions
+          Intelligent Supply Chain Orchestration
         </h1>
         <p class="lead mb-4">
-          Comprehensive supply chain management integrating procurement,
-          inventory, warehousing, and distribution for seamless operations.
+          End-to-end digital supply chain solutions powered by artificial
+          intelligence, machine learning, and real-time analytics for optimal
+          visibility, resilience, and efficiency.
         </p>
 
-        <div class="d-flex flex-wrap gap-3">
-          <span class="badge bg-white text-primary px-3 py-2">
-            <i class="fas fa-chart-line me-2"></i>Demand Planning
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <span
+            class="badge bg-white text-dark px-4 py-2 rounded-pill shadow-sm"
+          >
+            <i class="fas fa-robot text-primary me-2"></i>Predictive Analytics
           </span>
-          <span class="badge bg-white text-primary px-3 py-2">
-            <i class="fas fa-boxes me-2"></i>Inventory Optimization
+          <span
+            class="badge bg-white text-dark px-4 py-2 rounded-pill shadow-sm"
+          >
+            <i class="fas fa-network-wired text-success me-2"></i>Real-Time
+            Visibility
           </span>
-          <span class="badge bg-white text-primary px-3 py-2">
-            <i class="fas fa-truck-loading me-2"></i>Distribution Management
+          <span
+            class="badge bg-white text-dark px-4 py-2 rounded-pill shadow-sm"
+          >
+            <i class="fas fa-shield-alt text-warning me-2"></i>Risk Mitigation
           </span>
+          <span
+            class="badge bg-white text-dark px-4 py-2 rounded-pill shadow-sm"
+          >
+            <i class="fas fa-bolt text-info me-2"></i>Automated Optimization
+          </span>
+        </div>
+      </div>
+      <div class="col-lg-5 mt-5 mt-lg-0">
+        <div class="dashboard-section p-4">
+          <div class="dashboard-header">
+            <h5 class="mb-0">
+              <i class="fas fa-tachometer-alt me-2"></i>Live Supply Chain
+              Dashboard
+            </h5>
+            <small class="text-light"
+              >Real-time metrics | Updated every 30 seconds</small
+            >
+          </div>
+
+          <div class="row g-3 mt-3">
+            <div class="col-6">
+              <div class="metric-card">
+                <small class="text-light">Order Fulfillment Rate</small>
+                <div class="metric-value">98.7%</div>
+                <div class="progress mt-2" style="height: 6px">
+                  <div
+                    class="progress-bar bg-success"
+                    style="width: 98.7%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="metric-card">
+                <small class="text-light">Inventory Turnover</small>
+                <div class="metric-value">8.2x</div>
+                <div class="progress mt-2" style="height: 6px">
+                  <div class="progress-bar bg-info" style="width: 82%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="metric-card">
+                <small class="text-light">On-Time Delivery</small>
+                <div class="metric-value">99.1%</div>
+                <div class="progress mt-2" style="height: 6px">
+                  <div
+                    class="progress-bar bg-primary"
+                    style="width: 99.1%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="metric-card">
+                <small class="text-light">Cost Reduction</small>
+                <div class="metric-value">-18%</div>
+                <div class="progress mt-2" style="height: 6px">
+                  <div class="progress-bar bg-warning" style="width: 82%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="alert-panel">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                <div>
+                  <h6 class="fw-bold mb-1">Risk Alert: Port Congestion</h6>
+                  <p class="mb-0">
+                    AI predicts 3-day delay at Shanghai Port. Alternative
+                    routing activated.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5" id="solutions">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-3">Intelligent Supply Chain Solutions</h2>
+      <p class="text-muted lead">
+        AI-powered solutions for end-to-end supply chain optimization
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="chain-card p-4 h-100">
+          <div class="chain-icon">
+            <i class="fas fa-project-diagram"></i>
+          </div>
+          <h5 class="fw-bold text-center mb-3">Digital Twin Network Design</h5>
+          <p>
+            Create virtual replicas of your supply chain network to simulate
+            scenarios, optimize locations, and predict disruptions before they
+            occur.
+          </p>
+          <ul class="list-unstyled mt-3">
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Scenario
+              simulation & optimization
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Predictive
+              disruption modeling
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Multi-echelon
+              inventory optimization
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Carbon
+              footprint analysis
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="chain-card p-4 h-100">
+          <div class="chain-icon">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <h5 class="fw-bold text-center mb-3">
+            Predictive Inventory Intelligence
+          </h5>
+          <p>
+            Machine learning algorithms forecast demand with 95%+ accuracy,
+            optimizing stock levels and reducing carrying costs by up to 30%.
+          </p>
+          <ul class="list-unstyled mt-3">
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>AI demand
+              forecasting
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Automated
+              replenishment
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Seasonality &
+              trend analysis
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Safety stock
+              optimization
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="chain-card p-4 h-100">
+          <div class="chain-icon">
+            <i class="fas fa-sync-alt"></i>
+          </div>
+          <h5 class="fw-bold text-center mb-3">
+            Automated Order Orchestration
+          </h5>
+          <p>
+            Intelligent order routing and fulfillment automation that reduces
+            processing time by 65% and improves accuracy to 99.9%.
+          </p>
+          <ul class="list-unstyled mt-3">
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Intelligent
+              order routing
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Automated
+              picking optimization
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Real-time
+              order tracking
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>Returns
+              management automation
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light" id="demo">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h3 class="fw-bold mb-3">End-to-End Process Visibility</h3>
+      <p class="text-muted">
+        Real-time tracking across your entire supply chain ecosystem
+      </p>
+    </div>
+
+    <div class="process-flow mb-5">
+      <div class="flow-line"></div>
+      <div class="row">
+        <div class="col">
+          <div class="flow-step">
+            <i class="fas fa-shopping-cart"></i>
+            <h6 class="fw-bold mb-2">Demand Planning</h6>
+            <small class="text-muted">AI forecasting & analytics</small>
+          </div>
+        </div>
+        <div class="col">
+          <div class="flow-step">
+            <i class="fas fa-industry"></i>
+            <h6 class="fw-bold mb-2">Procurement</h6>
+            <small class="text-muted">Supplier network management</small>
+          </div>
+        </div>
+        <div class="col">
+          <div class="flow-step">
+            <i class="fas fa-warehouse"></i>
+            <h6 class="fw-bold mb-2">Warehousing</h6>
+            <small class="text-muted">Smart inventory management</small>
+          </div>
+        </div>
+        <div class="col">
+          <div class="flow-step">
+            <i class="fas fa-truck"></i>
+            <h6 class="fw-bold mb-2">Distribution</h6>
+            <small class="text-muted">Optimized transportation</small>
+          </div>
+        </div>
+        <div class="col">
+          <div class="flow-step">
+            <i class="fas fa-box-open"></i>
+            <h6 class="fw-bold mb-2">Fulfillment</h6>
+            <small class="text-muted">Last-mile delivery</small>
+          </div>
+        </div>
+        <div class="col">
+          <div class="flow-step">
+            <i class="fas fa-chart-line"></i>
+            <h6 class="fw-bold mb-2">Analytics</h6>
+            <small class="text-muted">Performance optimization</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row align-items-center mt-5">
+      <div class="col-lg-6">
+        <div class="ai-panel">
+          <h4 class="fw-bold mb-3">
+            <i class="fas fa-brain me-2"></i> AI Risk Management Engine
+          </h4>
+          <p>
+            Our AI continuously monitors 150+ risk factors across your supply
+            chain to predict and prevent disruptions.
+          </p>
+
+          <div class="mt-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Supplier Risk Score</span>
+              <span class="fw-bold">Low (7/100)</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-success" style="width: 7%"></div>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2 mt-3">
+              <span>Geopolitical Risk</span>
+              <span class="fw-bold">Medium (42/100)</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-warning" style="width: 42%"></div>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2 mt-3">
+              <span>Logistics Network Health</span>
+              <span class="fw-bold">Excellent (92/100)</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-primary" style="width: 92%"></div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <small
+              ><i class="fas fa-lightbulb me-1"></i> AI identifies 95% of
+              potential disruptions 72+ hours in advance</small
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mt-5 mt-lg-0">
+        <h5 class="fw-bold mb-3">Real-Time Incident Timeline</h5>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="d-flex justify-content-between">
+              <h6 class="fw-bold">Port Congestion Detected</h6>
+              <small class="text-muted">2 hours ago</small>
+            </div>
+            <p class="small mb-0">
+              AI detected 40% increase in port dwell time at Rotterdam.
+              Alternative routing activated.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <div class="d-flex justify-content-between">
+              <h6 class="fw-bold">Weather Delay Predicted</h6>
+              <small class="text-muted">5 hours ago</small>
+            </div>
+            <p class="small mb-0">
+              Storm system identified in North Atlantic. Shipments rerouted to
+              avoid disruption.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <div class="d-flex justify-content-between">
+              <h6 class="fw-bold">Supplier Performance Alert</h6>
+              <small class="text-muted">1 day ago</small>
+            </div>
+            <p class="small mb-0">
+              Supplier XYZ showing 15% increase in lead times. Backup supplier
+              activated.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <div class="d-flex justify-content-between">
+              <h6 class="fw-bold">Demand Spike Predicted</h6>
+              <small class="text-muted">2 days ago</small>
+            </div>
+            <p class="small mb-0">
+              AI forecasts 35% demand increase for Product ABC. Safety stock
+              adjusted automatically.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -54,42 +652,261 @@
 
 <section class="py-5">
   <div class="container">
-    <h2 class="fw-bold text-center mb-5">Supply Chain Services</h2>
+    <div class="text-center mb-5">
+      <h3 class="fw-bold mb-3">Enterprise Integration Ecosystem</h3>
+      <p class="text-muted">
+        Seamlessly connect with your existing technology infrastructure
+      </p>
+    </div>
+
+    <div class="integration-grid mb-5">
+      <div class="integration-item">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/sap.svg"
+          alt="SAP"
+        />
+      </div>
+      <div class="integration-item">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/oracle.svg"
+          alt="Oracle"
+        />
+      </div>
+      <div class="integration-item">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/salesforce.svg"
+          alt="Salesforce"
+        />
+      </div>
+      <div class="integration-item">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/microsoft.svg"
+          alt="Microsoft"
+        />
+      </div>
+      <div class="integration-item">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/aws.svg"
+          alt="AWS"
+        />
+      </div>
+      <div class="integration-item">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/google.svg"
+          alt="Google Cloud"
+        />
+      </div>
+      <div class="integration-item">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/ibm.svg"
+          alt="IBM"
+        />
+      </div>
+      <div class="integration-item">
+        <img
+          src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/shopify.svg"
+          alt="Shopify"
+        />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="kpi-indicator">
+            <div class="kpi-inner">94%</div>
+          </div>
+          <h5 class="fw-bold mb-2">Forecast Accuracy</h5>
+          <p class="small text-muted">
+            AI-driven demand prediction accuracy across all product categories
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="kpi-indicator">
+            <div class="kpi-inner">65%</div>
+          </div>
+          <h5 class="fw-bold mb-2">Cost Reduction</h5>
+          <p class="small text-muted">
+            Average reduction in logistics and inventory carrying costs
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="kpi-indicator">
+            <div class="kpi-inner">99.5%</div>
+          </div>
+          <h5 class="fw-bold mb-2">Order Accuracy</h5>
+          <p class="small text-muted">
+            Perfect order rate with automated quality control
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-dark text-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h3 class="fw-bold mb-3">Supply Chain Resilience Framework</h3>
+      <p class="text-muted">
+        Building agile, adaptive, and antifragile supply chains
+      </p>
+    </div>
+
     <div class="row g-4">
-      <div class="col-md-4">
-        <div class="supply-chain-card p-4 h-100">
-          <div class="mb-3">
-            <i class="fas fa-project-diagram fa-2x text-primary"></i>
+      <div class="col-md-6">
+        <div class="chain-card p-4 h-100">
+          <div class="d-flex align-items-start mb-3">
+            <div class="me-3">
+              <i class="fas fa-shield-alt fa-2x text-primary"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-2 text-dark">Risk Mitigation Strategies</h5>
+              <p class="text-dark">
+                Proactive risk identification and mitigation across your supply
+                network
+              </p>
+            </div>
           </div>
-          <h5 class="fw-bold">Network Design</h5>
-          <p>
-            Strategic planning of warehouse locations, transportation routes,
-            and inventory positioning.
+
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <small class="text-dark">Multi-sourcing strategies</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <small class="text-dark">Buffer stock optimization</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <small class="text-dark">Geographic diversification</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <small class="text-dark">Transportation redundancy</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="chain-card p-4 h-100">
+          <div class="d-flex align-items-start mb-3">
+            <div class="me-3">
+              <i class="fas fa-leaf fa-2x text-success"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-2 text-dark">Sustainable Supply Chains</h5>
+              <p class="text-dark">
+                Environmental and social responsibility integrated into supply
+                chain operations
+              </p>
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <small class="text-dark">Carbon footprint tracking</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <small class="text-dark">Ethical sourcing audits</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <small class="text-dark">Circular economy integration</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <small class="text-dark">Green logistics optimization</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="cta-section p-5">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h3 class="fw-bold mb-3">Transform Your Supply Chain with AI</h3>
+          <p class="mb-0">
+            Schedule a personalized demo to see how our intelligent supply chain
+            platform can drive efficiency, resilience, and competitive
+            advantage.
           </p>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="supply-chain-card p-4 h-100">
-          <div class="mb-3">
-            <i class="fas fa-chart-bar fa-2x text-success"></i>
+    </div>
+
+    <div class="row mt-5 pt-4">
+      <div class="col-md-6">
+        <h6 class="fw-bold mb-3">Industry Specializations</h6>
+        <div class="row g-2">
+          <div class="col-6">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-pills text-primary me-2"></i>
+              <small>Pharmaceutical & Healthcare</small>
+            </div>
           </div>
-          <h5 class="fw-bold">Inventory Management</h5>
-          <p>
-            Real-time inventory tracking, demand forecasting, and stock
-            optimization.
-          </p>
+          <div class="col-6">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-microchip text-info me-2"></i>
+              <small>Technology & Electronics</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-tshirt text-success me-2"></i>
+              <small>Retail & E-commerce</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-industry text-warning me-2"></i>
+              <small>Manufacturing & Automotive</small>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="supply-chain-card p-4 h-100">
-          <div class="mb-3">
-            <i class="fas fa-sync-alt fa-2x text-info"></i>
+      <div class="col-md-6">
+        <h6 class="fw-bold mb-3">Global Network Coverage</h6>
+        <div class="d-flex align-items-start">
+          <i class="fas fa-globe-americas text-danger me-3 mt-1"></i>
+          <div>
+            <p class="small mb-2">
+              Operations across 150+ countries with local expertise and global
+              coordination capabilities.
+            </p>
+            <small class="text-muted"
+              >24/7 command centers in 12 strategic locations worldwide</small
+            >
           </div>
-          <h5 class="fw-bold">Order Fulfillment</h5>
-          <p>
-            Efficient order processing, picking, packing, and shipping with
-            quality control.
-          </p>
         </div>
       </div>
     </div>

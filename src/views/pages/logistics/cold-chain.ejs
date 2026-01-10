@@ -1,58 +1,401 @@
 <%- layout('layouts/main') %>
-<title>Cold Chain Logistics | Shield Logistics</title>
+<title>Advanced Cold Chain Logistics Solutions | Shield Logistics</title>
 
 <style>
   .hero-section {
     background: linear-gradient(
-        rgba(32, 201, 151, 0.9),
-        rgba(32, 201, 151, 0.95)
+        135deg,
+        rgba(32, 201, 151, 0.92) 0%,
+        rgba(0, 150, 199, 0.95) 100%
       ),
-      url("https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&q=80&w=2025")
-        center/cover;
+      url("/assets/images/cover_1.avif") center/cover;
     color: white;
+    position: relative;
+    overflow: hidden;
   }
 
-  .temperature-card {
-    background: linear-gradient(135deg, #e6f7f2, #ffffff);
-    border-left: 4px solid #20c997;
+  .temperature-gradient {
+    background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  .temp-range {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #1a2980 0%, #26d0ce 100%);
+    position: relative;
+    margin: 2rem 0;
+  }
+
+  .temp-marker {
+    position: absolute;
+    top: -20px;
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .temp-indicator {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #20c997;
+    top: -6px;
+    transform: translateX(-50%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .monitoring-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid rgba(32, 201, 151, 0.2);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .monitoring-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(32, 201, 151, 0.15);
+  }
+
+  .sensor-status {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+  }
+
+  .status-active {
+    background: linear-gradient(135deg, #00b09b, #96c93d);
+    box-shadow: 0 0 10px rgba(0, 176, 155, 0.5);
+  }
+
+  .status-warning {
+    background: linear-gradient(135deg, #f46b45, #eea849);
+    box-shadow: 0 0 10px rgba(244, 107, 69, 0.5);
+  }
+
+  .status-alert {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    box-shadow: 0 0 10px rgba(255, 65, 108, 0.5);
+  }
+
+  .compliance-badge {
+    background: rgba(32, 201, 151, 0.1);
+    border: 2px solid #20c997;
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 100%;
+  }
+
+  .facility-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .facility-card:hover {
+    transform: translateY(-8px);
+  }
+
+  .tech-badge {
+    background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .data-stream {
+    background: #1a1a2e;
+    border-radius: 16px;
+    color: white;
+    font-family: "Monaco", "Courier New", monospace;
+    font-size: 0.9rem;
+    padding: 1.5rem;
+    overflow: hidden;
+  }
+
+  .data-line {
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    animation: slideIn 0.5s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+    color: white;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #20c997, #00c9ff);
+  }
+
+  .temperature-alert {
+    background: rgba(255, 65, 108, 0.1);
+    border: 2px solid #ff416c;
+    border-radius: 12px;
+    padding: 1.5rem;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(255, 65, 108, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 65, 108, 0);
+    }
+  }
+
+  .quality-indicator {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(
+      #20c997 0% 94%,
+      #ffc107 94% 99%,
+      #ff416c 99% 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
+  .quality-inner {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
   }
 </style>
 
-<section class="hero-section py-5">
-  <div class="container py-5">
-    <div class="row">
-      <div class="col-lg-8">
-        <h1 class="display-4 fw-bold mb-4">Temperature-Controlled Logistics</h1>
+<section class="hero-section py-3">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="mb-4">
+          <span class="tech-badge d-inline-flex align-items-center mb-3">
+            <i class="fas fa-snowflake me-2"></i> IoT-POWERED COLD CHAIN
+          </span>
+        </div>
+        <h1 class="display-4 fw-bold mb-4">Intelligent Cold Chain Logistics</h1>
         <p class="lead mb-4">
-          End-to-end cold chain solutions for pharmaceuticals, food, and other
-          temperature-sensitive products with constant monitoring and
-          validation.
+          Advanced temperature-controlled supply chain solutions with real-time
+          IoT monitoring, AI-powered predictive analytics, and end-to-end
+          compliance validation for critical shipments.
         </p>
 
-        <div class="row mt-4">
+        <div class="row g-3 mb-4">
           <div class="col-md-3">
-            <div class="text-center">
+            <div class="text-center p-3 bg-white bg-opacity-10 rounded-3">
               <i class="fas fa-snowflake fa-2x mb-3"></i>
-              <h6>Frozen (-20°C)</h6>
+              <h6 class="mb-0">Cryogenic<br />(-80°C to -150°C)</h6>
             </div>
           </div>
           <div class="col-md-3">
-            <div class="text-center">
+            <div class="text-center p-3 bg-white bg-opacity-10 rounded-3">
+              <i class="fas fa-icicles fa-2x mb-3"></i>
+              <h6 class="mb-0">Ultra-Frozen<br />(-20°C to -40°C)</h6>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center p-3 bg-white bg-opacity-10 rounded-3">
               <i class="fas fa-thermometer-half fa-2x mb-3"></i>
-              <h6>Refrigerated (2-8°C)</h6>
+              <h6 class="mb-0">Refrigerated<br />(2°C to 8°C)</h6>
             </div>
           </div>
           <div class="col-md-3">
-            <div class="text-center">
+            <div class="text-center p-3 bg-white bg-opacity-10 rounded-3">
               <i class="fas fa-temperature-low fa-2x mb-3"></i>
-              <h6>Controlled (15-25°C)</h6>
+              <h6 class="mb-0">Controlled<br />(15°C to 25°C)</h6>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="text-center">
-              <i class="fas fa-clipboard-check fa-2x mb-3"></i>
-              <h6>GDP Compliant</h6>
+        </div>
+      </div>
+      <div class="col-lg-5 mt-5 mt-lg-0">
+        <div class="temperature-gradient">
+          <h5 class="fw-bold mb-4">
+            <i class="fas fa-wave-square me-2"></i> Real-Time Temperature Range
+          </h5>
+
+          <div class="temp-range">
+            <div class="temp-marker" style="left: 0%">-150°C</div>
+            <div class="temp-marker" style="left: 20%">-80°C</div>
+            <div class="temp-marker" style="left: 40%">-20°C</div>
+            <div class="temp-marker" style="left: 60%">2°C</div>
+            <div class="temp-marker" style="left: 80%">15°C</div>
+            <div class="temp-marker" style="left: 100%">25°C</div>
+
+            <div class="temp-indicator" style="left: 35%">
+              <div
+                class="status-active"
+                style="
+                  position: absolute;
+                  top: 4px;
+                  left: 4px;
+                  width: 10px;
+                  height: 10px;
+                "
+              ></div>
             </div>
+          </div>
+
+          <div class="text-center">
+            <h3 class="fw-bold mb-2">Current Shipment: -28.5°C</h3>
+            <p class="mb-0">
+              <i class="fas fa-map-marker-alt me-2"></i>Location: Warehouse A3 |
+              Target: -20°C ±2°C
+            </p>
+            <div class="mt-3">
+              <span class="badge bg-success me-2">STABLE</span>
+              <span class="badge bg-info me-2">GPS ACTIVE</span>
+              <span class="badge bg-light text-dark">Battery: 87%</span>
+            </div>
+          </div>
+
+          <div class="mt-4 temperature-alert">
+            <div class="d-flex align-items-center">
+              <i
+                class="fas fa-exclamation-triangle fa-2x me-3 text-warning"
+              ></i>
+              <div>
+                <h6 class="fw-bold mb-1">Predictive Alert</h6>
+                <p class="mb-0">
+                  AI predicts potential temperature excursion in 2.3 hours.
+                  Recommended action: Pre-cool backup unit.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5" id="monitoring">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-3">IoT Temperature Monitoring System</h2>
+      <p class="text-muted lead">
+        Real-time tracking and predictive analytics for temperature-sensitive
+        shipments
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="monitoring-card p-4 h-100">
+          <div class="d-flex align-items-start mb-4">
+            <div class="me-3">
+              <i class="fas fa-microchip fa-2x text-primary"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-2">Smart IoT Sensors</h5>
+              <p class="text-muted">
+                Wireless sensors with 5-year battery life and satellite
+                connectivity
+              </p>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Sensor Status</span>
+              <span
+                ><span class="sensor-status status-active"></span> Active</span
+              >
+            </div>
+            <div class="progress" style="height: 8px">
+              <div class="progress-bar bg-success" style="width: 98%"></div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="text-center p-3 bg-light rounded">
+                <small class="text-muted d-block">Update Frequency</small>
+                <h6 class="fw-bold mb-0">Every 2 min</h6>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 bg-light rounded">
+                <small class="text-muted d-block">Data Accuracy</small>
+                <h6 class="fw-bold mb-0">±0.1°C</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="data-stream h-100">
+          <h6 class="text-center mb-3">
+            <i class="fas fa-satellite-dish me-2"></i> Live Data Stream
+          </h6>
+          <div class="data-line">
+            [12:45:32] TEMP: -28.5°C | HUM: 12% | GPS: 40.7128°N, 74.0060°W
+          </div>
+          <div class="data-line">
+            [12:43:32] TEMP: -28.4°C | HUM: 12% | DOOR: CLOSED | SHOCK: 0.2G
+          </div>
+          <div class="data-line">
+            [12:41:32] TEMP: -28.6°C | HUM: 11% | BATTERY: 87% | SIGNAL: -65dBm
+          </div>
+          <div class="data-line">
+            [12:39:32] TEMP: -28.5°C | HUM: 12% | ALERT: NONE | TRIP: 342km
+          </div>
+          <div class="data-line">
+            [12:37:32] TEMP: -28.3°C | HUM: 13% | PREDICT: STABLE | ETA: 3h 42m
+          </div>
+          <div class="data-line">
+            [12:35:32] TEMP: -28.5°C | HUM: 12% | AMBIENT: 22°C | ALTITUDE: 45m
+          </div>
+
+          <div class="text-center mt-4">
+            <div
+              class="spinner-border spinner-border-sm text-success"
+              role="status"
+            >
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <small class="ms-2">Receiving live updates...</small>
           </div>
         </div>
       </div>
@@ -62,38 +405,435 @@
 
 <section class="py-5 bg-light">
   <div class="container">
-    <h2 class="fw-bold text-center mb-5">Cold Chain Services</h2>
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-3">Cold Chain Specializations</h2>
+      <p class="text-muted lead">
+        Industry-specific solutions with validated protocols
+      </p>
+    </div>
+
     <div class="row g-4">
       <div class="col-md-6">
-        <div class="temperature-card p-4 rounded-3 h-100">
-          <h4 class="fw-bold mb-3">
-            <i class="fas fa-pills text-info me-3"></i>Pharmaceutical Logistics
-          </h4>
+        <div class="monitoring-card p-4 h-100">
+          <div class="d-flex align-items-start mb-3">
+            <div class="me-3">
+              <i class="fas fa-pills fa-2x text-info"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-2">Pharmaceutical & Biologics</h5>
+              <span class="badge bg-info me-2">GDP</span>
+              <span class="badge bg-primary">GAMP5</span>
+            </div>
+          </div>
           <p>
-            GDP-compliant transportation and storage for vaccines, biologics,
-            and temperature-sensitive medications.
+            End-to-end temperature-controlled logistics for vaccines, biologics,
+            and clinical trial materials with full chain of custody.
           </p>
-          <ul>
-            <li>Validated cold storage facilities</li>
-            <li>Temperature data logging</li>
-            <li>Emergency protocols</li>
-          </ul>
+
+          <div class="mt-4">
+            <h6 class="fw-bold mb-3">Key Capabilities:</h6>
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <small>Validated Packaging</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <small>Serialization</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <small>Emergency Protocols</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <small>Audit Trails</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="monitoring-card p-4 h-100">
+          <div class="d-flex align-items-start mb-3">
+            <div class="me-3">
+              <i class="fas fa-utensils fa-2x text-success"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-2">Food & Beverage</h5>
+              <span class="badge bg-success me-2">HACCP</span>
+              <span class="badge bg-warning text-dark">BRCGS</span>
+            </div>
+          </div>
+          <p>
+            Comprehensive cold chain solutions for perishable foods, dairy,
+            fresh produce, and ready-to-eat meals with quality preservation.
+          </p>
+
+          <div class="mt-4">
+            <h6 class="fw-bold mb-3">Key Capabilities:</h6>
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <small>Blast Freezing</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <small>Ethylene Control</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <small>Quality Grading</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <small>Traceability</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4 g-4">
+      <div class="col-md-4">
+        <div class="monitoring-card p-4 h-100">
+          <div class="text-center">
+            <i class="fas fa-flask fa-2x text-purple mb-3"></i>
+            <h6 class="fw-bold">Clinical Trials</h6>
+            <small
+              >Temperature-controlled logistics for investigational medicinal
+              products with direct-to-patient capabilities.</small
+            >
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="monitoring-card p-4 h-100">
+          <div class="text-center">
+            <i class="fas fa-dna fa-2x text-danger mb-3"></i>
+            <h6 class="fw-bold">Biotech & Cell Therapy</h6>
+            <small
+              >Cryogenic logistics for stem cells, CAR-T therapies, and other
+              advanced therapy medicinal products.</small
+            >
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="monitoring-card p-4 h-100">
+          <div class="text-center">
+            <i class="fas fa-cannabis fa-2x text-green mb-3"></i>
+            <h6 class="fw-bold">Cannabis & Pharmaceuticals</h6>
+            <small
+              >Compliant temperature-controlled distribution for medical
+              cannabis and controlled substances.</small
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h3 class="fw-bold mb-4">Compliance & Quality Assurance</h3>
+        <p class="mb-4">
+          Our cold chain solutions are designed to meet and exceed global
+          regulatory standards with comprehensive validation and documentation.
+        </p>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="compliance-badge">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-file-contract fa-2x text-primary me-3"></i>
+                <div>
+                  <h6 class="fw-bold mb-0">GDP Compliant</h6>
+                  <small>Good Distribution Practice</small>
+                </div>
+              </div>
+              <p class="small mb-0">
+                Full compliance with EU GDP guidelines for medicinal products.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="compliance-badge">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-shield-alt fa-2x text-success me-3"></i>
+                <div>
+                  <h6 class="fw-bold mb-0">FDA 21 CFR Part 11</h6>
+                  <small>Electronic Records</small>
+                </div>
+              </div>
+              <p class="small mb-0">
+                Compliant electronic record-keeping and digital signatures.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="compliance-badge">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-globe fa-2x text-warning me-3"></i>
+                <div>
+                  <h6 class="fw-bold mb-0">WHO PQS</h6>
+                  <small>Performance Standards</small>
+                </div>
+              </div>
+              <p class="small mb-0">
+                Meeting WHO Performance, Quality and Safety standards.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="compliance-badge">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-certificate fa-2x text-info me-3"></i>
+                <div>
+                  <h6 class="fw-bold mb-0">ISO 9001:2015</h6>
+                  <small>Quality Management</small>
+                </div>
+              </div>
+              <p class="small mb-0">
+                Certified quality management system for consistent service
+                delivery.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mt-5 mt-lg-0">
+        <div class="text-center">
+          <div class="quality-indicator">
+            <div class="quality-inner">99.8%</div>
+          </div>
+          <h4 class="fw-bold mb-3">Quality Performance</h4>
+          <p>
+            Our cold chain quality metrics demonstrate exceptional performance
+            in temperature maintenance and regulatory compliance.
+          </p>
+
+          <div class="mt-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Temperature Excursions</span>
+              <span class="fw-bold">< 0.02%</span>
+            </div>
+            <div class="progress" style="height: 10px">
+              <div class="progress-bar bg-success" style="width: 99.8%"></div>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2 mt-3">
+              <span>On-Time Delivery</span>
+              <span class="fw-bold">99.5%</span>
+            </div>
+            <div class="progress" style="height: 10px">
+              <div class="progress-bar bg-info" style="width: 99.5%"></div>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2 mt-3">
+              <span>Documentation Accuracy</span>
+              <span class="fw-bold">100%</span>
+            </div>
+            <div class="progress" style="height: 10px">
+              <div class="progress-bar bg-primary" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-dark text-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h3 class="fw-bold mb-3">Global Cold Chain Network</h3>
+      <p class="text-muted">
+        Strategically located facilities with advanced temperature control
+        capabilities
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="facility-card">
+          <div
+            style="
+              height: 200px;
+              background: linear-gradient(135deg, #1a2980, #26d0ce);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <i class="fas fa-warehouse fa-4x"></i>
+          </div>
+          <div class="p-4 bg-white text-dark">
+            <h5 class="fw-bold mb-2">North America Hub</h5>
+            <p class="small text-muted">Memphis, TN - 500,000 sq ft</p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <span class="badge bg-primary">-80°C Storage</span>
+              <span class="badge bg-info">2-8°C Zones</span>
+              <span class="badge bg-success">Ambient</span>
+            </div>
+            <ul class="small ps-3 mb-0">
+              <li>FDA-registered facility</li>
+              <li>24/7 security monitoring</li>
+              <li>Backup power generation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="facility-card">
+          <div
+            style="
+              height: 200px;
+              background: linear-gradient(135deg, #20c997, #00c9ff);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <i class="fas fa-globe-europe fa-4x"></i>
+          </div>
+          <div class="p-4 bg-white text-dark">
+            <h5 class="fw-bold mb-2">European Hub</h5>
+            <p class="small text-muted">Amsterdam, NL - 350,000 sq ft</p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <span class="badge bg-primary">Cryogenic</span>
+              <span class="badge bg-info">Controlled</span>
+              <span class="badge bg-success">GDP Compliant</span>
+            </div>
+            <ul class="small ps-3 mb-0">
+              <li>EMA-approved facility</li>
+              <li>Customs clearance services</li>
+              <li>Language support: 8 languages</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="facility-card">
+          <div
+            style="
+              height: 200px;
+              background: linear-gradient(135deg, #6a11cb, #2575fc);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <i class="fas fa-globe-europe fa-4x"></i>
+          </div>
+          <div class="p-4 bg-white text-dark">
+            <h5 class="fw-bold mb-2">Asia-Pacific Hub</h5>
+            <p class="small text-muted">Singapore - 400,000 sq ft</p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <span class="badge bg-primary">Vaccine Storage</span>
+              <span class="badge bg-info">Pharma Grade</span>
+              <span class="badge bg-success">HAACP Certified</span>
+            </div>
+            <ul class="small ps-3 mb-0">
+              <li>MHRA-approved</li>
+              <li>Free trade zone access</li>
+              <li>Multi-modal transportation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="cta-section p-5" id="contact">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h3 class="fw-bold mb-3">
+            Secure Your Temperature-Sensitive Shipments
+          </h3>
+          <p class="mb-0">
+            Schedule a consultation with our cold chain experts to design a
+            customized solution for your critical shipments.
+          </p>
+        </div>
+        <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+          <a href="#" class="btn btn-light btn-lg px-4">
+            <i class="fas fa-temperature-low me-2"></i>Request Validation Study
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-5 pt-4">
+      <div class="col-md-6">
+        <h6 class="fw-bold mb-3">Advanced Technologies</h6>
+        <div class="row g-2">
+          <div class="col-6">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-brain text-primary me-2"></i>
+              <small>AI Predictive Analytics</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-broadcast-tower text-info me-2"></i>
+              <small>5G IoT Connectivity</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-bolt text-warning me-2"></i>
+              <small>Active Packaging</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-satellite text-success me-2"></i>
+              <small>Satellite Tracking</small>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-md-6">
-        <div class="temperature-card p-4 rounded-3 h-100">
-          <h4 class="fw-bold mb-3">
-            <i class="fas fa-utensils text-success me-3"></i>Food & Beverage
-          </h4>
-          <p>
-            HACCP-compliant cold chain for perishable foods, dairy products, and
-            fresh produce.
-          </p>
-          <ul>
-            <li>Blast freezing capabilities</li>
-            <li>Cross-contamination prevention</li>
-            <li>Quick turnaround times</li>
-          </ul>
+        <h6 class="fw-bold mb-3">Emergency Response</h6>
+        <div class="d-flex align-items-start">
+          <i class="fas fa-ambulance text-danger me-3 mt-1"></i>
+          <div>
+            <p class="small mb-2">
+              24/7 emergency response team with backup transportation and
+              storage solutions for temperature excursions.
+            </p>
+            <small class="text-muted"
+              >Average response time: < 30 minutes</small
+            >
+          </div>
         </div>
       </div>
     </div>

@@ -70,14 +70,6 @@ router.get("/contact", (req, res) => {
   res.render("pages/company/contact", { currentPage: "company" });
 });
 
-router.get("/company/leadership", (req, res) => {
-  res.render("pages/company/leadership", { currentPage: "company" });
-});
-
-router.get("/company/careers", (req, res) => {
-  res.render("pages/company/careers", { currentPage: "company" });
-});
-
 router.get("/company/certifications", (req, res) => {
   res.render("pages/company/certifications", { currentPage: "company" });
 });
