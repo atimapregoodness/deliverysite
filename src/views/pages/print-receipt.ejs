@@ -527,7 +527,16 @@
                   <td><%= delivery.weight %> kg</td>
                   <td>
                     <span class="dimensions"
-                      ><%= delivery.dimensions || "N/A" %></span
+                      ><strong>Length:</strong> <%=
+                      delivery.package.dimensions.length || "N/A" %></span
+                    >
+                    <span class="dimensions"
+                      ><strong>Width:</strong> <%=
+                      delivery.package.dimensions.width || "N/A" %></span
+                    >
+                    <span class="dimensions"
+                      ><strong>Height:</strong> <%=
+                      delivery.package.dimensions.height || "N/A" %></span
                     >
                   </td>
                 </tr>
